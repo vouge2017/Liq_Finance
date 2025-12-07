@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="description" content="A comprehensive financial planning app for Ethiopian professionals featuring expense tracking, savings goals, and an AI financial advisor." />
+    <meta name="theme-color" content="#000000" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="FinEthio" />
+    <link rel="apple-touch-icon" href="/apple-icon.png" />
+    <link rel="manifest" href="/manifest.json" />
+    <title>FinEthio Planner</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Ethiopic:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --bg-main: #000000;
+        --bg-card: #1C1C1E;
+        --text-primary: #ffffff;
+        --text-secondary: #9ca3af;
+        --border-color: #1f2937;
+        
+        /* Modal System - Default (Dark) */
+        --bg-overlay: rgba(0, 0, 0, 0.75);
+        --overlay-blur: 2px;
+        --modal-shadow: none;
+        --modal-border: #333333; /* Rim light */
+        --handle-color: rgba(255, 255, 255, 0.2);
+      }
+
+      /* Light Mode Overrides */
+      [data-theme='light'] {
+        --bg-main: #f3f4f6;
+        --bg-card: #ffffff;
+        --text-primary: #111827;
+        --text-secondary: #6b7280;
+        --border-color: #e5e7eb;
+
+        /* Modal System - Light */
+        --bg-overlay: rgba(0, 0, 0, 0.5);
+        --overlay-blur: 4px;
+        --modal-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        --modal-border: transparent;
+        --handle-color: rgba(0, 0, 0, 0.1);
+      }
+
+      /* Dim (Navy) Mode Overrides */
+      [data-theme='dim'] {
+        --bg-main: #0f172a; /* Slate 900 */
+        --bg-card: #1e293b; /* Slate 800 */
+        --text-primary: #f1f5f9;
+        --text-secondary: #94a3b8;
+        --border-color: transparent;
+
+        /* Modal System - Dim */
+        --bg-overlay: rgba(15, 23, 42, 0.6);
+        --overlay-blur: 3px;
+        --modal-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        --modal-border: transparent; /* No border, relies on shadow */
+        --handle-color: rgba(255, 255, 255, 0.15);
+      }
+
+      body {
+        font-family: 'Inter', sans-serif;
+        background-color: var(--bg-main);
+        color: var(--text-primary);
+        transition: background-color 0.3s ease, color 0.3s ease;
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+      }
+      
+      /* Better touch targets for mobile */
+      button, a, [role="button"] {
+        min-height: 44px;
+        min-width: 44px;
+        -webkit-tap-highlight-color: rgba(6, 182, 212, 0.2);
+      }
+      
+      /* Smooth scrolling */
+      * {
+        -webkit-overflow-scrolling: touch;
+      }
+      
+      /* Prevent text selection on buttons */
+      button {
+        -webkit-user-select: none;
+        user-select: none;
+      }
+      
+      /* Safe area insets for mobile devices (notch support) */
+      :root {
+        --safe-area-inset-top: env(safe-area-inset-top, 0px);
+        --safe-area-inset-right: env(safe-area-inset-right, 0px);
+        --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
+        --safe-area-inset-left: env(safe-area-inset-left, 0px);
+      }
+      
+      /* Better mobile scrolling */
+      @media (max-width: 768px) {
+        body {
+          overscroll-behavior-y: contain;
+        }
+      }
+      
+      /* Loading animation improvements */
+      @keyframes shimmer {
+        0% { background-position: -1000px 0; }
+        100% { background-position: 1000px 0; }
+      }
+      
+      .shimmer {
+        background: linear-gradient(
+          90deg,
+          var(--bg-card) 0%,
+          rgba(6, 182, 212, 0.1) 50%,
+          var(--bg-card) 100%
+        );
+        background-size: 1000px 100%;
+        animation: shimmer 2s infinite;
+      }
+      
+      .bg-theme-main { background-color: var(--bg-main); }
+      .bg-theme-card { background-color: var(--bg-card); }
+      .text-theme-primary { color: var(--text-primary); }
+      .text-theme-secondary { color: var(--text-secondary); }
+      .border-theme { border-color: var(--border-color); }
+
+      /* Advanced Modal Classes */
+      .modal-overlay {
+        background-color: var(--bg-overlay);
+        backdrop-filter: blur(var(--overlay-blur));
+      }
+      
+      .modal-content {
+        background-color: var(--bg-card);
+        box-shadow: var(--modal-shadow);
+        border: 1px solid var(--modal-border);
+      }
+
+      .modal-handle {
+        background-color: var(--handle-color);
+      }
+
+      .ethiopic {
+        font-family: 'Noto Sans Ethiopic', sans-serif;
+      }
+      /* Hide scrollbar for clean horizontal scrolling */
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+
+      /* --- PRO ANIMATIONS --- */
+      
+      /* 1. Push (Side-to-Side) */
+      @keyframes pushEnter {
+        from { transform: translateX(20%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+      }
+      .animate-push {
+        animation: pushEnter 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      }
+
+      /* 2. Modal Slide (Bottom Sheet) */
+      @keyframes slideUp {
+        from { transform: translateY(100%); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+      }
+      .animate-slide-up {
+        animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      }
+
+      /* 3. Center Pop-Up (Dialog Bounce) */
+      @keyframes dialogBounce {
+        0% { transform: scale(0.9); opacity: 0; }
+        60% { transform: scale(1.02); opacity: 1; }
+        100% { transform: scale(1); opacity: 1; }
+      }
+      .animate-dialog {
+        animation: dialogBounce 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+      }
+
+      /* 4. Hero Expand (Shared Element Sim) */
+      @keyframes heroExpand {
+        from { transform: scale(0.92); opacity: 0; }
+        to { transform: scale(1); opacity: 1; }
+      }
+      .animate-hero {
+        animation: heroExpand 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      }
+      
+      /* Standard Fades */
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+      .animate-fade-in {
+        animation: fadeIn 0.2s ease-out forwards;
+      }
+
+      /* Utility for Scan Line */
+      @keyframes scanDown {
+        0% { top: 0; }
+        100% { top: 100%; }
+      }
+      .animate-scan-down {
+        animation: scanDown 2s linear infinite;
+      }
+
+      /* Subtler Pulse */
+      @keyframes pulseSubtle {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.8; }
+      }
+      .animate-pulse-subtle {
+        animation: pulseSubtle 3s ease-in-out infinite;
+      }
+
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.30.0",
+    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.555.0"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body>
+    <div id="root"></div>
+  <script type="module" src="/src/index.tsx"></script>
+  <script>
+    // Register Service Worker for PWA
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then((registration) => {
+            console.log('SW registered:', registration);
+          })
+          .catch((error) => {
+            console.log('SW registration failed:', error);
+          });
+      });
+    }
+
+    // Handle PWA install prompt
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      // You can show a custom install button here
+      console.log('PWA install prompt available');
+    });
+  </script>
+</body>
+</html>
