@@ -819,7 +819,7 @@ export async function deleteIncomeSource(sourceId: string): Promise<boolean> {
   return true
 }
 
-// ============ RECURRING TRANSACTIONS ============
+// // ============ RECURRING TRANSACTIONS ============
 
 export async function getRecurringTransactions(userId: string): Promise<RecurringTransaction[]> {
   const supabase = getSupabase()
@@ -853,6 +853,21 @@ export async function getRecurringTransactions(userId: string): Promise<Recurrin
   }))
 }
 
+// <<< Add these stubs here >>>
+export async function createRecurringTransaction() {
+  console.warn("createRecurringTransaction is not implemented yet");
+  return null;
+}
+
+export async function updateRecurringTransaction() {
+  console.warn("updateRecurringTransaction is not implemented yet");
+  return null;
+}
+
+export async function deleteRecurringTransaction() {
+  console.warn("deleteRecurringTransaction is not implemented yet");
+  return null;
+}
 
 // ============ AI CONVERSATIONS ============
 
