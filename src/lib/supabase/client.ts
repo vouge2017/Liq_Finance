@@ -1,25 +1,18 @@
-import { createBrowserClient } from "@supabase/ssr"
+import { createClient as createSupabaseClient } from "@supabase/supabase-js"
 
-let client: ReturnType<typeof createBrowserClient> | null = null
+let client: ReturnType<typeof createSupabaseClient> | null = null
 
 export function createClient() {
   if (client) return client
 
-  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 
-                      import.meta.env.NEXT_PUBLIC_SUPABASE_URL || 
-                      process.env.NEXT_PUBLIC_SUPABASE_URL
-  
-  const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 
-                          import.meta.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 
-                          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+  const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
   if (!supabaseUrl || !supabaseAnonKey) {
-    console.warn('[Supabase] Missing environment variables. App will run in offline mode.')
-    // Return a mock client that won't break the app
+    console.warn('[Supabase] Missing env variables.')
     return null as any
   }
 
-  client = createBrowserClient(supabaseUrl, supabaseAnonKey)
-
+  client = createSupabaseClient(supabaseUrl, supabaseAnonKey)
   return client
 }
