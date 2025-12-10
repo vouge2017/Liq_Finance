@@ -141,6 +141,8 @@ export const AIAdvisor: React.FC = () => {
 
   // CHAT UI
   return (
+  // CHAT UI
+  return (
     <div className="flex flex-col h-[calc(100vh-140px)] animate-fade-in relative">
       {/* Header / Context Indicator */}
       <div className="absolute top-0 left-0 right-0 bg-black/90 backdrop-blur-sm z-10 px-4 py-2 border-b border-gray-800 flex justify-between items-center">
@@ -226,13 +228,13 @@ export const AIAdvisor: React.FC = () => {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Suggested Actions */}
+      {/* Suggested Actions - Improved Layout */}
       {!isLoading && !hasError && (
-        <div className="px-4 py-2 flex gap-2 overflow-x-auto no-scrollbar">
-          <QuickPrompt text="Analyze my spending" icon={Icons.Budget} />
-          <QuickPrompt text="Manage subscriptions" icon={Icons.Recurring} />
-          <QuickPrompt text="Review my Iqub" icon={Icons.Users} />
-          <QuickPrompt text="Am I over budget?" icon={Icons.Alert} />
+        <div className="px-4 py-2 flex flex-wrap gap-2 justify-center">
+          <QuickPrompt text="Analyze spending" icon={Icons.Budget} />
+          <QuickPrompt text="Subscriptions" icon={Icons.Recurring} />
+          <QuickPrompt text="Iqub Status" icon={Icons.Users} />
+          <QuickPrompt text="Budget check" icon={Icons.Alert} />
         </div>
       )}
 

@@ -1,0 +1,20 @@
+npm info using npm@10.9.2
+npm info using node@v22.17.0
+src/features/advisor/AIAdvisor.tsx(145,3): error TS1109: Expression expected.
+src/features/dashboard/dashboard-client.tsx(35,2): error TS1128: Declaration or statement expected.
+src/features/dashboard/dashboard-client.tsx(38,7): error TS1005: ';' expected.
+src/features/dashboard/dashboard-client.tsx(39,9): error TS1128: Declaration or statement expected.
+src/features/dashboard/dashboard-client.tsx(40,7): error TS1109: Expression expected.
+src/features/dashboard/dashboard-client.tsx(41,5): error TS1109: Expression expected.
+src/features/dashboard/dashboard-client.tsx(42,3): error TS1128: Declaration or statement expected.
+src/features/dashboard/dashboard-client.tsx(50,1): error TS1128: Declaration or statement expected.
+src/shared/components/WeeklySummary.tsx(23,10): error TS17008: JSX element 'div' has no corresponding closing tag.
+src/shared/components/WeeklySummary.tsx(40,14): error TS17008: JSX element 'div' has no corresponding closing tag.
+src/shared/components/WeeklySummary.tsx(48,18): error TS17008: JSX element 'div' has no corresponding closing tag.
+src/shared/components/WeeklySummary.tsx(50,22): error TS17008: JSX element 'p' has no corresponding closing tag.
+src/shared/components/WeeklySummary.tsx(59,44): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/shared/components/WeeklySummary.tsx(60,5): error TS1109: Expression expected.
+src/shared/components/WeeklySummary.tsx(66,34): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/shared/components/WeeklySummary.tsx(71,51): error TS1003: Identifier expected.
+src/shared/components/WeeklySummary.tsx(145,1): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/shared/components/WeeklySummary.tsx(146,1): error TS1005: '</' expected.

@@ -814,504 +814,630 @@ export const GoalsPage: React.FC = () => {
                     onClick={(e) => { if (e.target === e.currentTarget) setShowPayIqubModal(null); }}
                     className="fixed inset-0 modal-overlay z-[90] flex items-end sm:items-center justify-center"
                 >
-                    <div className="modal-content w-full max-w-sm rounded-t-[2rem] sm:rounded-3xl p-6 animate-slide-up shadow-2xl relative">
-                        <div className="w-16 h-1.5 modal-handle rounded-full mx-auto mb-6 shrink-0 sm:hidden"></div>
-                        <h3 className="text-lg font-bold text-theme-primary mb-2">Make Contribution</h3>
-                        <p className="text-xs text-theme-secondary mb-6">Select account to pay {showPayIqubModal.amount} ETB</p>
+                    <div className="modal-content w-full max-w-sm rounded-t-[2rem] sm:rounded-3xl animate-slide-up shadow-2xl relative flex flex-col max-h-[85vh]">
+                        <div className="w-16 h-1.5 modal-handle rounded-full mx-auto mt-6 mb-2 shrink-0 sm:hidden"></div>
 
-                        <div className="space-y-2 mb-6">
-                            {accounts.map(acc => (
-                                <button
-                                    key={acc.id}
-                                    onClick={() => setIqubPayAccount(acc.id)}
-                                    className={`w-full p-3 rounded-2xl border flex justify-between items-center ${iqubPayAccount === acc.id ? 'bg-cyan-500/10 border-cyan-500' : 'bg-theme-main border-theme'}`}
-                                >
-                                    <span className="text-sm font-bold text-theme-primary">{acc.name}</span>
-                                    <span className="text-xs text-theme-secondary">{acc.balance.toLocaleString()} ETB</span>
-                                </button>
-                            ))}
+                        <div className="flex-1 overflow-y-auto p-6 pt-2">
+                            <h3 className="text-lg font-bold text-theme-primary mb-2">Pay Iqub Contribution</h3>
+                            <p className="text-xs text-theme-secondary mb-6">Make your payment for this cycle.</p>
+
+                            <div className="space-y-4 mb-6">
+                                <div>
+                                    <label className="text-xs font-bold text-theme-secondary uppercase tracking-wider mb-2 block">From Account</label>
+                                    <select
+                                        className="w-full bg-theme-main border border-theme rounded-2xl p-4 text-theme-primary outline-none focus:border-cyan-500"
+                                    >
+                                        {accounts.map(acc => (
+                                            <option key={acc.id} value={acc.id}>{acc.name} ({acc.balance})</option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label className="text-xs font-bold text-theme-secondary uppercase tracking-wider mb-2 block">Amount Due</label>
+                                    <div className="w-full bg-theme-main border border-theme rounded-2xl p-4 text-theme-primary text-2xl font-bold font-mono">
+                                        {showPayIqubModal.amount} ETB
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
-                        <div className="flex gap-3">
-                            <button onClick={() => setShowPayIqubModal(null)} className="flex-1 py-3 bg-theme-main rounded-xl text-theme-secondary font-bold">Cancel</button>
-                            <button
-                                onClick={handleIqubPayment}
-                                disabled={!iqubPayAccount}
-                                className="flex-1 py-3 bg-cyan-500 rounded-xl text-black font-bold disabled:opacity-50"
-                            >
-                                Confirm Pay
-                            </button>
+                        <div className="p-6 pt-4 mt-auto shrink-0 border-t border-theme/10">
+                            <div className="flex gap-3">
+                                <button onClick={() => setShowPayIqubModal(null)} className="flex-1 py-3 bg-theme-main rounded-xl text-theme-secondary font-bold">Cancel</button>
+                                <button onClick={handlePayIqub} className="flex-1 py-3 bg-cyan-500 rounded-xl text-black font-bold">Confirm Payment</button>
+                            </div>
                         </div>
                     </div>
                 </div>
             )}
 
             {/* CONTRIBUTION MODAL (PERSONAL) */}
-            {contributionModal && (
-                <div
-                    onClick={(e) => { if (e.target === e.currentTarget) setContributionModal(null); }}
-                    className="fixed inset-0 modal-overlay z-[90] flex items-end sm:items-center justify-center"
-                >
-                    <div className="modal-content w-full max-w-sm rounded-t-[2rem] sm:rounded-3xl p-6 animate-slide-up shadow-2xl relative">
-                        <div className="w-16 h-1.5 modal-handle rounded-full mx-auto mb-6 shrink-0 sm:hidden"></div>
-                        <h3 className="text-lg font-bold text-theme-primary mb-2">Add Contribution</h3>
-                        <p className="text-xs text-theme-secondary mb-6">Move money to this goal.</p>
+            {
+                contributionModal && (
+                    <div
+                        onClick={(e) => { if (e.target === e.currentTarget) setContributionModal(null); }}
+                        className="fixed inset-0 modal-overlay z-[90] flex items-end sm:items-center justify-center"
+                    >
+                        <div className="modal-content w-full max-w-sm rounded-t-[2rem] sm:rounded-3xl animate-slide-up shadow-2xl relative flex flex-col max-h-[85vh]">
+                            <div className="w-16 h-1.5 modal-handle rounded-full mx-auto mt-6 mb-2 shrink-0 sm:hidden"></div>
 
-                        <div className="space-y-4 mb-6">
-                            {/* Account Selector */}
-                            <div>
-                                <label className="text-xs font-bold text-theme-secondary uppercase tracking-wider mb-2 block">From Account</label>
-                                <select
-                                    value={contributionAccount}
-                                    onChange={(e) => setContributionAccount(e.target.value)}
-                                    className="w-full bg-theme-main border border-theme rounded-2xl p-4 text-theme-primary outline-none focus:border-cyan-500"
-                                >
-                                    {accounts.map(a => (
-                                        <option key={a.id} value={a.id}>{a.name} ({a.balance})</option>
-                                    ))}
-                                </select>
+                            <div className="flex-1 overflow-y-auto p-6 pt-2">
+                                <h3 className="text-lg font-bold text-theme-primary mb-2">Add Contribution</h3>
+                                <p className="text-xs text-theme-secondary mb-6">Move money to this goal.</p>
+
+                                <div className="space-y-4 mb-6">
+                                    {/* Account Selector */}
+                                    <div>
+                                        <label className="text-xs font-bold text-theme-secondary uppercase tracking-wider mb-2 block">From Account</label>
+                                        <select
+                                            value={contributionAccount}
+                                            onChange={(e) => setContributionAccount(e.target.value)}
+                                            className="w-full bg-theme-main border border-theme rounded-2xl p-4 text-theme-primary outline-none focus:border-cyan-500"
+                                        >
+                                            {accounts.map(a => (
+                                                <option key={a.id} value={a.id}>{a.name} ({a.balance})</option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <label className="text-xs font-bold text-theme-secondary uppercase tracking-wider mb-2 block">Amount (ETB)</label>
+                                        <input
+                                            type="text"
+                                            inputMode="decimal"
+                                            value={contributionAmount}
+                                            onChange={(e) => setContributionAmount(formatNumberInput(e.target.value))}
+                                            className="w-full bg-theme-main border border-theme rounded-2xl p-4 text-theme-primary text-3xl font-bold focus:border-cyan-500 outline-none font-mono"
+                                            autoFocus
+                                            placeholder="0.00"
+                                        />
+                                    </div>
+                                </div>
                             </div>
 
-                            <div>
-                                <label className="text-xs font-bold text-theme-secondary uppercase tracking-wider mb-2 block">Amount (ETB)</label>
-                                <input
-                                    type="text"
-                                    inputMode="decimal"
-                                    value={contributionAmount}
-                                    onChange={(e) => setContributionAmount(formatNumberInput(e.target.value))}
-                                    className="w-full bg-theme-main border border-theme rounded-2xl p-4 text-theme-primary text-3xl font-bold focus:border-cyan-500 outline-none font-mono"
-                                    autoFocus
-                                    placeholder="0.00"
-                                />
+                            <div className="p-6 pt-4 mt-auto shrink-0 border-t border-theme/10">
+                                <div className="flex gap-3">
+                                    <button onClick={() => setContributionModal(null)} className="flex-1 py-3 bg-theme-main rounded-xl text-theme-secondary font-bold">Cancel</button>
+                                    <button onClick={handleContribute} className="flex-1 py-3 bg-cyan-500 rounded-xl text-black font-bold">Confirm</button>
+                                </div>
                             </div>
-                        </div>
-
-                        <div className="flex gap-3">
-                            <button onClick={() => setContributionModal(null)} className="flex-1 py-3 bg-theme-main rounded-xl text-theme-secondary font-bold">Cancel</button>
-                            <button onClick={handleContribute} className="flex-1 py-3 bg-cyan-500 rounded-xl text-black font-bold">Confirm</button>
                         </div>
                     </div>
-                </div>
-            )}
+                )
+            }
+
+            {/* ADD / EDIT IQUB MODAL */}
+            {
+                showAddIqub && (
+                    <div
+                        onClick={(e) => { if (e.target === e.currentTarget) setShowAddIqub(false); }}
+                        className="fixed inset-0 modal-overlay z-[90] flex items-end sm:items-center justify-center"
+                    >
+                        <div className="modal-content w-full max-w-md rounded-t-[2rem] sm:rounded-3xl animate-slide-up shadow-2xl max-h-[90vh] flex flex-col relative">
+                            <div className="w-16 h-1.5 modal-handle rounded-full mx-auto mt-6 mb-2 shrink-0 sm:hidden"></div>
+
+                            <div className="flex-1 overflow-y-auto p-6 pt-2 no-scrollbar">
+                                <h3 className="text-lg font-bold text-theme-primary mb-6 text-center">{editingIqub ? 'Edit Iqub' : 'Start New Iqub'}</h3>
+
+                                <div className="space-y-4 mb-6">
+                                    <div>
+                                        <label className={`text-xs font-bold uppercase tracking-wider mb-2 block ${iqubErrors.title ? 'text-rose-500' : 'text-theme-secondary'}`}>Iqub Title</label>
+                                        <input
+                                            type="text"
+                                            value={newIqubTitle}
+                                            onChange={(e) => { setNewIqubTitle(e.target.value); setIqubErrors(p => ({ ...p, title: false })); }}
+                                            className={`w-full bg-theme-main border rounded-2xl p-4 text-theme-primary outline-none ${iqubErrors.title ? 'border-rose-500 bg-rose-500/10' : 'border-theme focus:border-cyan-500'}`}
+                                            placeholder="e.g. Office Iqub"
+                                        />
+                                        {iqubErrors.title && <p className="text-[10px] text-rose-500 font-bold mt-1">Required</p>}
+                                    </div>
+                                    <div>
+                                        <label className={`text-xs font-bold uppercase tracking-wider mb-2 block ${iqubErrors.amount ? 'text-rose-500' : 'text-theme-secondary'}`}>Contribution Amount (ETB)</label>
+                                        <input
+                                            type="text"
+                                            inputMode="decimal"
+                                            value={newIqubAmount}
+                                            onChange={(e) => { setNewIqubAmount(formatNumberInput(e.target.value)); setIqubErrors(p => ({ ...p, amount: false })); }}
+                                            className={`w-full bg-theme-main border rounded-2xl p-4 text-theme-primary font-bold outline-none font-mono ${iqubErrors.amount ? 'border-rose-500 bg-rose-500/10' : 'border-theme focus:border-cyan-500'}`}
+                                            placeholder="0.00"
+                                        />
+                                        {iqubErrors.amount && <p className="text-[10px] text-rose-500 font-bold mt-1">Required</p>}
+                                    </div>
+                                    <div>
+                                        <label className={`text-xs font-bold uppercase tracking-wider mb-2 block ${iqubErrors.members ? 'text-rose-500' : 'text-theme-secondary'}`}>Number of Members</label>
+                                        <input
+                                            type="number"
+                                            value={newIqubMembers}
+                                            onChange={(e) => { setNewIqubMembers(e.target.value); setIqubErrors(p => ({ ...p, members: false })); }}
+                                            className={`w-full bg-theme-main border rounded-2xl p-4 text-theme-primary outline-none ${iqubErrors.members ? 'border-rose-500 bg-rose-500/10' : 'border-theme focus:border-cyan-500'}`}
+                                            placeholder="e.g. 12"
+                                        />
+                                        {iqubErrors.members && <p className="text-[10px] text-rose-500 font-bold mt-1">Required</p>}
+                                    </div>
+                                    <div>
+                                        <label className="text-xs font-bold text-theme-secondary uppercase tracking-wider mb-2 block">Cycle Frequency</label>
+                                        <div className="flex bg-theme-main p-1 rounded-2xl border border-theme">
+                                            {(['daily', 'weekly', 'monthly'] as const).map(f => (
+                                                <button
+                                                    key={f}
+                                                    onClick={() => setNewIqubFreq(f)}
+                                                    className={`flex-1 py-2 rounded-xl text-xs font-bold capitalize transition-all ${newIqubFreq === f ? 'bg-theme-card text-cyan-400 shadow-sm' : 'text-theme-secondary hover:text-white'}`}
+                                                >
+                                                    {f}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label className="text-xs font-bold text-theme-secondary uppercase tracking-wider mb-2 block">Start Date</label>
+                                        <input
+                                            type="date"
+                                            value={newIqubStartDate}
+                                            onChange={(e) => setNewIqubStartDate(e.target.value)}
+                                            className="w-full bg-theme-main border border-theme rounded-2xl p-4 text-theme-primary outline-none"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="text-xs font-bold text-theme-secondary uppercase tracking-wider mb-2 block">Purpose (Optional)</label>
+                                        <input
+                                            type="text"
+                                            value={newIqubPurpose}
+                                            onChange={(e) => setNewIqubPurpose(e.target.value)}
+                                            className="w-full bg-theme-main border border-theme rounded-2xl p-4 text-theme-primary outline-none focus:border-cyan-500"
+                                            placeholder="e.g. Buying a Car"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="p-6 pt-4 mt-auto shrink-0 border-t border-theme/10">
+                                <div className="flex gap-3">
+                                    <button onClick={() => setShowAddIqub(false)} className="flex-1 py-3 bg-theme-main rounded-xl text-theme-secondary font-bold">Cancel</button>
+                                    <button onClick={handleSaveIqub} className="flex-1 py-3 bg-cyan-500 rounded-xl text-black font-bold hover:bg-cyan-400 shadow-lg shadow-cyan-500/20">{editingIqub ? 'Update' : 'Start Iqub'}</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )
+            }
 
             {/* ADD / EDIT IDDIR MODAL */}
-            {showAddIddir && (
-                <div
-                    onClick={(e) => { if (e.target === e.currentTarget) setShowAddIddir(false); }}
-                    className="fixed inset-0 modal-overlay z-[90] flex items-end sm:items-center justify-center"
-                >
-                    <div className="modal-content w-full max-w-sm rounded-t-[2rem] sm:rounded-3xl p-6 animate-slide-up shadow-2xl relative">
-                        <div className="w-16 h-1.5 modal-handle rounded-full mx-auto mb-6 shrink-0 sm:hidden"></div>
-                        <h3 className="text-lg font-bold text-theme-primary mb-6 text-center">{editingIddir ? 'Edit Iddir' : 'New Iddir Membership'}</h3>
+            {
+                showAddIddir && (
+                    <div
+                        onClick={(e) => { if (e.target === e.currentTarget) setShowAddIddir(false); }}
+                        className="fixed inset-0 modal-overlay z-[90] flex items-end sm:items-center justify-center"
+                    >
+                        <div className="modal-content w-full max-w-sm rounded-t-[2rem] sm:rounded-3xl animate-slide-up shadow-2xl relative flex flex-col max-h-[85vh]">
+                            <div className="w-16 h-1.5 modal-handle rounded-full mx-auto mt-6 mb-2 shrink-0 sm:hidden"></div>
 
-                        <div className="space-y-4 mb-6">
-                            <div>
-                                <label className={`text-xs font-bold uppercase tracking-wider mb-2 block ${iddirErrors.name ? 'text-rose-500' : 'text-theme-secondary'}`}>Iddir Name</label>
-                                <input
-                                    type="text"
-                                    value={newIddirName}
-                                    onChange={(e) => { setNewIddirName(e.target.value); setIddirErrors(p => ({ ...p, name: false })); }}
-                                    className={`w-full bg-theme-main border rounded-2xl p-4 text-theme-primary outline-none ${iddirErrors.name ? 'border-rose-500 bg-rose-500/10' : 'border-theme focus:border-rose-500'}`}
-                                    placeholder="e.g. Community Iddir"
-                                />
-                                {iddirErrors.name && <p className="text-[10px] text-rose-500 font-bold mt-1">Required</p>}
-                            </div>
-                            <div>
-                                <label className={`text-xs font-bold uppercase tracking-wider mb-2 block ${iddirErrors.fee ? 'text-rose-500' : 'text-theme-secondary'}`}>Monthly Contribution (ETB)</label>
-                                <input
-                                    type="text"
-                                    inputMode="decimal"
-                                    value={newIddirFee}
-                                    onChange={(e) => { setNewIddirFee(formatNumberInput(e.target.value)); setIddirErrors(p => ({ ...p, fee: false })); }}
-                                    className={`w-full bg-theme-main border rounded-2xl p-4 text-theme-primary font-bold outline-none font-mono ${iddirErrors.fee ? 'border-rose-500 bg-rose-500/10' : 'border-theme focus:border-rose-500'}`}
-                                    placeholder="0.00"
-                                />
-                                {iddirErrors.fee && <p className="text-[10px] text-rose-500 font-bold mt-1">Required</p>}
-                            </div>
-                            <div>
-                                <label className="text-xs font-bold text-theme-secondary uppercase tracking-wider mb-2 block">Payment Day (1-30)</label>
-                                <input
-                                    type="number"
-                                    min="1"
-                                    max="30"
-                                    value={newIddirDate}
-                                    onChange={(e) => setNewIddirDate(e.target.value)}
-                                    className="w-full bg-theme-main border border-theme rounded-2xl p-4 text-theme-primary outline-none focus:border-rose-500"
-                                />
-                            </div>
+                            <div className="flex-1 overflow-y-auto p-6 pt-2 no-scrollbar">
+                                <h3 className="text-lg font-bold text-theme-primary mb-6 text-center">{editingIddir ? 'Edit Iddir' : 'New Iddir Membership'}</h3>
 
-                            {/* Reminder Toggle */}
-                            <div className="bg-theme-main p-3 rounded-2xl border border-theme">
-                                <div className="flex justify-between items-center mb-2">
-                                    <span className="text-xs font-bold text-theme-secondary">Payment Reminder</span>
-                                    <button
-                                        onClick={() => setNewIddirRemind(!newIddirRemind)}
-                                        className={`w-10 h-6 rounded-full relative transition-colors ${newIddirRemind ? 'bg-cyan-500' : 'bg-gray-700'}`}
-                                    >
-                                        <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${newIddirRemind ? 'left-5' : 'left-1'}`}></div>
-                                    </button>
-                                </div>
-
-                                {newIddirRemind && (
-                                    <div className="pt-2 mt-2 border-t border-theme/50 flex items-center gap-2 animate-fade-in">
-                                        <span className="text-xs text-theme-secondary">Remind me</span>
+                                <div className="space-y-4 mb-6">
+                                    <div>
+                                        <label className={`text-xs font-bold uppercase tracking-wider mb-2 block ${iddirErrors.name ? 'text-rose-500' : 'text-theme-secondary'}`}>Iddir Name</label>
+                                        <input
+                                            type="text"
+                                            value={newIddirName}
+                                            onChange={(e) => { setNewIddirName(e.target.value); setIddirErrors(p => ({ ...p, name: false })); }}
+                                            className={`w-full bg-theme-main border rounded-2xl p-4 text-theme-primary outline-none ${iddirErrors.name ? 'border-rose-500 bg-rose-500/10' : 'border-theme focus:border-rose-500'}`}
+                                            placeholder="e.g. Community Iddir"
+                                        />
+                                        {iddirErrors.name && <p className="text-[10px] text-rose-500 font-bold mt-1">Required</p>}
+                                    </div>
+                                    <div>
+                                        <label className={`text-xs font-bold uppercase tracking-wider mb-2 block ${iddirErrors.fee ? 'text-rose-500' : 'text-theme-secondary'}`}>Monthly Contribution (ETB)</label>
+                                        <input
+                                            type="text"
+                                            inputMode="decimal"
+                                            value={newIddirFee}
+                                            onChange={(e) => { setNewIddirFee(formatNumberInput(e.target.value)); setIddirErrors(p => ({ ...p, fee: false })); }}
+                                            className={`w-full bg-theme-main border rounded-2xl p-4 text-theme-primary font-bold outline-none font-mono ${iddirErrors.fee ? 'border-rose-500 bg-rose-500/10' : 'border-theme focus:border-rose-500'}`}
+                                            placeholder="0.00"
+                                        />
+                                        {iddirErrors.fee && <p className="text-[10px] text-rose-500 font-bold mt-1">Required</p>}
+                                    </div>
+                                    <div>
+                                        <label className="text-xs font-bold text-theme-secondary uppercase tracking-wider mb-2 block">Payment Day (1-30)</label>
                                         <input
                                             type="number"
                                             min="1"
-                                            max="7"
-                                            value={newIddirDays}
-                                            onChange={e => setNewIddirDays(e.target.value)}
-                                            className="w-12 bg-theme-card p-1 text-center rounded border border-theme text-sm font-bold outline-none"
+                                            max="30"
+                                            value={newIddirDate}
+                                            onChange={(e) => setNewIddirDate(e.target.value)}
+                                            className="w-full bg-theme-main border border-theme rounded-2xl p-4 text-theme-primary outline-none focus:border-rose-500"
                                         />
-                                        <span className="text-xs text-theme-secondary">days before due.</span>
+                                    </div>
+
+                                    {/* Reminder Toggle */}
+                                    <div className="bg-theme-main p-3 rounded-2xl border border-theme">
+                                        <div className="flex justify-between items-center mb-2">
+                                            <span className="text-xs font-bold text-theme-secondary">Payment Reminder</span>
+                                            <button
+                                                onClick={() => setNewIddirRemind(!newIddirRemind)}
+                                                className={`w-10 h-6 rounded-full relative transition-colors ${newIddirRemind ? 'bg-cyan-500' : 'bg-gray-700'}`}
+                                            >
+                                                <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${newIddirRemind ? 'left-5' : 'left-1'}`}></div>
+                                            </button>
+                                        </div>
+
+                                        {newIddirRemind && (
+                                            <div className="pt-2 mt-2 border-t border-theme/50 flex items-center gap-2 animate-fade-in">
+                                                <span className="text-xs text-theme-secondary">Remind me</span>
+                                                <input
+                                                    type="number"
+                                                    min="1"
+                                                    max="7"
+                                                    value={newIddirDays}
+                                                    onChange={e => setNewIddirDays(e.target.value)}
+                                                    className="w-12 bg-theme-card p-1 text-center rounded border border-theme text-sm font-bold outline-none"
+                                                />
+                                                <span className="text-xs text-theme-secondary">days before due.</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="p-6 pt-4 mt-auto shrink-0 border-t border-theme/10">
+                                <div className="flex gap-3">
+                                    <button onClick={() => setShowAddIddir(false)} className="flex-1 py-3 bg-theme-main rounded-xl text-theme-secondary font-bold">Cancel</button>
+                                    <button onClick={handleSaveIddir} className="flex-1 py-3 bg-rose-500 rounded-xl text-white font-bold hover:bg-rose-400 shadow-lg shadow-rose-500/20">{editingIddir ? 'Update' : 'Register'}</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )
+            }
+
+            {/* ADD / EDIT GOAL MODAL */}
+            {
+                showAddGoal && (
+                    <div
+                        onClick={(e) => { if (e.target === e.currentTarget) setShowAddGoal(false); }}
+                        className="fixed inset-0 modal-overlay z-[90] flex items-end sm:items-center justify-center"
+                    >
+                        <div className="modal-content w-full max-w-md rounded-t-[2rem] sm:rounded-3xl animate-slide-up shadow-2xl max-h-[90vh] flex flex-col relative">
+                            <div className="w-16 h-1.5 modal-handle rounded-full mx-auto mt-6 mb-2 shrink-0 sm:hidden"></div>
+
+                            <div className="flex-1 overflow-y-auto p-6 pt-2 no-scrollbar">
+                                <h3 className="text-lg font-bold text-theme-primary mb-6 text-center">{editingGoal ? 'Edit Goal' : `Create ${activeProfile} Goal`}</h3>
+
+                                <div className="space-y-4 mb-6">
+                                    <div>
+                                        <label className={`text-xs font-bold uppercase tracking-wider mb-2 block ${goalErrors.title ? 'text-rose-500' : 'text-theme-secondary'}`}>Goal Name</label>
+                                        <input
+                                            type="text"
+                                            value={newGoalTitle}
+                                            onChange={(e) => { setNewGoalTitle(e.target.value); setGoalErrors(p => ({ ...p, title: false })); }}
+                                            className={`w-full bg-theme-main border rounded-2xl p-4 text-theme-primary outline-none ${goalErrors.title ? 'border-rose-500 bg-rose-500/10' : 'border-theme focus:border-cyan-500'}`}
+                                            placeholder="e.g. New Laptop"
+                                        />
+                                        {goalErrors.title && <p className="text-[10px] text-rose-500 font-bold mt-1">Required</p>}
+                                    </div>
+                                    <div>
+                                        <label className={`text-xs font-bold uppercase tracking-wider mb-2 block ${goalErrors.target ? 'text-rose-500' : 'text-theme-secondary'}`}>Target Amount (ETB)</label>
+                                        <input
+                                            type="text"
+                                            inputMode="decimal"
+                                            value={newGoalTarget}
+                                            onChange={(e) => { setNewGoalTarget(formatNumberInput(e.target.value)); setGoalErrors(p => ({ ...p, target: false })); }}
+                                            className={`w-full bg-theme-main border rounded-2xl p-4 text-theme-primary font-bold outline-none font-mono ${goalErrors.target ? 'border-rose-500 bg-rose-500/10' : 'border-theme focus:border-cyan-500'}`}
+                                            placeholder="0.00"
+                                        />
+                                        {goalErrors.target && <p className="text-[10px] text-rose-500 font-bold mt-1">Required</p>}
+                                    </div>
+                                    <div>
+                                        <label className="text-xs font-bold text-theme-secondary uppercase tracking-wider mb-2 block">Default Account</label>
+                                        <select
+                                            value={newGoalAccount}
+                                            onChange={(e) => setNewGoalAccount(e.target.value)}
+                                            className="w-full bg-theme-main border border-theme rounded-2xl p-4 text-theme-primary outline-none focus:border-cyan-500"
+                                        >
+                                            {accounts.map(a => (
+                                                <option key={a.id} value={a.id}>{a.name}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="text-xs font-bold text-theme-secondary uppercase tracking-wider mb-2 block">Target Date (Gregorian/GC)</label>
+                                        <input
+                                            type="date"
+                                            value={newGoalDeadline}
+                                            onChange={(e) => setNewGoalDeadline(e.target.value)}
+                                            className="w-full bg-theme-main border border-theme rounded-2xl p-4 text-theme-primary outline-none"
+                                        />
+                                    </div>
+
+                                    {/* Premium Icon Picker - Horizontal Scroll */}
+                                    <div>
+                                        <label className="text-xs font-bold text-theme-secondary uppercase tracking-wider mb-2 block">Select Icon</label>
+                                        <HorizontalScroll className="flex gap-4 pb-2">
+                                            {GOAL_ICONS.map(ic => (
+                                                <button
+                                                    key={ic.id}
+                                                    onClick={() => setNewGoalIcon(ic.id)}
+                                                    className={`flex-shrink-0 flex flex-col items-center gap-2 transition-all p-2 rounded-2xl border ${newGoalIcon === ic.id ? 'border-cyan-500 bg-theme-main' : 'border-transparent opacity-70 hover:opacity-100'}`}
+                                                >
+                                                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center bg-gradient-to-br ${ic.color} shadow-lg text-white`}>
+                                                        <ic.icon size={24} />
+                                                    </div>
+                                                    <span className="text-[10px] font-bold text-theme-secondary">{ic.label}</span>
+                                                </button>
+                                            ))}
+                                        </HorizontalScroll>
+                                    </div>
+
+                                    {/* Color Picker */}
+                                    <div>
+                                        <label className="text-xs font-bold text-theme-secondary uppercase tracking-wider mb-2 block">Color</label>
+                                        <div className="flex gap-3">
+                                            {['cyan', 'pink', 'yellow'].map(c => (
+                                                <button
+                                                    key={c}
+                                                    onClick={() => setNewGoalColor(c)}
+                                                    className={`flex-1 h-12 rounded-2xl border transition-all ${newGoalColor === c ? 'border-white scale-110' : 'border-transparent opacity-70'} ${c === 'cyan' ? 'bg-cyan-400' : c === 'pink' ? 'bg-pink-500' : 'bg-yellow-400'}`}
+                                                />
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="p-6 pt-4 mt-auto shrink-0 border-t border-theme/10">
+                                <div className="flex gap-3">
+                                    <button onClick={() => setShowAddGoal(false)} className="flex-1 py-3 bg-theme-main rounded-xl text-theme-secondary font-bold">Cancel</button>
+                                    <button onClick={handleSaveGoal} className="flex-1 py-3 bg-cyan-500 rounded-xl text-black font-bold hover:bg-cyan-400 shadow-lg shadow-cyan-500/20">{editingGoal ? 'Update' : 'Create'}</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )
+            }
+
+            {/* GOAL DETAIL / FINANCIAL GPS MODAL - HERO EXPAND */}
+            {
+                selectedGoalDetail && (
+                    <div
+                        onClick={(e) => { if (e.target === e.currentTarget) setSelectedGoalDetail(null); }}
+                        className="fixed inset-0 modal-overlay z-[80] flex items-end sm:items-center justify-center"
+                    >
+                        <div className="modal-content w-full max-w-md rounded-t-[2rem] sm:rounded-3xl p-6 animate-hero shadow-2xl h-[85vh] flex flex-col relative">
+                            <div className="w-16 h-1.5 modal-handle rounded-full mx-auto mb-6 sm:hidden shrink-0"></div>
+
+                            {/* Header */}
+                            <div className="flex justify-between items-start mb-6 shrink-0">
+                                <div className="flex gap-4 items-center">
+                                    {/* Icon */}
+                                    {(() => {
+                                        const iconObj = GOAL_ICONS.find(i => i.id === selectedGoalDetail.icon) || GOAL_ICONS[0];
+                                        return (
+                                            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center bg-gradient-to-br ${iconObj.color} shadow-lg text-white`}>
+                                                <iconObj.icon size={24} />
+                                            </div>
+                                        )
+                                    })()}
+                                    <div>
+                                        <h3 className="text-2xl font-bold text-theme-primary">{selectedGoalDetail.title}</h3>
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-xs text-theme-secondary font-mono">{selectedGoalDetail.currentAmount.toLocaleString()} / {selectedGoalDetail.targetAmount.toLocaleString()} ETB</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="flex gap-2">
+                                    <button onClick={() => { openAddGoalModal(selectedGoalDetail); setSelectedGoalDetail(null); }} className="p-2 bg-theme-main rounded-full border border-theme text-theme-secondary hover:text-cyan-400 transition-colors">
+                                        <Icons.Edit size={20} />
+                                    </button>
+                                    <button onClick={() => setSelectedGoalDetail(null)} className="p-2 bg-theme-main rounded-full border border-theme text-theme-secondary">
+                                        <Icons.Close size={20} />
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="flex-1 overflow-y-auto no-scrollbar space-y-8">
+
+                                {/* Financial GPS Card */}
+                                <div className="bg-theme-main rounded-3xl p-6 border border-theme relative overflow-hidden">
+                                    <div className="flex justify-between items-center mb-6">
+                                        <span className="text-xs font-bold text-theme-secondary uppercase tracking-wider flex items-center gap-2">
+                                            <Icons.MapPin size={14} className="text-cyan-400" /> Financial GPS
+                                        </span>
+                                        <span className="text-xs text-theme-primary font-bold">
+                                            {Math.round((selectedGoalDetail.currentAmount / selectedGoalDetail.targetAmount) * 100)}% Complete
+                                        </span>
+                                    </div>
+
+                                    {/* Linear Progress Road */}
+                                    <div className="relative mb-6 px-2">
+                                        {/* Track */}
+                                        <div className="h-2 bg-theme-card rounded-full w-full relative">
+                                            <div
+                                                className={`h-full rounded-full bg-gradient-to-r from-cyan-500 to-emerald-500 absolute top-0 left-0 transition-all duration-1000`}
+                                                style={{ width: `${Math.min((selectedGoalDetail.currentAmount / selectedGoalDetail.targetAmount) * 100, 100)}%` }}
+                                            >
+                                                {/* Car/Marker */}
+                                                <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 w-8 h-8 bg-theme-card border-2 border-emerald-500 rounded-full flex items-center justify-center shadow-lg text-emerald-500">
+                                                    <Icons.Car size={14} />
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Labels */}
+                                        <div className="flex justify-between mt-4 text-[10px] font-bold text-theme-secondary uppercase tracking-wider">
+                                            <span>Start</span>
+                                            <span className="flex items-center gap-1 text-emerald-500"><Icons.Flag size={10} /> Goal</span>
+                                        </div>
+                                    </div>
+
+                                    {/* BEHAVIORAL INSIGHT */}
+                                    <div className="bg-theme-card/50 p-3 rounded-xl border border-theme/50 mb-6 flex items-start gap-3">
+                                        <Icons.Sparkles className="text-yellow-400 shrink-0 mt-0.5" size={16} />
+                                        <p className="text-xs text-theme-primary font-medium leading-relaxed">
+                                            {getGoalInsight(selectedGoalDetail)}
+                                        </p>
+                                    </div>
+
+                                    {/* Stats Grid */}
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <p className="text-[10px] text-theme-secondary mb-1">Distance Remaining</p>
+                                            <p className="text-lg font-bold text-theme-primary">{(selectedGoalDetail.targetAmount - selectedGoalDetail.currentAmount).toLocaleString()} <span className="text-xs opacity-50">ETB</span></p>
+                                        </div>
+                                        <div>
+                                            <p className="text-[10px] text-theme-secondary mb-1">Estimated Arrival</p>
+                                            <p className="text-lg font-bold text-cyan-400">
+                                                {selectedGoalDetail.deadline ? new Date(selectedGoalDetail.deadline).toLocaleDateString(undefined, { month: 'short', year: 'numeric' }) : 'Not set'}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* History */}
+                                <div>
+                                    <h4 className="font-bold text-theme-primary mb-3 flex items-center gap-2">
+                                        <Icons.History size={16} /> Recent Activity
+                                    </h4>
+                                    <div className="space-y-3">
+                                        {getGoalHistory(selectedGoalDetail.id).length > 0 ? (
+                                            getGoalHistory(selectedGoalDetail.id).map(tx => (
+                                                <div key={tx.id} className="flex justify-between items-center bg-theme-main p-4 rounded-2xl border border-theme">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-10 h-10 rounded-full bg-theme-card border border-theme flex items-center justify-center text-emerald-500">
+                                                            <Icons.ArrowDown size={18} />
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-sm font-bold text-theme-primary">Contribution</p>
+                                                            <p className="text-[10px] text-theme-secondary">{formatDate(tx.date)}</p>
+                                                        </div>
+                                                    </div>
+                                                    <p className="text-emerald-500 font-bold font-mono">+{tx.amount.toLocaleString()}</p>
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <div className="text-center py-6 bg-theme-main rounded-2xl border border-theme border-dashed">
+                                                <p className="text-xs text-theme-secondary italic">No contributions yet.</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="pt-4 mt-auto">
+                                <button
+                                    onClick={() => { setContributionModal(selectedGoalDetail.id); setContributionAccount(selectedGoalDetail.defaultAccountId || accounts[0]?.id || ''); setSelectedGoalDetail(null); }}
+                                    className="w-full py-4 bg-cyan-500 rounded-2xl text-black font-bold hover:bg-cyan-400 shadow-lg shadow-cyan-500/20 transition-all active:scale-95"
+                                >
+                                    Add Funds Now
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )
+            }
+
+            {/* IQUB DETAIL / SCHEDULE MODAL */}
+            {
+                selectedIqubDetail && (
+                    <div
+                        onClick={(e) => { if (e.target === e.currentTarget) setSelectedIqubDetail(null); }}
+                        className="fixed inset-0 modal-overlay z-[80] flex items-end sm:items-center justify-center"
+                    >
+                        <div className="modal-content w-full max-w-md rounded-t-[2rem] sm:rounded-3xl p-6 border-t sm:border border-theme animate-slide-up shadow-2xl h-[85vh] flex flex-col relative">
+                            <div className="w-16 h-1.5 modal-handle rounded-full mx-auto mb-6 sm:hidden shrink-0"></div>
+
+                            {/* Header */}
+                            <div className="flex justify-between items-start mb-6 shrink-0">
+                                <div className="flex gap-4 items-center">
+                                    <div className="w-14 h-14 rounded-2xl flex items-center justify-center bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">
+                                        <Icons.Users size={24} />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-xl font-bold text-theme-primary">{selectedIqubDetail.title}</h3>
+                                        <p className="text-xs text-theme-secondary">{selectedIqubDetail.status === 'active' ? 'Active Cycle' : 'Completed'}</p>
+                                    </div>
+                                </div>
+                                <div className="flex gap-2">
+                                    <button
+                                        onClick={() => { openAddIqubModal(selectedIqubDetail); setSelectedIqubDetail(null); }}
+                                        className="p-2 bg-theme-main rounded-full border border-theme text-theme-secondary hover:text-cyan-400"
+                                    >
+                                        <Icons.Edit size={20} />
+                                    </button>
+                                    <button onClick={() => setSelectedIqubDetail(null)} className="p-2 bg-theme-main rounded-full border border-theme text-theme-secondary">
+                                        <Icons.Close size={20} />
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Scrollable Schedule */}
+                            <div className="flex-1 overflow-y-auto no-scrollbar space-y-6">
+                                {/* Stats Summary */}
+                                <div className="grid grid-cols-2 gap-3 mb-4">
+                                    <div className="bg-theme-main p-4 rounded-2xl border border-theme">
+                                        <p className="text-[10px] text-theme-secondary uppercase font-bold">Total Payout</p>
+                                        <p className="text-xl font-bold text-cyan-400">{selectedIqubDetail.payoutAmount.toLocaleString()}</p>
+                                    </div>
+                                    <div className="bg-theme-main p-4 rounded-2xl border border-theme">
+                                        <p className="text-[10px] text-theme-secondary uppercase font-bold">Contribution</p>
+                                        <p className="text-xl font-bold text-white">{selectedIqubDetail.amount.toLocaleString()}</p>
+                                    </div>
+                                </div>
+
+                                {/* Schedule List */}
+                                <div>
+                                    <h4 className="font-bold text-theme-primary mb-3 flex items-center gap-2">
+                                        <Icons.CalendarCheck size={16} /> Cycle Schedule
+                                    </h4>
+                                    <div className="space-y-3 relative">
+                                        {/* Vertical Line */}
+                                        <div className="absolute left-6 top-4 bottom-4 w-0.5 bg-theme-main border-l border-dashed border-theme-secondary/30"></div>
+
+                                        {generateIqubSchedule(selectedIqubDetail).map((round) => (
+                                            <div key={round.round} className={`relative flex items-center gap-4 p-3 rounded-2xl border transition-colors ${round.isMyTurn ? 'bg-yellow-500/10 border-yellow-500/30' : 'bg-theme-main border-theme'}`}>
+                                                <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 z-10 border-4 border-theme-card ${round.isMyTurn ? 'bg-yellow-500 text-black' :
+                                                    round.isPaid ? 'bg-emerald-500 text-white' :
+                                                        'bg-theme-card border border-theme text-theme-secondary'
+                                                    }`}>
+                                                    {round.isMyTurn ? <Icons.Trophy size={16} /> : round.isPaid ? <Icons.Check size={16} /> : <span className="text-xs font-bold">{round.round}</span>}
+                                                </div>
+
+                                                <div className="flex-1">
+                                                    <div className="flex justify-between items-center">
+                                                        <span className={`text-sm font-bold ${round.isMyTurn ? 'text-yellow-500' : 'text-theme-primary'}`}>
+                                                            {round.isMyTurn ? 'Your Turn (Payout)' : `Round ${round.round}`}
+                                                        </span>
+                                                        <span className="text-[10px] text-theme-secondary">{new Date(round.date).toLocaleDateString()}</span>
+                                                    </div>
+                                                    <p className="text-[10px] opacity-70 mt-1">
+                                                        {round.isPaid ? 'Paid' : round.isPast ? 'Overdue' : 'Upcoming'}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="pt-4 mt-auto">
+                                {!selectedIqubDetail.hasWon ? (
+                                    <button
+                                        onClick={() => { handleClaimWin(selectedIqubDetail); setSelectedIqubDetail(null); }}
+                                        className="w-full py-4 bg-yellow-500 text-black font-bold rounded-2xl shadow-lg shadow-yellow-500/20 hover:scale-[1.02] transition-transform"
+                                    >
+                                        Claim Payout Now
+                                    </button>
+                                ) : (
+                                    <div className="w-full py-4 bg-yellow-500/10 border border-yellow-500/30 text-yellow-500 font-bold rounded-2xl flex items-center justify-center gap-2">
+                                        <Icons.CheckCircle size={18} /> Payout Received
                                     </div>
                                 )}
                             </div>
                         </div>
-
-                        <div className="flex gap-3">
-                            <button onClick={() => setShowAddIddir(false)} className="flex-1 py-3 bg-theme-main rounded-xl text-theme-secondary font-bold">Cancel</button>
-                            <button onClick={handleSaveIddir} className="flex-1 py-3 bg-rose-500 rounded-xl text-white font-bold hover:bg-rose-400 shadow-lg shadow-rose-500/20">{editingIddir ? 'Update' : 'Register'}</button>
-                        </div>
                     </div>
-                </div>
-            )}
-
-            {/* ADD / EDIT GOAL MODAL */}
-            {showAddGoal && (
-                <div
-                    onClick={(e) => { if (e.target === e.currentTarget) setShowAddGoal(false); }}
-                    className="fixed inset-0 modal-overlay z-[90] flex items-end sm:items-center justify-center"
-                >
-                    <div className="modal-content w-full max-w-md rounded-t-[2rem] sm:rounded-3xl p-6 animate-slide-up shadow-2xl overflow-y-auto max-h-[90vh] relative">
-                        <div className="w-16 h-1.5 modal-handle rounded-full mx-auto mb-6 shrink-0 sm:hidden"></div>
-                        <h3 className="text-lg font-bold text-theme-primary mb-6 text-center">{editingGoal ? 'Edit Goal' : `Create ${activeProfile} Goal`}</h3>
-
-                        <div className="space-y-4 mb-6">
-                            <div>
-                                <label className={`text-xs font-bold uppercase tracking-wider mb-2 block ${goalErrors.title ? 'text-rose-500' : 'text-theme-secondary'}`}>Goal Name</label>
-                                <input
-                                    type="text"
-                                    value={newGoalTitle}
-                                    onChange={(e) => { setNewGoalTitle(e.target.value); setGoalErrors(p => ({ ...p, title: false })); }}
-                                    className={`w-full bg-theme-main border rounded-2xl p-4 text-theme-primary outline-none ${goalErrors.title ? 'border-rose-500 bg-rose-500/10' : 'border-theme focus:border-cyan-500'}`}
-                                    placeholder="e.g. New Laptop"
-                                />
-                                {goalErrors.title && <p className="text-[10px] text-rose-500 font-bold mt-1">Required</p>}
-                            </div>
-                            <div>
-                                <label className={`text-xs font-bold uppercase tracking-wider mb-2 block ${goalErrors.target ? 'text-rose-500' : 'text-theme-secondary'}`}>Target Amount (ETB)</label>
-                                <input
-                                    type="text"
-                                    inputMode="decimal"
-                                    value={newGoalTarget}
-                                    onChange={(e) => { setNewGoalTarget(formatNumberInput(e.target.value)); setGoalErrors(p => ({ ...p, target: false })); }}
-                                    className={`w-full bg-theme-main border rounded-2xl p-4 text-theme-primary font-bold outline-none font-mono ${goalErrors.target ? 'border-rose-500 bg-rose-500/10' : 'border-theme focus:border-cyan-500'}`}
-                                    placeholder="0.00"
-                                />
-                                {goalErrors.target && <p className="text-[10px] text-rose-500 font-bold mt-1">Required</p>}
-                            </div>
-                            <div>
-                                <label className="text-xs font-bold text-theme-secondary uppercase tracking-wider mb-2 block">Default Account</label>
-                                <select
-                                    value={newGoalAccount}
-                                    onChange={(e) => setNewGoalAccount(e.target.value)}
-                                    className="w-full bg-theme-main border border-theme rounded-2xl p-4 text-theme-primary outline-none focus:border-cyan-500"
-                                >
-                                    {accounts.map(a => (
-                                        <option key={a.id} value={a.id}>{a.name}</option>
-                                    ))}
-                                </select>
-                            </div>
-                            <div>
-                                <label className="text-xs font-bold text-theme-secondary uppercase tracking-wider mb-2 block">Target Date (Gregorian/GC)</label>
-                                <input
-                                    type="date"
-                                    value={newGoalDeadline}
-                                    onChange={(e) => setNewGoalDeadline(e.target.value)}
-                                    className="w-full bg-theme-main border border-theme rounded-2xl p-4 text-theme-primary outline-none"
-                                />
-                            </div>
-
-                            {/* Premium Icon Picker - Horizontal Scroll */}
-                            <div>
-                                <label className="text-xs font-bold text-theme-secondary uppercase tracking-wider mb-2 block">Select Icon</label>
-                                <HorizontalScroll className="flex gap-4 pb-2">
-                                    {GOAL_ICONS.map(ic => (
-                                        <button
-                                            key={ic.id}
-                                            onClick={() => setNewGoalIcon(ic.id)}
-                                            className={`flex-shrink-0 flex flex-col items-center gap-2 transition-all p-2 rounded-2xl border ${newGoalIcon === ic.id ? 'border-cyan-500 bg-theme-main' : 'border-transparent opacity-70 hover:opacity-100'}`}
-                                        >
-                                            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center bg-gradient-to-br ${ic.color} shadow-lg text-white`}>
-                                                <ic.icon size={24} />
-                                            </div>
-                                            <span className="text-[10px] font-bold text-theme-secondary">{ic.label}</span>
-                                        </button>
-                                    ))}
-                                </HorizontalScroll>
-                            </div>
-
-                            {/* Color Picker */}
-                            <div>
-                                <label className="text-xs font-bold text-theme-secondary uppercase tracking-wider mb-2 block">Color</label>
-                                <div className="flex gap-3">
-                                    {['cyan', 'pink', 'yellow'].map(c => (
-                                        <button
-                                            key={c}
-                                            onClick={() => setNewGoalColor(c)}
-                                            className={`flex-1 h-12 rounded-2xl border transition-all ${newGoalColor === c ? 'border-white scale-110' : 'border-transparent opacity-70'} ${c === 'cyan' ? 'bg-cyan-400' : c === 'pink' ? 'bg-pink-500' : 'bg-yellow-400'}`}
-                                        />
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="flex gap-3">
-                            <button onClick={() => setShowAddGoal(false)} className="flex-1 py-3 bg-theme-main rounded-xl text-theme-secondary font-bold">Cancel</button>
-                            <button onClick={handleSaveGoal} className="flex-1 py-3 bg-cyan-500 rounded-xl text-black font-bold hover:bg-cyan-400 shadow-lg shadow-cyan-500/20">{editingGoal ? 'Update' : 'Create'}</button>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* GOAL DETAIL / FINANCIAL GPS MODAL - HERO EXPAND */}
-            {selectedGoalDetail && (
-                <div
-                    onClick={(e) => { if (e.target === e.currentTarget) setSelectedGoalDetail(null); }}
-                    className="fixed inset-0 modal-overlay z-[80] flex items-end sm:items-center justify-center"
-                >
-                    <div className="modal-content w-full max-w-md rounded-t-[2rem] sm:rounded-3xl p-6 animate-hero shadow-2xl h-[85vh] flex flex-col relative">
-                        <div className="w-16 h-1.5 modal-handle rounded-full mx-auto mb-6 sm:hidden shrink-0"></div>
-
-                        {/* Header */}
-                        <div className="flex justify-between items-start mb-6 shrink-0">
-                            <div className="flex gap-4 items-center">
-                                {/* Icon */}
-                                {(() => {
-                                    const iconObj = GOAL_ICONS.find(i => i.id === selectedGoalDetail.icon) || GOAL_ICONS[0];
-                                    return (
-                                        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center bg-gradient-to-br ${iconObj.color} shadow-lg text-white`}>
-                                            <iconObj.icon size={24} />
-                                        </div>
-                                    )
-                                })()}
-                                <div>
-                                    <h3 className="text-2xl font-bold text-theme-primary">{selectedGoalDetail.title}</h3>
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-xs text-theme-secondary font-mono">{selectedGoalDetail.currentAmount.toLocaleString()} / {selectedGoalDetail.targetAmount.toLocaleString()} ETB</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="flex gap-2">
-                                <button onClick={() => { openAddGoalModal(selectedGoalDetail); setSelectedGoalDetail(null); }} className="p-2 bg-theme-main rounded-full border border-theme text-theme-secondary hover:text-cyan-400 transition-colors">
-                                    <Icons.Edit size={20} />
-                                </button>
-                                <button onClick={() => setSelectedGoalDetail(null)} className="p-2 bg-theme-main rounded-full border border-theme text-theme-secondary">
-                                    <Icons.Close size={20} />
-                                </button>
-                            </div>
-                        </div>
-
-                        <div className="flex-1 overflow-y-auto no-scrollbar space-y-8">
-
-                            {/* Financial GPS Card */}
-                            <div className="bg-theme-main rounded-3xl p-6 border border-theme relative overflow-hidden">
-                                <div className="flex justify-between items-center mb-6">
-                                    <span className="text-xs font-bold text-theme-secondary uppercase tracking-wider flex items-center gap-2">
-                                        <Icons.MapPin size={14} className="text-cyan-400" /> Financial GPS
-                                    </span>
-                                    <span className="text-xs text-theme-primary font-bold">
-                                        {Math.round((selectedGoalDetail.currentAmount / selectedGoalDetail.targetAmount) * 100)}% Complete
-                                    </span>
-                                </div>
-
-                                {/* Linear Progress Road */}
-                                <div className="relative mb-6 px-2">
-                                    {/* Track */}
-                                    <div className="h-2 bg-theme-card rounded-full w-full relative">
-                                        <div
-                                            className={`h-full rounded-full bg-gradient-to-r from-cyan-500 to-emerald-500 absolute top-0 left-0 transition-all duration-1000`}
-                                            style={{ width: `${Math.min((selectedGoalDetail.currentAmount / selectedGoalDetail.targetAmount) * 100, 100)}%` }}
-                                        >
-                                            {/* Car/Marker */}
-                                            <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 w-8 h-8 bg-theme-card border-2 border-emerald-500 rounded-full flex items-center justify-center shadow-lg text-emerald-500">
-                                                <Icons.Car size={14} />
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* Labels */}
-                                    <div className="flex justify-between mt-4 text-[10px] font-bold text-theme-secondary uppercase tracking-wider">
-                                        <span>Start</span>
-                                        <span className="flex items-center gap-1 text-emerald-500"><Icons.Flag size={10} /> Goal</span>
-                                    </div>
-                                </div>
-
-                                {/* BEHAVIORAL INSIGHT */}
-                                <div className="bg-theme-card/50 p-3 rounded-xl border border-theme/50 mb-6 flex items-start gap-3">
-                                    <Icons.Sparkles className="text-yellow-400 shrink-0 mt-0.5" size={16} />
-                                    <p className="text-xs text-theme-primary font-medium leading-relaxed">
-                                        {getGoalInsight(selectedGoalDetail)}
-                                    </p>
-                                </div>
-
-                                {/* Stats Grid */}
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <p className="text-[10px] text-theme-secondary mb-1">Distance Remaining</p>
-                                        <p className="text-lg font-bold text-theme-primary">{(selectedGoalDetail.targetAmount - selectedGoalDetail.currentAmount).toLocaleString()} <span className="text-xs opacity-50">ETB</span></p>
-                                    </div>
-                                    <div>
-                                        <p className="text-[10px] text-theme-secondary mb-1">Estimated Arrival</p>
-                                        <p className="text-lg font-bold text-cyan-400">
-                                            {selectedGoalDetail.deadline ? new Date(selectedGoalDetail.deadline).toLocaleDateString(undefined, { month: 'short', year: 'numeric' }) : 'Not set'}
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* History */}
-                            <div>
-                                <h4 className="font-bold text-theme-primary mb-3 flex items-center gap-2">
-                                    <Icons.History size={16} /> Recent Activity
-                                </h4>
-                                <div className="space-y-3">
-                                    {getGoalHistory(selectedGoalDetail.id).length > 0 ? (
-                                        getGoalHistory(selectedGoalDetail.id).map(tx => (
-                                            <div key={tx.id} className="flex justify-between items-center bg-theme-main p-4 rounded-2xl border border-theme">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="w-10 h-10 rounded-full bg-theme-card border border-theme flex items-center justify-center text-emerald-500">
-                                                        <Icons.ArrowDown size={18} />
-                                                    </div>
-                                                    <div>
-                                                        <p className="text-sm font-bold text-theme-primary">Contribution</p>
-                                                        <p className="text-[10px] text-theme-secondary">{formatDate(tx.date)}</p>
-                                                    </div>
-                                                </div>
-                                                <p className="text-emerald-500 font-bold font-mono">+{tx.amount.toLocaleString()}</p>
-                                            </div>
-                                        ))
-                                    ) : (
-                                        <div className="text-center py-6 bg-theme-main rounded-2xl border border-theme border-dashed">
-                                            <p className="text-xs text-theme-secondary italic">No contributions yet.</p>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="pt-4 mt-auto">
-                            <button
-                                onClick={() => { setContributionModal(selectedGoalDetail.id); setContributionAccount(selectedGoalDetail.defaultAccountId || accounts[0]?.id || ''); setSelectedGoalDetail(null); }}
-                                className="w-full py-4 bg-cyan-500 rounded-2xl text-black font-bold hover:bg-cyan-400 shadow-lg shadow-cyan-500/20 transition-all active:scale-95"
-                            >
-                                Add Funds Now
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* IQUB DETAIL / SCHEDULE MODAL */}
-            {selectedIqubDetail && (
-                <div
-                    onClick={(e) => { if (e.target === e.currentTarget) setSelectedIqubDetail(null); }}
-                    className="fixed inset-0 modal-overlay z-[80] flex items-end sm:items-center justify-center"
-                >
-                    <div className="modal-content w-full max-w-md rounded-t-[2rem] sm:rounded-3xl p-6 border-t sm:border border-theme animate-slide-up shadow-2xl h-[85vh] flex flex-col relative">
-                        <div className="w-16 h-1.5 modal-handle rounded-full mx-auto mb-6 sm:hidden shrink-0"></div>
-
-                        {/* Header */}
-                        <div className="flex justify-between items-start mb-6 shrink-0">
-                            <div className="flex gap-4 items-center">
-                                <div className="w-14 h-14 rounded-2xl flex items-center justify-center bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">
-                                    <Icons.Users size={24} />
-                                </div>
-                                <div>
-                                    <h3 className="text-xl font-bold text-theme-primary">{selectedIqubDetail.title}</h3>
-                                    <p className="text-xs text-theme-secondary">{selectedIqubDetail.status === 'active' ? 'Active Cycle' : 'Completed'}</p>
-                                </div>
-                            </div>
-                            <div className="flex gap-2">
-                                <button
-                                    onClick={() => { openAddIqubModal(selectedIqubDetail); setSelectedIqubDetail(null); }}
-                                    className="p-2 bg-theme-main rounded-full border border-theme text-theme-secondary hover:text-cyan-400"
-                                >
-                                    <Icons.Edit size={20} />
-                                </button>
-                                <button onClick={() => setSelectedIqubDetail(null)} className="p-2 bg-theme-main rounded-full border border-theme text-theme-secondary">
-                                    <Icons.Close size={20} />
-                                </button>
-                            </div>
-                        </div>
-
-                        {/* Scrollable Schedule */}
-                        <div className="flex-1 overflow-y-auto no-scrollbar space-y-6">
-                            {/* Stats Summary */}
-                            <div className="grid grid-cols-2 gap-3 mb-4">
-                                <div className="bg-theme-main p-4 rounded-2xl border border-theme">
-                                    <p className="text-[10px] text-theme-secondary uppercase font-bold">Total Payout</p>
-                                    <p className="text-xl font-bold text-cyan-400">{selectedIqubDetail.payoutAmount.toLocaleString()}</p>
-                                </div>
-                                <div className="bg-theme-main p-4 rounded-2xl border border-theme">
-                                    <p className="text-[10px] text-theme-secondary uppercase font-bold">Contribution</p>
-                                    <p className="text-xl font-bold text-white">{selectedIqubDetail.amount.toLocaleString()}</p>
-                                </div>
-                            </div>
-
-                            {/* Schedule List */}
-                            <div>
-                                <h4 className="font-bold text-theme-primary mb-3 flex items-center gap-2">
-                                    <Icons.CalendarCheck size={16} /> Cycle Schedule
-                                </h4>
-                                <div className="space-y-3 relative">
-                                    {/* Vertical Line */}
-                                    <div className="absolute left-6 top-4 bottom-4 w-0.5 bg-theme-main border-l border-dashed border-theme-secondary/30"></div>
-
-                                    {generateIqubSchedule(selectedIqubDetail).map((round) => (
-                                        <div key={round.round} className={`relative flex items-center gap-4 p-3 rounded-2xl border transition-colors ${round.isMyTurn ? 'bg-yellow-500/10 border-yellow-500/30' : 'bg-theme-main border-theme'}`}>
-                                            <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 z-10 border-4 border-theme-card ${round.isMyTurn ? 'bg-yellow-500 text-black' :
-                                                round.isPaid ? 'bg-emerald-500 text-white' :
-                                                    'bg-theme-card border border-theme text-theme-secondary'
-                                                }`}>
-                                                {round.isMyTurn ? <Icons.Trophy size={16} /> : round.isPaid ? <Icons.Check size={16} /> : <span className="text-xs font-bold">{round.round}</span>}
-                                            </div>
-
-                                            <div className="flex-1">
-                                                <div className="flex justify-between items-center">
-                                                    <span className={`text-sm font-bold ${round.isMyTurn ? 'text-yellow-500' : 'text-theme-primary'}`}>
-                                                        {round.isMyTurn ? 'Your Turn (Payout)' : `Round ${round.round}`}
-                                                    </span>
-                                                    <span className="text-[10px] text-theme-secondary">{new Date(round.date).toLocaleDateString()}</span>
-                                                </div>
-                                                <p className="text-[10px] opacity-70 mt-1">
-                                                    {round.isPaid ? 'Paid' : round.isPast ? 'Overdue' : 'Upcoming'}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="pt-4 mt-auto">
-                            {!selectedIqubDetail.hasWon ? (
-                                <button
-                                    onClick={() => { handleClaimWin(selectedIqubDetail); setSelectedIqubDetail(null); }}
-                                    className="w-full py-4 bg-yellow-500 text-black font-bold rounded-2xl shadow-lg shadow-yellow-500/20 hover:scale-[1.02] transition-transform"
-                                >
-                                    Claim Payout Now
-                                </button>
-                            ) : (
-                                <div className="w-full py-4 bg-yellow-500/10 border border-yellow-500/30 text-yellow-500 font-bold rounded-2xl flex items-center justify-center gap-2">
-                                    <Icons.CheckCircle size={18} /> Payout Received
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                </div>
-            )}
-        </div>
+                )
+            }
+        </div >
     );
 };

@@ -108,13 +108,6 @@ function MainLayout() {
       <DataExportModal isOpen={showExportModal} onClose={() => setShowExportModal(false)} />
       <NotificationToast />
 
-      {/* Header / Top Bar with Language Switcher */}
-      <div className="fixed top-0 left-0 right-0 z-50 p-4 flex justify-between items-center pointer-events-none">
-        <div className="pointer-events-auto">
-          <LanguageSwitcher />
-        </div>
-      </div>
-
       {/* Header */}
       <header className="px-6 pt-8 pb-4 sticky top-0 bg-theme-main/80 backdrop-blur-md z-40 border-b border-transparent transition-colors duration-300">
         <div className="flex justify-between items-center mb-2">
@@ -144,6 +137,11 @@ function MainLayout() {
           </div>
 
           <div className="flex items-center gap-2">
+            {/* Language Switcher - Moved here */}
+            <div className="scale-90 origin-right">
+              <LanguageSwitcher />
+            </div>
+
             {/* Privacy Toggle */}
             <button
               onClick={togglePrivacyMode}
