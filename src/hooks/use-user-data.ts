@@ -106,6 +106,13 @@ export function useUserData() {
 
   // Initialize auth state
   useEffect(() => {
+    // If supabase client is null (missing env vars), run in offline mode
+    if (!supabase) {
+      console.warn('[useUserData] Supabase client unavailable. Running in offline mode.')
+      setLoading(false)
+      return
+    }
+
     const getUser = async () => {
       const {
         data: { user },

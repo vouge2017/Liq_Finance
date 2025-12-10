@@ -38,6 +38,13 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose })
     try {
       const supabase = createClient()
 
+      // Check if Supabase is available
+      if (!supabase) {
+        setError("Feedback submission unavailable in offline mode. Please try again later.")
+        setIsSubmitting(false)
+        return
+      }
+
       // Get current user (optional - feedback can be anonymous)
       const {
         data: { user },
@@ -133,8 +140,8 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose })
                 key={ft.id}
                 onClick={() => setType(ft.id)}
                 className={`p-3 rounded-xl border flex flex-col items-center gap-2 transition-all ${isSelected
-                    ? `bg-${ft.color}-500/10 border-${ft.color}-500 text-${ft.color}-400`
-                    : "bg-gray-800/50 border-gray-700 text-gray-400 hover:border-gray-600"
+                  ? `bg-${ft.color}-500/10 border-${ft.color}-500 text-${ft.color}-400`
+                  : "bg-gray-800/50 border-gray-700 text-gray-400 hover:border-gray-600"
                   }`}
               >
                 <Icon size={20} />

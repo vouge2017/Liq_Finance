@@ -260,7 +260,9 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children, initialData,
   const logout = useCallback(async () => {
     const { createClient } = await import("@/lib/supabase/client")
     const supabase = createClient()
-    await supabase.auth.signOut()
+    if (supabase) {
+      await supabase.auth.signOut()
+    }
     window.location.href = "/auth/login"
   }, [])
 

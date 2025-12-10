@@ -20,6 +20,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const supabase = createClient()
 
     useEffect(() => {
+        // If supabase client is null (missing env vars), run in offline mode
+        if (!supabase) {
+            console.warn('[AuthContext] Supabase client unavailable. Running in offline mode.')
+            setLoading(false)
+            return
+        }
+
         const setData = async () => {
             const {
                 data: { session },
@@ -42,9 +49,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return () => {
             listener.subscription.unsubscribe()
         }
-    }, [])
+    }, [supabase])
 
     const signOut = async () => {
+        if (!supabase) {
+            console.warn('[AuthContext] Cannot sign out: Supabase client unavailable.')
+            return
+        }
         await supabase.auth.signOut()
         setUser(null)
         setSession(null)
