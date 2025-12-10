@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import React, { useState } from "react"
 import { Icons } from "@/shared/components/Icons"
 import { BalanceCard } from "@/features/accounts/BalanceCard"
 import { ExpenseTracking } from "@/features/budget/ExpenseTracking"
@@ -470,7 +470,13 @@ export default function App() {
   return (
     <AuthProvider>
       <AppProvider>
-        <MainLayout />
+        <React.Suspense fallback={
+          <div className="flex items-center justify-center min-h-screen bg-black text-cyan-500">
+            <Icons.Loader className="animate-spin" size={32} />
+          </div>
+        }>
+          <MainLayout />
+        </React.Suspense>
       </AppProvider>
     </AuthProvider>
   )

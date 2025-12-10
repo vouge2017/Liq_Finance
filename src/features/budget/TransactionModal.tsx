@@ -626,69 +626,71 @@ export const TransactionModal: React.FC = () => {
               </div>
             )}
 
-            {/* 1. Amount */}
-            <div
-              className={`flex flex-col items-center justify-center py-2 rounded-2xl transition-colors ${errors.amount ? "bg-rose-500/10 border border-rose-500" : ""}`}
-            >
-              <div className="relative w-full max-w-[200px]">
-                <span className="absolute left-0 top-1/2 -translate-y-1/2 text-theme-secondary text-xl font-medium">
-                  ETB
-                </span>
-                <input
-                  ref={amountInputRef}
-                  type="text"
-                  inputMode="decimal"
-                  value={amount}
-                  onChange={handleAmountChange}
-                  className="w-full bg-transparent text-center text-5xl font-bold text-theme-primary outline-none placeholder-gray-400 font-mono"
-                  placeholder="0"
-                />
+            {/* 1. Amount & Type Section */}
+            <div className="bg-black/20 p-6 rounded-3xl border border-white/5 space-y-6">
+              <div className="text-center">
+                <label className="text-xs font-bold text-theme-secondary uppercase tracking-wider mb-2 block">Amount</label>
+                <div className="relative inline-block">
+                  <span className="absolute left-0 top-1/2 -translate-y-1/2 text-theme-secondary text-2xl font-medium -ml-8">
+                    ETB
+                  </span>
+                  <input
+                    ref={amountInputRef}
+                    type="text"
+                    inputMode="decimal"
+                    value={amount}
+                    onChange={handleAmountChange}
+                    className={`bg-transparent text-center text-6xl font-bold outline-none placeholder-gray-600 font-mono w-full ${type === "income" ? "text-emerald-400" : "text-white"
+                      }`}
+                    placeholder="0"
+                  />
+                </div>
+                {errors.amount && <p className="text-xs text-rose-500 font-bold mt-1">Amount is required</p>}
               </div>
-              {errors.amount && <p className="text-xs text-rose-500 font-bold mt-1">Amount is required</p>}
+
+              {/* Type Toggle */}
+              <div className="flex bg-black/40 p-1.5 rounded-2xl border border-white/10">
+                <button
+                  onClick={() => {
+                    setType("expense")
+                    setCategory(state.budgetCategories[0]?.name || "Food")
+                  }}
+                  className={`flex-1 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 ${type === "expense" ? "bg-theme-card text-pink-500 shadow-lg border border-pink-500/20" : "text-gray-500 hover:text-gray-300"}`}
+                >
+                  <Icons.ArrowUp className="rotate-45" size={16} /> Expense
+                </button>
+                <button
+                  onClick={() => {
+                    setType("income")
+                    setCategory("Salary")
+                  }}
+                  className={`flex-1 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 ${type === "income" ? "bg-theme-card text-emerald-500 shadow-lg border border-emerald-500/20" : "text-gray-500 hover:text-gray-300"}`}
+                >
+                  <Icons.ArrowDown className="rotate-45" size={16} /> Income
+                </button>
+              </div>
             </div>
 
-            {/* 2. Type Toggle */}
-            <div className="flex bg-black/40 p-1.5 rounded-2xl border border-theme">
-              <button
-                onClick={() => {
-                  setType("expense")
-                  setCategory(state.budgetCategories[0]?.name || "Food")
-                }}
-                className={`flex-1 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 ${type === "expense" ? "bg-theme-card text-pink-500 shadow-sm border border-theme/50" : "text-theme-secondary hover:text-white"}`}
-              >
-                <Icons.ArrowUp className="rotate-45" size={16} /> Expense
-              </button>
-              <button
-                onClick={() => {
-                  setType("income")
-                  setCategory("Salary")
-                }}
-                className={`flex-1 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 ${type === "income" ? "bg-theme-card text-emerald-500 shadow-sm border border-theme/50" : "text-theme-secondary hover:text-white"}`}
-              >
-                <Icons.ArrowDown className="rotate-45" size={16} /> Income
-              </button>
-            </div>
-
-            {/* 3. Title & Suggestions */}
+            {/* 2. Title & Payee */}
             <div className="space-y-2">
-              <label className="text-xs font-bold text-theme-secondary uppercase tracking-wider">Title / Payee</label>
-              <div className={`relative rounded-xl bg-white/5 border border-white/10 ${errors.title ? "border-rose-500" : ""}`}>
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-theme-secondary">
-                  <Icons.Edit size={18} />
+              <label className="text-xs font-bold text-theme-secondary uppercase tracking-wider ml-1">Title / Payee</label>
+              <div className={`relative rounded-2xl bg-black/20 border border-white/5 focus-within:border-cyan-500/50 focus-within:bg-black/40 transition-all ${errors.title ? "border-rose-500" : ""}`}>
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">
+                  <Icons.Edit size={20} />
                 </div>
                 <input
                   type="text"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  className="w-full bg-transparent p-4 pl-12 text-theme-primary outline-none placeholder-gray-400"
+                  className="w-full bg-transparent p-4 pl-12 text-lg text-white outline-none placeholder-gray-600 font-medium"
                   placeholder="What is this for?"
                 />
               </div>
-              {errors.title && <p className="text-xs text-rose-500 font-bold">Title is required</p>}
+              {errors.title && <p className="text-xs text-rose-500 font-bold ml-1">Title is required</p>}
 
               {/* Suggestions */}
               {suggestions.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-2">
+                <div className="flex flex-wrap gap-2 mt-2 px-1">
                   {suggestions.map((s, i) => (
                     <button
                       key={i}
@@ -696,7 +698,7 @@ export const TransactionModal: React.FC = () => {
                         setTitle(s)
                         setSuggestions([])
                       }}
-                      className="px-3 py-1.5 rounded-lg bg-theme-main border border-theme text-xs text-theme-secondary hover:text-theme-primary hover:border-cyan-500/50 transition-colors"
+                      className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
                     >
                       {s}
                     </button>
@@ -705,154 +707,141 @@ export const TransactionModal: React.FC = () => {
               )}
             </div>
 
-            {/* 4. Category Selection */}
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-theme-secondary uppercase tracking-wider">Category</label>
-              <HorizontalScroll className="pb-2">
-                <div className="flex gap-3">
-                  {type === "expense"
-                    ? categories.map((cat) => (
-                      <button
-                        key={cat.id}
-                        onClick={() => setCategory(cat.name)}
-                        className={`flex flex-col items-center gap-2 min-w-[70px] p-3 rounded-2xl border transition-all ${category === cat.name
-                          ? "bg-theme-card border-cyan-500/50 shadow-[0_0_15px_rgba(6,182,212,0.15)] scale-105"
-                          : "bg-white/5 border-transparent hover:bg-white/10"
-                          }`}
+            {/* 3. Category Selection - GRID LAYOUT */}
+            <div className="space-y-3">
+              <label className="text-xs font-bold text-theme-secondary uppercase tracking-wider ml-1">Category</label>
+              <div className="grid grid-cols-3 gap-2">
+                {type === "expense"
+                  ? categories.map((cat) => (
+                    <button
+                      key={cat.id}
+                      onClick={() => setCategory(cat.name)}
+                      className={`flex flex-col items-center justify-center gap-2 p-3 rounded-2xl border transition-all duration-200 ${category === cat.name
+                        ? "bg-cyan-500/10 border-cyan-500/50 shadow-[0_0_15px_rgba(6,182,212,0.1)]"
+                        : "bg-black/20 border-white/5 hover:bg-black/40 hover:border-white/10"
+                        }`}
+                    >
+                      <div
+                        className={`w-10 h-10 rounded-full flex items-center justify-center text-white bg-gradient-to-br ${getGradientFromColor(cat.color)} shadow-sm`}
                       >
-                        <div
-                          className={`w-10 h-10 rounded-full flex items-center justify-center text-white bg-gradient-to-br ${getGradientFromColor(cat.color)}`}
-                        >
-                          {/* Dynamic Icon Rendering */}
-                          {(() => {
-                            const IconComponent = (Icons as any)[cat.icon] || Icons.Help
-                            return <IconComponent size={18} />
-                          })()}
-                        </div>
-                        <span
-                          className={`text-[10px] font-medium truncate w-full text-center ${category === cat.name ? "text-cyan-400" : "text-theme-secondary"}`}
-                        >
-                          {cat.name}
-                        </span>
-                      </button>
-                    ))
-                    : INCOME_CATEGORIES.map((cat) => (
-                      <button
-                        key={cat.id}
-                        onClick={() => setCategory(cat.label)}
-                        className={`flex flex-col items-center gap-2 min-w-[70px] p-3 rounded-2xl border transition-all ${category === cat.label
-                          ? "bg-theme-card border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.15)] scale-105"
-                          : "bg-white/5 border-transparent hover:bg-white/10"
-                          }`}
+                        {(() => {
+                          const IconComponent = (Icons as any)[cat.icon] || Icons.Help
+                          return <IconComponent size={18} />
+                        })()}
+                      </div>
+                      <span
+                        className={`text-[10px] font-bold truncate w-full text-center ${category === cat.name ? "text-cyan-400" : "text-gray-500"}`}
                       >
-                        <div
-                          className={`w-10 h-10 rounded-full flex items-center justify-center text-white bg-gradient-to-br ${cat.color}`}
-                        >
-                          <cat.icon size={18} />
-                        </div>
-                        <span
-                          className={`text-[10px] font-medium truncate w-full text-center ${category === cat.label ? "text-emerald-400" : "text-theme-secondary"}`}
-                        >
-                          {cat.label}
-                        </span>
-                      </button>
-                    ))}
-                </div>
-              </HorizontalScroll>
+                        {cat.name}
+                      </span>
+                    </button>
+                  ))
+                  : INCOME_CATEGORIES.map((cat) => (
+                    <button
+                      key={cat.id}
+                      onClick={() => setCategory(cat.label)}
+                      className={`flex flex-col items-center justify-center gap-2 p-3 rounded-2xl border transition-all duration-200 ${category === cat.label
+                        ? "bg-emerald-500/10 border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.1)]"
+                        : "bg-black/20 border-white/5 hover:bg-black/40 hover:border-white/10"
+                        }`}
+                    >
+                      <div
+                        className={`w-10 h-10 rounded-full flex items-center justify-center text-white bg-gradient-to-br ${cat.color} shadow-sm`}
+                      >
+                        <cat.icon size={18} />
+                      </div>
+                      <span
+                        className={`text-[10px] font-bold truncate w-full text-center ${category === cat.label ? "text-emerald-400" : "text-gray-500"}`}
+                      >
+                        {cat.label}
+                      </span>
+                    </button>
+                  ))}
+              </div>
             </div>
 
-            {/* 5. Account & Date */}
+            {/* 4. Account & Date */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-xs font-bold text-theme-secondary uppercase tracking-wider">Account</label>
-                <div className="relative">
+                <label className="text-xs font-bold text-theme-secondary uppercase tracking-wider ml-1">Account</label>
+                <div className={`relative rounded-2xl bg-black/20 border border-white/5 focus-within:border-cyan-500/50 transition-colors ${errors.account ? "border-rose-500" : ""}`}>
                   <select
                     value={accountId}
                     onChange={(e) => {
                       setAccountId(e.target.value)
                       if (e.target.value) setErrors((prev) => ({ ...prev, account: false }))
                     }}
-                    className={`w-full bg-white/5 p-3 rounded-xl border border-white/10 text-theme-primary outline-none appearance-none ${errors.account ? "border-rose-500" : ""}`}
+                    className="w-full bg-transparent p-4 text-sm text-white outline-none appearance-none"
                   >
-                    <option value="" disabled className="bg-gray-900 text-gray-400">
+                    <option value="" disabled className="bg-gray-900 text-gray-500">
                       Select Account
                     </option>
                     {state.accounts.map((acc) => (
-                      <option key={acc.id} value={acc.id} className="bg-gray-900 text-gray-200">
+                      <option key={acc.id} value={acc.id} className="bg-gray-900 text-white">
                         {acc.name}
                       </option>
                     ))}
                   </select>
-
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-theme-secondary uppercase tracking-wider">Date</label>
-                    <input
-                      type="date"
-                      value={date}
-                      onChange={(e) => setDate(e.target.value)}
-                      className="w-full bg-white/5 p-3 rounded-xl border border-white/10 text-theme-primary outline-none"
-                      style={{ colorScheme: "dark" }}
-                    />
-                    <p className="text-[10px] text-theme-secondary text-right pr-1">
-                      {toEthiopianDateString(date)}
-                    </p>
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500">
+                    <Icons.ChevronDown size={16} />
                   </div>
-
-                  {/* 6. Recurring Toggle */}
-                  <div className="flex items-center justify-between bg-black/20 p-4 rounded-xl border border-theme/50">
-                    <div className="flex items-center gap-3">
-                      <div
-                        className={`p-2 rounded-full ${isRecurring
-                          ? "bg-purple-500/20 text-purple-400"
-                          : "bg-theme-main text-theme-secondary"
-                          }`}
-                      >
-                        {/* You can put an icon or text here */}
-                        {isRecurring ? "Yes" : "No"}
-                      </div>
-                    </div>
-                  </div>
-
-                  <p className="text-sm font-bold text-theme-primary">Recurring?</p>
-                  <p className="text-[10px] text-theme-secondary">Repeat this monthly</p>
                 </div>
               </div>
-              <button
-                onClick={() => setIsRecurring(!isRecurring)}
-                className={`w-12 h-7 rounded-full transition-colors relative ${isRecurring ? "bg-purple-500" : "bg-theme-main border border-theme"}`}
-              >
-                <div className={`absolute top-1 w-5 h-5 rounded-full bg-white transition-transform ${isRecurring ? "left-6" : "left-1"}`} />
-              </button>
+
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-theme-secondary uppercase tracking-wider ml-1">Date</label>
+                <div className="relative rounded-2xl bg-black/20 border border-white/5 focus-within:border-cyan-500/50 transition-colors">
+                  <input
+                    type="date"
+                    value={date}
+                    onChange={(e) => setDate(e.target.value)}
+                    className="w-full bg-transparent p-4 text-sm text-white outline-none"
+                    style={{ colorScheme: "dark" }}
+                  />
+                </div>
+                <p className="text-[10px] text-gray-500 text-right pr-1">
+                  {toEthiopianDateString(date)}
+                </p>
+              </div>
             </div>
 
-            {/* Quick Templates Toggle */}
-            {!editingTransaction && (
+            {/* 5. Extras (Recurring & Templates) */}
+            <div className="flex items-center gap-3">
               <button
-                onClick={() => setShowQuickTemplates(!showQuickTemplates)}
-                className="w-full py-3 flex items-center justify-center gap-2 text-xs font-bold text-theme-secondary hover:text-cyan-400 transition-colors border border-dashed border-theme rounded-xl hover:bg-white/5"
+                onClick={() => setIsRecurring(!isRecurring)}
+                className={`flex-1 py-3 rounded-xl border flex items-center justify-center gap-2 transition-all ${isRecurring ? "bg-purple-500/10 border-purple-500/50 text-purple-400" : "bg-black/20 border-white/5 text-gray-500 hover:text-white"}`}
               >
-                <Zap size={14} />
-                {showQuickTemplates ? "Hide Quick Templates" : "Show Quick Templates"}
+                <Icons.Repeat size={16} />
+                <span className="text-xs font-bold">Recurring</span>
               </button>
-            )}
+
+              {!editingTransaction && (
+                <button
+                  onClick={() => setShowQuickTemplates(!showQuickTemplates)}
+                  className={`flex-1 py-3 rounded-xl border flex items-center justify-center gap-2 transition-all ${showQuickTemplates ? "bg-cyan-500/10 border-cyan-500/50 text-cyan-400" : "bg-black/20 border-white/5 text-gray-500 hover:text-white"}`}
+                >
+                  <Zap size={16} />
+                  <span className="text-xs font-bold">Templates</span>
+                </button>
+              )}
+            </div>
 
             {/* Quick Templates Grid */}
             {showQuickTemplates && (
-              <div className="grid grid-cols-3 gap-3 animate-fade-in">
+              <div className="grid grid-cols-3 gap-3 animate-fade-in bg-black/20 p-4 rounded-2xl border border-white/5">
                 {quickTemplates.map((t, i) => (
                   <button
                     key={i}
                     onClick={() => applyQuickTemplate(t)}
-                    className="flex flex-col items-center gap-1 p-3 bg-black/40 rounded-xl border border-theme hover:border-cyan-500/50 hover:bg-cyan-500/10 transition-all"
+                    className="flex flex-col items-center gap-1 p-3 bg-gray-800/50 rounded-xl border border-white/5 hover:border-cyan-500/50 hover:bg-cyan-500/10 transition-all"
                   >
                     <span className="text-xl">{t.icon}</span>
-                    <span className="text-xs font-medium text-theme-primary">{t.label}</span>
-                    <span className="text-[10px] text-theme-secondary">{t.amount} ETB</span>
+                    <span className="text-xs font-medium text-white">{t.label}</span>
+                    <span className="text-[10px] text-gray-500">{t.amount} ETB</span>
                   </button>
                 ))}
               </div>
             )}
-
           </div>
 
           {/* Footer Actions */}

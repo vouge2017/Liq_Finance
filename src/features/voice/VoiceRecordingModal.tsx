@@ -301,13 +301,14 @@ export const VoiceRecordingModal: React.FC<VoiceRecordingModalProps> = ({
                 )}
 
                 {/* Parsed Result - Confirmation */}
+                {/* Parsed Result - Confirmation & Edit */}
                 {parsedResult && (
-                    <div className="py-2">
+                    <div className="py-2 animate-fade-in">
                         {/* Transcript Display */}
                         {transcript && (
                             <div className="mb-6 bg-gray-800/50 p-4 rounded-xl border border-gray-700 relative">
-                                <div className="absolute -top-3 left-4 bg-gray-900 px-2 text-[10px] text-gray-400 uppercase tracking-wider font-bold">
-                                    I heard
+                                <div className="absolute -top-3 left-4 bg-gray-900 px-2 text-[10px] text-gray-400 uppercase tracking-wider font-bold flex items-center gap-2">
+                                    <Icons.Mic size={10} /> I heard
                                 </div>
                                 <p className="text-white italic text-center text-lg">
                                     "{transcript}"
@@ -315,40 +316,83 @@ export const VoiceRecordingModal: React.FC<VoiceRecordingModalProps> = ({
                             </div>
                         )}
 
-                        {/* Transaction Preview Card */}
-                        <div className={`p-5 rounded-2xl border mb-6 ${parsedResult.confidence < 0.7
+                        {/* Editable Transaction Card */}
+                        <div className={`p-5 rounded-2xl border mb-6 transition-colors ${parsedResult.confidence < 0.7
                             ? "bg-yellow-500/10 border-yellow-500/30"
                             : parsedResult.type === "income"
                                 ? "bg-cyan-500/10 border-cyan-500/30"
                                 : "bg-pink-500/10 border-pink-500/30"
                             }`}>
-                            <div className="flex items-center gap-4 mb-4">
-                                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg ${parsedResult.type === "income"
-                                    ? "bg-gradient-to-br from-cyan-500 to-blue-600 text-white"
-                                    : "bg-gradient-to-br from-pink-500 to-rose-600 text-white"
-                                    }`}>
-                                    {parsedResult.type === "income"
-                                        ? <Icons.ArrowDown size={28} className="rotate-45" />
-                                        : <Icons.ArrowUp size={28} className="rotate-45" />
-                                    }
-                                </div>
-                                <div className="flex-1">
-                                    <p className="text-white font-bold text-lg">{parsedResult.title}</p>
-                                    <p className="text-gray-400 text-sm">{parsedResult.category}</p>
-                                </div>
-                            </div>
 
-                            <div className="flex justify-between items-end border-t border-white/10 pt-4">
-                                <div>
-                                    <p className="text-xs text-gray-500 mb-1">Amount</p>
-                                    <span className={`text-3xl font-bold font-mono ${parsedResult.type === "income" ? "text-cyan-400" : "text-pink-400"
-                                        }`}>
-                                        {parsedResult.amount.toLocaleString()} <span className="text-sm text-gray-500">ETB</span>
-                                    </span>
+                            <div className="space-y-4">
+                                {/* Type Toggle */}
+                                <div className="flex justify-center mb-2">
+                                    <div className="flex bg-black/40 p-1 rounded-xl border border-white/10">
+                                        <button
+                                            onClick={() => setParsedResult({ ...parsedResult, type: "expense" })}
+                                            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${parsedResult.type === "expense" ? "bg-pink-500 text-white shadow-lg" : "text-gray-400 hover:text-white"}`}
+                                        >
+                                            Expense
+                                        </button>
+                                        <button
+                                            onClick={() => setParsedResult({ ...parsedResult, type: "income" })}
+                                            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${parsedResult.type === "income" ? "bg-cyan-500 text-white shadow-lg" : "text-gray-400 hover:text-white"}`}
+                                        >
+                                            Income
+                                        </button>
+                                    </div>
                                 </div>
-                                <div className="text-right">
-                                    <p className="text-xs text-gray-500 mb-1">Date</p>
-                                    <span className="text-white font-medium">{parsedResult.date}</span>
+
+                                {/* Amount Input */}
+                                <div className="text-center">
+                                    <label className="text-[10px] text-gray-400 uppercase tracking-wider font-bold mb-1 block">Amount</label>
+                                    <div className="relative inline-block">
+                                        <input
+                                            type="number"
+                                            value={parsedResult.amount}
+                                            onChange={(e) => setParsedResult({ ...parsedResult, amount: parseFloat(e.target.value) || 0 })}
+                                            className={`bg-transparent text-4xl font-bold font-mono text-center outline-none w-48 ${parsedResult.type === "income" ? "text-cyan-400" : "text-pink-400"}`}
+                                        />
+                                        <span className="text-sm text-gray-500 absolute top-1/2 -translate-y-1/2 -right-8">ETB</span>
+                                    </div>
+                                </div>
+
+                                {/* Title Input */}
+                                <div>
+                                    <label className="text-[10px] text-gray-400 uppercase tracking-wider font-bold mb-1 block">Title</label>
+                                    <div className="relative">
+                                        <input
+                                            type="text"
+                                            value={parsedResult.title}
+                                            onChange={(e) => setParsedResult({ ...parsedResult, title: e.target.value })}
+                                            className="w-full bg-black/20 border border-white/10 rounded-xl p-3 text-white font-medium outline-none focus:border-cyan-500/50 transition-colors"
+                                        />
+                                        <Icons.Edit size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500" />
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-3">
+                                    {/* Category Input */}
+                                    <div>
+                                        <label className="text-[10px] text-gray-400 uppercase tracking-wider font-bold mb-1 block">Category</label>
+                                        <input
+                                            type="text"
+                                            value={parsedResult.category}
+                                            onChange={(e) => setParsedResult({ ...parsedResult, category: e.target.value })}
+                                            className="w-full bg-black/20 border border-white/10 rounded-xl p-3 text-white text-sm outline-none focus:border-cyan-500/50 transition-colors"
+                                        />
+                                    </div>
+                                    {/* Date Input */}
+                                    <div>
+                                        <label className="text-[10px] text-gray-400 uppercase tracking-wider font-bold mb-1 block">Date</label>
+                                        <input
+                                            type="date"
+                                            value={parsedResult.date}
+                                            onChange={(e) => setParsedResult({ ...parsedResult, date: e.target.value })}
+                                            className="w-full bg-black/20 border border-white/10 rounded-xl p-3 text-white text-sm outline-none focus:border-cyan-500/50 transition-colors"
+                                            style={{ colorScheme: "dark" }}
+                                        />
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -363,7 +407,7 @@ export const VoiceRecordingModal: React.FC<VoiceRecordingModalProps> = ({
                             </button>
                             <button
                                 onClick={handleConfirm}
-                                className="flex-[2] py-3 bg-gradient-to-r from-emerald-500 to-green-600 rounded-xl font-bold text-white shadow-lg hover:shadow-emerald-500/20 flex items-center justify-center gap-2 transition-all"
+                                className="flex-[2] py-3 bg-gradient-to-r from-emerald-500 to-green-600 rounded-xl font-bold text-white shadow-lg hover:shadow-emerald-500/20 flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
                             >
                                 <Check size={20} />
                                 Confirm & Save

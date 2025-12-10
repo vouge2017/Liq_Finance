@@ -93,6 +93,7 @@ import {
   Shield,
   HelpCircle,
   Camera,
+  Loader2,
 } from "lucide-react"
 
 export const Icons = {
@@ -193,4 +194,5 @@ export const Icons = {
   Feedback: MessageSquare,
   Shield: Shield,
   Help: HelpCircle,
+  Loader: Loader2,
 }

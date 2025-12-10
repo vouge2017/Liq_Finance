@@ -58,12 +58,34 @@ export const Onboarding: React.FC = () => {
     setSelectedGoals((prev) => (prev.includes(id) ? prev.filter((g) => g !== id) : [...prev, id]))
   }
 
-  const validatePhone = (p: string) => {
-    let clean = p.replace(/[\s-]/g, "")
+  // Normalize phone to exactly 9 digits (strips leading 0, keeps only last 9 digits)
+  const normalizePhoneInput = (p: string): string => {
+    // Remove all non-digit characters
+    let clean = p.replace(/\D/g, "")
     // Remove leading 0 if present
     if (clean.startsWith("0")) {
       clean = clean.substring(1)
     }
+    // Only keep last 9 digits if more are entered
+    if (clean.length > 9) {
+      clean = clean.slice(-9)
+    }
+    return clean
+  }
+
+  // Check if phone is valid: exactly 9 digits starting with 7 or 9
+  const isPhoneValid = (p: string): boolean => {
+    const clean = normalizePhoneInput(p)
+    return /^[79]\d{8}$/.test(clean)
+  }
+
+  // Check if the button should be enabled for step 1
+  const isPhoneButtonEnabled = (): boolean => {
+    return isPhoneValid(phone)
+  }
+
+  const validatePhone = (p: string) => {
+    const clean = normalizePhoneInput(p)
     // Must be exactly 9 digits, starting with 7 or 9
     return /^[79]\d{8}$/.test(clean)
   }
@@ -180,12 +202,19 @@ export const Onboarding: React.FC = () => {
                   type="tel"
                   value={phone}
                   onChange={(e) => {
-                    setPhone(e.target.value)
+                    // Allow only digits and limit to 9 (after normalization)
+                    const rawValue = e.target.value
+                    // Remove non-digits for validation but keep display value for UX
+                    const digitsOnly = rawValue.replace(/\D/g, "")
+                    // If starts with 0, allow up to 10, otherwise 9
+                    const maxLen = digitsOnly.startsWith("0") ? 10 : 9
+                    const limited = digitsOnly.slice(0, maxLen)
+                    setPhone(limited)
                     setPhoneError("")
                   }}
-                  placeholder="9 11 23 45 67"
+                  placeholder="911234567"
                   className="w-full bg-transparent p-3 text-xl font-bold text-white outline-none placeholder-gray-400 font-mono tracking-wider"
-                  maxLength={12}
+                  maxLength={10}
                   autoFocus
                 />
               </div>
@@ -195,7 +224,7 @@ export const Onboarding: React.FC = () => {
                 </p>
               )}
               <p className="text-[10px] text-gray-500 mt-3 text-center">
-                Enter 9 digits (e.g. 911...) or 10 digits (e.g. 0911...)
+                Enter 9 digits starting with 9 or 7 (e.g. 911... or 712...)
               </p>
             </div>
           </div>
@@ -392,6 +421,7 @@ export const Onboarding: React.FC = () => {
         <button
           onClick={handleNext}
           disabled={
+            (step === 1 && !isPhoneButtonEnabled()) ||
             (step === 2 && name.trim().split(/\s+/).length < 2) ||
             (step === 3 && selectedGoals.length === 0)
           }
