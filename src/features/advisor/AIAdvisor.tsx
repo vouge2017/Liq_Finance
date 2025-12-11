@@ -141,8 +141,6 @@ export const AIAdvisor: React.FC = () => {
 
   // CHAT UI
   return (
-  // CHAT UI
-  return (
     <div className="flex flex-col h-[calc(100vh-140px)] animate-fade-in relative">
       {/* Header / Context Indicator */}
       <div className="absolute top-0 left-0 right-0 bg-black/90 backdrop-blur-sm z-10 px-4 py-2 border-b border-gray-800 flex justify-between items-center">
