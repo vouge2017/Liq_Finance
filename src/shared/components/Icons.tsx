@@ -8,6 +8,7 @@ import {
   User,
   ArrowDown,
   ArrowUp,
+  ChevronDown,
   ChevronRight,
   ChevronLeft,
   Car,
@@ -94,6 +95,7 @@ import {
   HelpCircle,
   Camera,
   Loader2,
+  Mail,
 } from "lucide-react"
 
 export const Icons = {
@@ -195,4 +197,7 @@ export const Icons = {
   Shield: Shield,
   Help: HelpCircle,
   Loader: Loader2,
+  ChevronDown: ChevronDown,
+  FileText: FileText,
+  Mail: Mail,
 }

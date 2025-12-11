@@ -23,6 +23,7 @@ import type {
 import { toEthiopianDateString, toGregorianDateString } from "../utils/dateUtils"
 import * as dataService from "@/lib/supabase/data-service"
 import type { UserData } from "@/hooks/use-user-data"
+import { FamilyMember, Invitation } from "@/types"
 
 // Default budget categories for new users
 const defaultBudgetCategories: BudgetCategory[] = [
@@ -114,6 +115,8 @@ const emptyState: AppState = {
   budgetCategories: defaultBudgetCategories,
   incomeSources: [],
   accounts: [],
+  familyMembers: [],
+  invitations: [],
   defaultAccountId: undefined,
 }
 
@@ -180,6 +183,8 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children, initialData,
       budgetCategories: budgetWithSpent,
       incomeSources: initialData.incomeSources,
       accounts: initialData.accounts,
+      familyMembers: [], // TODO: Load from Supabase
+      invitations: [], // TODO: Load from Supabase
       defaultAccountId: initialData.accounts.find((a) => a.name === "Primary")?.id || initialData.accounts[0]?.id,
     }
   }, [initialData])
@@ -1143,86 +1148,194 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children, initialData,
 
   const formatDate = useCallback(
     (dateStr: string) => {
-      return calendarMode === "ethiopian" ? toEthiopianDateString(dateStr) : toGregorianDateString(dateStr)
+      if (!dateStr) return ""
+      if (calendarMode === "ethiopian") {
+        return toEthiopianDateString(dateStr)
+      }
+      return new Date(dateStr).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      })
     },
     [calendarMode],
   )
 
-  return (
-    <AppContext.Provider
-      value={{
-        state: filteredState,
-        theme,
-        setTheme,
-        calendarMode,
-        setCalendarMode,
-        activeProfile,
-        setActiveProfile,
-        activeTab,
-        setActiveTab,
-        navigationState,
-        navigateTo,
-        clearNavigation,
-        formatDate,
-        aiConsent,
-        setAiConsent,
-        setUserName,
-        setUserPhone,
-        setUserGoal,
-        addAccount,
-        updateAccount,
-        deleteAccount,
-        setDefaultAccount,
-        addTransaction,
-        updateTransaction,
-        deleteTransaction,
-        transferFunds,
-        addSavingsGoal,
-        updateSavingsGoal,
-        deleteSavingsGoal,
-        addIqub,
-        updateIqub,
-        deleteIqub,
-        markIqubPaid,
-        markIqubWon,
-        addIddir,
-        updateIddir,
-        deleteIddir,
-        markIddirPaid,
-        contributeToGoal,
-        addRecurringTransaction,
-        updateRecurringTransaction,
-        deleteRecurringTransaction,
-        scanForSubscriptions,
-        addBudgetCategory,
-        updateBudgetCategory,
-        deleteBudgetCategory,
-        addIncomeSource,
-        updateIncomeSource,
-        deleteIncomeSource,
-        getFinancialContext,
-        isPrivacyMode,
-        togglePrivacyMode,
-        isTransactionModalOpen,
-        editingTransaction,
-        prefillTx,
-        openTransactionModal,
-        closeTransactionModal,
-        payeeHistory,
-        scannedImage,
-        setScannedImage,
-        visibleWidgets,
-        toggleWidget,
-        notification,
-        showNotification,
-        hasOnboarded,
-        completeOnboarding,
-        logout,
-      }}
-    >
-      {children}
-    </AppContext.Provider>
+  // ============ COMMUNITY ============
+
+  const addFamilyMember = useCallback((member: FamilyMember) => {
+    setFullState((prev) => ({
+      ...prev,
+      familyMembers: [...prev.familyMembers, member],
+    }))
+    showNotification(`Added ${member.name} to family`, "success")
+  }, [showNotification])
+
+  const removeFamilyMember = useCallback((id: string) => {
+    setFullState((prev) => ({
+      ...prev,
+      familyMembers: prev.familyMembers.filter((m) => m.id !== id),
+    }))
+    showNotification("Family member removed", "info")
+  }, [showNotification])
+
+  const sendInvitation = useCallback((emailOrPhone: string, role: 'Admin' | 'Member' | 'Viewer') => {
+    const newInvite: Invitation = {
+      id: Date.now().toString(),
+      emailOrPhone,
+      role,
+      status: 'Pending',
+      sentDate: new Date().toISOString(),
+    }
+    setFullState((prev) => ({
+      ...prev,
+      invitations: [...prev.invitations, newInvite],
+    }))
+    showNotification(`Invitation sent to ${emailOrPhone}`, "success")
+  }, [showNotification])
+
+  const value = useMemo(
+    () => ({
+      state: filteredState,
+      theme,
+      setTheme,
+      calendarMode,
+      setCalendarMode,
+      activeProfile,
+      setActiveProfile,
+      activeTab,
+      setActiveTab,
+      navigationState,
+      navigateTo,
+      clearNavigation,
+      formatDate,
+      aiConsent,
+      setAiConsent,
+      setUserName: (name: string) => setFullState((prev) => ({ ...prev, userName: name })),
+      setUserPhone: (phone: string) => setFullState((prev) => ({ ...prev, userPhone: phone })),
+      setUserGoal: (goal: string) => setFullState((prev) => ({ ...prev, userGoal: goal })),
+      addAccount,
+      updateAccount,
+      deleteAccount,
+      setDefaultAccount,
+      addTransaction,
+      updateTransaction,
+      deleteTransaction,
+      transferFunds,
+      addSavingsGoal,
+      updateSavingsGoal,
+      deleteSavingsGoal,
+      addIqub,
+      updateIqub,
+      deleteIqub,
+      markIqubPaid,
+      markIqubWon,
+      addIddir,
+      deleteIddir,
+      markIddirPaid,
+      updateIddir,
+      contributeToGoal,
+      addRecurringTransaction,
+      updateRecurringTransaction,
+      deleteRecurringTransaction,
+      scanForSubscriptions,
+      addBudgetCategory,
+      updateBudgetCategory,
+      deleteBudgetCategory,
+      addIncomeSource,
+      updateIncomeSource,
+      deleteIncomeSource,
+      getFinancialContext,
+      isPrivacyMode,
+      togglePrivacyMode,
+      isTransactionModalOpen,
+      editingTransaction,
+      prefillTx,
+      openTransactionModal,
+      closeTransactionModal,
+      payeeHistory,
+      scannedImage,
+      setScannedImage,
+      visibleWidgets,
+      toggleWidget,
+      notification,
+      showNotification,
+      hasOnboarded,
+      completeOnboarding,
+      logout,
+      addFamilyMember,
+      removeFamilyMember,
+      sendInvitation,
+    }),
+    [
+      filteredState,
+      theme,
+      setTheme,
+      calendarMode,
+      setCalendarMode,
+      activeProfile,
+      activeTab,
+      navigationState,
+      navigateTo,
+      clearNavigation,
+      formatDate,
+      aiConsent,
+      setAiConsent,
+      addAccount,
+      updateAccount,
+      deleteAccount,
+      setDefaultAccount,
+      addTransaction,
+      updateTransaction,
+      deleteTransaction,
+      transferFunds,
+      addSavingsGoal,
+      updateSavingsGoal,
+      deleteSavingsGoal,
+      addIqub,
+      updateIqub,
+      deleteIqub,
+      markIqubPaid,
+      markIqubWon,
+      addIddir,
+      deleteIddir,
+      markIddirPaid,
+      updateIddir,
+      contributeToGoal,
+      addRecurringTransaction,
+      updateRecurringTransaction,
+      deleteRecurringTransaction,
+      scanForSubscriptions,
+      addBudgetCategory,
+      updateBudgetCategory,
+      deleteBudgetCategory,
+      addIncomeSource,
+      updateIncomeSource,
+      deleteIncomeSource,
+      getFinancialContext,
+      isPrivacyMode,
+      togglePrivacyMode,
+      isTransactionModalOpen,
+      editingTransaction,
+      prefillTx,
+      openTransactionModal,
+      closeTransactionModal,
+      payeeHistory,
+      scannedImage,
+      visibleWidgets,
+      toggleWidget,
+      notification,
+      showNotification,
+      hasOnboarded,
+      completeOnboarding,
+      logout,
+      addFamilyMember,
+      removeFamilyMember,
+      sendInvitation,
+    ],
   )
+
+  return <AppContext.Provider value={value}>{children}</AppContext.Provider>
 }
 
 export const useAppContext = () => {

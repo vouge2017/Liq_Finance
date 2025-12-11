@@ -13,6 +13,7 @@ import { Confetti } from "@/shared/components/Confetti"
 import { toEthiopianDateString } from "@/utils/dateUtils"
 import { useAIUsage } from "@/services/ai-usage"
 import { UpgradePrompt } from "@/shared/components/UpgradePrompt"
+import { parseSMS } from "@/utils/smsParser"
 
 // Ethiopian Income Types for Contextual Selection
 const INCOME_CATEGORIES = [
@@ -66,6 +67,8 @@ export const TransactionModal: React.FC = () => {
   // Voice & Quick Templates State
   const [showVoiceModal, setShowVoiceModal] = useState(false)
   const [showQuickTemplates, setShowQuickTemplates] = useState(false)
+  const [showPasteModal, setShowPasteModal] = useState(false)
+  const [pastedSMS, setPastedSMS] = useState("")
 
   // Validation State
   const [errors, setErrors] = useState({ amount: false, title: false, account: false })
@@ -274,8 +277,27 @@ export const TransactionModal: React.FC = () => {
     showNotification("Voice transaction added! Review and save.", "success")
   }
 
-  // Handle SMS parsing - REMOVED FOR NOW
-  // Bank SMS feature will be added in future phase
+  // Handle SMS parsing
+  const handleParseSMS = () => {
+    if (!pastedSMS.trim()) return
+
+    const result = parseSMS(pastedSMS)
+    if (result) {
+      if (result.amount) setAmount(result.amount.toLocaleString())
+      if (result.merchant) setTitle(result.merchant)
+      if (result.date) setDate(result.date)
+
+      // Try to match category if possible, otherwise default
+      // For now, we default to "Other" or keep existing
+
+      setType("expense") // SMS are usually expenses
+      showNotification("SMS parsed successfully!", "success")
+      setShowPasteModal(false)
+      setPastedSMS("")
+    } else {
+      showNotification("Could not parse SMS. Try manual entry.", "error")
+    }
+  }
 
   // Quick template presets
   const quickTemplates = [
@@ -545,6 +567,35 @@ export const TransactionModal: React.FC = () => {
             </div>
           )}
 
+          {/* Paste SMS Modal */}
+          {showPasteModal && (
+            <div className="absolute inset-0 z-40 bg-theme-card/95 backdrop-blur-md flex flex-col items-center justify-center p-6 animate-dialog">
+              <div className="w-full max-w-sm">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-xl font-bold text-theme-primary">Paste SMS</h3>
+                  <button onClick={() => setShowPasteModal(false)} className="text-theme-secondary">
+                    <Icons.Close size={24} />
+                  </button>
+                </div>
+                <p className="text-sm text-theme-secondary mb-4">Paste the transaction SMS from your bank (CBE, Telebirr, etc.)</p>
+                <textarea
+                  value={pastedSMS}
+                  onChange={(e) => setPastedSMS(e.target.value)}
+                  placeholder="Paste SMS here..."
+                  className="w-full h-32 bg-black/20 border border-white/10 rounded-xl p-4 text-white placeholder-gray-500 outline-none focus:border-cyan-500/50 mb-4 resize-none"
+                  autoFocus
+                />
+                <button
+                  onClick={handleParseSMS}
+                  disabled={!pastedSMS.trim()}
+                  className="w-full py-3 bg-cyan-500 hover:bg-cyan-400 disabled:opacity-50 disabled:cursor-not-allowed text-black font-bold rounded-xl transition-colors"
+                >
+                  Parse & Fill
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Form Body - Scrollable */}
           <div className="flex-1 overflow-y-auto space-y-6 pb-4 no-scrollbar">
             {/* Receipt Preview */}
@@ -586,14 +637,14 @@ export const TransactionModal: React.FC = () => {
                 <p className="text-xs text-theme-secondary text-center mb-3 uppercase tracking-wider font-bold">
                   How do you want to add this?
                 </p>
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-2 gap-3">
                   {/* Voice Button */}
                   <button
                     onClick={() => setShowVoiceModal(true)}
                     className="flex flex-col items-center justify-center p-4 bg-gradient-to-br from-cyan-500/20 to-blue-600/20 border-2 border-cyan-500/50 rounded-2xl hover:border-cyan-400 hover:from-cyan-500/30 hover:to-blue-600/30 transition-all group btn-press"
                   >
-                    <div className="w-14 h-14 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center mb-2 group-hover:shadow-[0_0_20px_rgba(6,182,212,0.5)] transition-all">
-                      <Mic size={28} className="text-white" />
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center mb-2 group-hover:shadow-[0_0_20px_rgba(6,182,212,0.5)] transition-all">
+                      <Mic size={24} className="text-white" />
                     </div>
                     <span className="text-sm font-bold text-cyan-400">Voice</span>
                     <span className="text-[10px] text-theme-secondary">Speak it</span>
@@ -604,11 +655,23 @@ export const TransactionModal: React.FC = () => {
                     onClick={handleCameraClick}
                     className="flex flex-col items-center justify-center p-4 bg-gradient-to-br from-purple-500/20 to-pink-600/20 border-2 border-purple-500/50 rounded-2xl hover:border-purple-400 hover:from-purple-500/30 hover:to-pink-600/30 transition-all group btn-press"
                   >
-                    <div className="w-14 h-14 rounded-full bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center mb-2 group-hover:shadow-[0_0_20px_rgba(168,85,247,0.5)] transition-all">
-                      <Icons.Camera size={28} className="text-white" />
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center mb-2 group-hover:shadow-[0_0_20px_rgba(168,85,247,0.5)] transition-all">
+                      <Icons.Camera size={24} className="text-white" />
                     </div>
                     <span className="text-sm font-bold text-purple-400">Scan</span>
                     <span className="text-[10px] text-theme-secondary">Receipt</span>
+                  </button>
+
+                  {/* Paste SMS Button */}
+                  <button
+                    onClick={() => setShowPasteModal(true)}
+                    className="flex flex-col items-center justify-center p-4 bg-gradient-to-br from-yellow-500/20 to-orange-600/20 border-2 border-yellow-500/50 rounded-2xl hover:border-yellow-400 hover:from-yellow-500/30 hover:to-orange-600/30 transition-all group btn-press"
+                  >
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-yellow-500 to-orange-600 flex items-center justify-center mb-2 group-hover:shadow-[0_0_20px_rgba(234,179,8,0.5)] transition-all">
+                      <Icons.MessageSquare size={24} className="text-white" />
+                    </div>
+                    <span className="text-sm font-bold text-yellow-400">Paste SMS</span>
+                    <span className="text-[10px] text-theme-secondary">Bank Text</span>
                   </button>
 
                   {/* Manual Button */}
@@ -616,8 +679,8 @@ export const TransactionModal: React.FC = () => {
                     onClick={() => amountInputRef.current?.focus()}
                     className="flex flex-col items-center justify-center p-4 bg-gradient-to-br from-emerald-500/20 to-teal-600/20 border-2 border-emerald-500/50 rounded-2xl hover:border-emerald-400 hover:from-emerald-500/30 hover:to-teal-600/30 transition-all group btn-press"
                   >
-                    <div className="w-14 h-14 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center mb-2 group-hover:shadow-[0_0_20px_rgba(16,185,129,0.5)] transition-all">
-                      <Icons.Edit size={28} className="text-white" />
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center mb-2 group-hover:shadow-[0_0_20px_rgba(16,185,129,0.5)] transition-all">
+                      <Icons.Edit size={24} className="text-white" />
                     </div>
                     <span className="text-sm font-bold text-emerald-400">Manual</span>
                     <span className="text-[10px] text-theme-secondary">Type it</span>

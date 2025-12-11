@@ -11,6 +11,7 @@ import { AIAdvisor } from "@/features/advisor/AIAdvisor"
 import { AccountsPage } from "@/features/accounts/AccountsPage"
 import { BudgetPage } from "@/features/budget/BudgetPage"
 import { GoalsPage } from "@/features/goals/GoalsPage"
+import { CommunityPage } from "@/features/community/CommunityPage"
 import { AppProvider, useAppContext } from "@/context/AppContext"
 import { TransactionModal } from "@/features/budget/TransactionModal"
 import { Onboarding } from "@/features/auth/Onboarding"
@@ -209,6 +210,9 @@ function MainLayout() {
         {/* Render Goals Page */}
         {activeTab === "goals" && <GoalsPage />}
 
+        {/* Render Community Page */}
+        {activeTab === "community" && <CommunityPage />}
+
         {activeTab === "ai" && (
           <div className="animate-fade-in">
             <AIAdvisor />
@@ -300,6 +304,26 @@ function MainLayout() {
                   <div className="text-left">
                     <span className="font-bold text-theme-primary block">Switch Profile</span>
                     <span className="text-[10px] text-theme-secondary">Currently: {activeProfile}</span>
+                  </div>
+                </div>
+                <Icons.ChevronRight size={18} className="text-theme-secondary" />
+              </button>
+
+              {/* Community Hub */}
+              <button
+                onClick={() => {
+                  setActiveTab("community")
+                  setShowProfileModal(false)
+                }}
+                className="w-full p-4 rounded-2xl bg-theme-main border border-theme flex items-center justify-between hover:bg-theme-card transition-colors group active:scale-[0.98]"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-pink-500/10 flex items-center justify-center text-pink-500 group-hover:bg-pink-500 group-hover:text-white transition-colors">
+                    <Icons.Users size={20} />
+                  </div>
+                  <div className="text-left">
+                    <span className="font-bold text-theme-primary block">Family Hub</span>
+                    <span className="text-[10px] text-theme-secondary">Manage members & invites</span>
                   </div>
                 </div>
                 <Icons.ChevronRight size={18} className="text-theme-secondary" />

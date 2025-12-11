@@ -143,6 +143,25 @@ export interface ChatMessage {
   timestamp: Date;
 }
 
+export interface FamilyMember {
+  id: string;
+  name: string;
+  role: 'Admin' | 'Member' | 'Viewer';
+  phone?: string;
+  email?: string;
+  status: 'Active' | 'Pending' | 'Invited';
+  joinedDate: string;
+  avatar?: string;
+}
+
+export interface Invitation {
+  id: string;
+  emailOrPhone: string;
+  role: 'Admin' | 'Member' | 'Viewer';
+  status: 'Pending' | 'Accepted' | 'Expired';
+  sentDate: string;
+}
+
 export interface AppState {
   userName: string; // New: Personalization
   userPhone?: string; // New: Identity
@@ -159,12 +178,14 @@ export interface AppState {
   budgetCategories: BudgetCategory[]; // Added Budget Categories
   incomeSources: IncomeSource[]; // New: The Financial Brain
   accounts: Account[];
+  familyMembers: FamilyMember[]; // New: Community
+  invitations: Invitation[]; // New: Community
   defaultAccountId?: string;
 }
 
 export interface NavigationState {
   targetId: string | null;
-  type: 'budget' | 'goal' | 'iqub' | null;
+  type: 'budget' | 'goal' | 'iqub' | 'community' | null;
 }
 
 export interface AppContextType {
@@ -263,6 +284,11 @@ export interface AppContextType {
   // Notifications
   notification: Notification | null;
   showNotification: (message: string, type: 'success' | 'error' | 'info') => void;
+
+  // Community
+  addFamilyMember: (member: FamilyMember) => void;
+  removeFamilyMember: (id: string) => void;
+  sendInvitation: (emailOrPhone: string, role: 'Admin' | 'Member' | 'Viewer') => void;
 
   // Onboarding
   hasOnboarded: boolean;
