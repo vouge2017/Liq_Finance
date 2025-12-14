@@ -1,13 +1,14 @@
 "use client"
 
 import React, { createContext, useContext, useEffect, useState } from "react"
-import { createClient } from "@/lib/supabase/client"
+import { getSupabaseClient } from "@/lib/supabase/client"
 import type { User, Session, AuthChangeEvent } from "@supabase/supabase-js"
 
 interface AuthContextType {
     user: User | null
     session: Session | null
     loading: boolean
+    isOffline: boolean
     signOut: () => Promise<void>
 }
 
@@ -17,12 +18,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [user, setUser] = useState<User | null>(null)
     const [session, setSession] = useState<Session | null>(null)
     const [loading, setLoading] = useState(true)
-    const supabase = createClient()
+    const [isOffline, setIsOffline] = useState(false)
+    const supabase = getSupabaseClient()
 
     useEffect(() => {
         // If supabase client is null (missing env vars), run in offline mode
         if (!supabase) {
             console.warn('[AuthContext] Supabase client unavailable. Running in offline mode.')
+            setIsOffline(true)
             setLoading(false)
             return
         }
@@ -65,6 +68,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         user,
         session,
         loading,
+        isOffline,
         signOut,
     }
 

@@ -1,12 +1,15 @@
 import React, { useRef } from 'react';
 import { Icons } from '@/shared/components/Icons';
 import { useAppContext } from '@/context/AppContext';
+import { useAuth } from '@/context/AuthContext';
 import { EmptyState } from '@/shared/components/EmptyState';
+import { SignInPrompt } from '@/shared/components/SignInPrompt';
 
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { PullToRefreshIndicator } from '@/shared/components/PullToRefreshIndicator';
 
 export const TransactionList: React.FC = () => {
+  const { user, loading, isOffline } = useAuth();
   const { state, formatDate, activeProfile, isPrivacyMode, setActiveTab, openTransactionModal, setScannedImage, showNotification, refreshTransactions } = useAppContext();
   const { transactions } = state;
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -20,6 +23,30 @@ export const TransactionList: React.FC = () => {
       }
     }
   });
+
+  if (loading) {
+    return (
+      <div className="flex justify-center py-12">
+        <Icons.Loader className="animate-spin text-cyan-500" size={32} />
+      </div>
+    );
+  }
+
+  if (isOffline) {
+    return (
+      <div className="mb-24">
+        <EmptyState
+          icon={<Icons.WifiOff size={32} />}
+          title="Offline Mode"
+          description="Transactions are unavailable in demo/offline mode. Please check your connection or sign in."
+        />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <div className="mb-24"><SignInPrompt /></div>;
+  }
 
   const handleScanClick = () => {
     fileInputRef.current?.click();

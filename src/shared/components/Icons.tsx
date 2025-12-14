@@ -96,6 +96,7 @@ import {
   Camera,
   Loader2,
   Mail,
+  WifiOff,
 } from "lucide-react"
 
 export const Icons = {
@@ -168,6 +169,7 @@ export const Icons = {
   Power: Power,
   Search: Search,
   Wifi: Wifi,
+  WifiOff: WifiOff,
   Water: Droplets,
   Electricity: Lightbulb,
   Music: Music,
