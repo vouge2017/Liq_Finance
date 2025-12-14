@@ -36,7 +36,7 @@ export const TransactionList: React.FC = () => {
     return (
       <div className="mb-24">
         <EmptyState
-          icon={<Icons.WifiOff size={32} />}
+          icon={<Icons.Alert size={32} />}
           title="Offline Mode"
           description="Transactions are unavailable in demo/offline mode. Please check your connection or sign in."
         />

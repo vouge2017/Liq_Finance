@@ -17,3 +17,5 @@ export function getSupabaseClient(): SupabaseClient | null {
   client = createSupabaseClient(supabaseUrl, supabaseAnonKey)
   return client
 }
+
+export const createClient = getSupabaseClient
