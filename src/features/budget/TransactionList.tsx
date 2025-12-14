@@ -117,27 +117,30 @@ export const TransactionList: React.FC = () => {
           <div
             key={tx.id}
             onClick={() => openTransactionModal(tx)}
-            className="bg-theme-card rounded-3xl p-4 flex items-center justify-between border border-theme transition-colors duration-300 shadow-sm cursor-pointer hover:bg-theme-main/50 group card-hover"
+            className="bg-white rounded-3xl p-4 flex items-center justify-between shadow-sm border border-gray-100 dark:bg-gray-900 dark:border-gray-800 cursor-pointer hover:scale-[1.02] transition-transform duration-200"
           >
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-gray-700/30 flex items-center justify-center group-hover:bg-cyan-500/20 group-hover:text-cyan-400 transition-colors">
-                {tx.type === 'transfer' ? <Icons.Transfer className="text-gray-400 group-hover:text-cyan-400" size={20} /> :
-                  tx.icon === 'coffee' ? <Icons.Coffee className="text-gray-400 group-hover:text-cyan-400" size={20} /> :
-                    tx.icon === 'shopping' ? <Icons.Shopping className="text-gray-400 group-hover:text-cyan-400" size={20} /> :
-                      tx.icon === 'card' ? <Icons.CreditCard className="text-gray-400 group-hover:text-cyan-400" size={20} /> :
-                        tx.type === 'income' ? <Icons.Wallet className="text-gray-400 group-hover:text-cyan-400" size={20} /> :
-                          <Icons.Shopping className="text-gray-400 group-hover:text-cyan-400" size={20} />
+              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${tx.type === 'income' ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400' :
+                  tx.type === 'transfer' ? 'bg-blue-100 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400' :
+                    'bg-pink-100 text-pink-600 dark:bg-pink-500/20 dark:text-pink-400'
+                }`}>
+                {tx.type === 'transfer' ? <Icons.Transfer size={20} /> :
+                  tx.icon === 'coffee' ? <Icons.Coffee size={20} /> :
+                    tx.icon === 'shopping' ? <Icons.Shopping size={20} /> :
+                      tx.icon === 'card' ? <Icons.CreditCard size={20} /> :
+                        tx.type === 'income' ? <Icons.Wallet size={20} /> :
+                          <Icons.Shopping size={20} />
                 }
               </div>
               <div>
-                <h4 className="text-theme-primary font-medium">{tx.title}</h4>
-                <p className="text-theme-secondary text-xs">{formatDate(tx.date)}</p>
+                <h4 className="text-gray-900 dark:text-white font-bold text-sm">{tx.title}</h4>
+                <p className="text-gray-500 text-xs">{formatDate(tx.date)}</p>
               </div>
             </div>
-            <div className={`font-semibold ${tx.type === 'income' ? 'text-cyan-400' : tx.type === 'transfer' ? 'text-white' : 'text-pink-500'}`}>
+            <div className={`font-bold text-sm ${tx.type === 'income' ? 'text-emerald-500' : 'text-rose-500'}`}>
               {isPrivacyMode ? '••••' : (
                 <>
-                  {tx.type === 'income' ? '+' : tx.type === 'transfer' ? '' : '-'}{tx.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                  {tx.type === 'income' ? '+' : '-'}{tx.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                 </>
               )}
             </div>

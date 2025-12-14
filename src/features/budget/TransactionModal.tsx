@@ -7,13 +7,70 @@ import { useAppContext } from "@/context/AppContext"
 import type { Transaction } from "@/types"
 import { HorizontalScroll } from "@/shared/components/HorizontalScroll"
 import { VoiceRecordingModal } from "@/features/voice/VoiceRecordingModal"
-import { Mic, Zap, ChevronDown, RefreshCw } from "lucide-react"
+import { Mic, Zap, ChevronDown, RefreshCw, Coffee, Utensils, Car, ShoppingCart, Film, Moon, Sun } from "lucide-react"
 import { useLocalStorage } from "@/hooks/useLocalStorage"
 import { Confetti } from "@/shared/components/Confetti"
 import { toEthiopianDateString } from "@/utils/dateUtils"
 import { useAIUsage } from "@/services/ai-usage"
 import { UpgradePrompt } from "@/shared/components/UpgradePrompt"
 import { parseSMS } from "@/utils/smsParser"
+
+// Smart Suggestion Type
+interface SmartSuggestion {
+  id: string
+  label: string
+  category: string
+  amount?: string
+  icon: any
+}
+
+// Helper to get suggestions based on time
+const getSmartSuggestions = (): SmartSuggestion[] => {
+  const hour = new Date().getHours()
+
+  // Morning (5 AM - 11 AM)
+  if (hour >= 5 && hour < 11) {
+    return [
+      { id: "coffee", label: "Coffee", category: "Food", amount: "50", icon: Coffee },
+      { id: "breakfast", label: "Breakfast", category: "Food", amount: "150", icon: Sun },
+      { id: "transport", label: "Transport", category: "Transport", amount: "30", icon: Car },
+    ]
+  }
+
+  // Lunch (11 AM - 2 PM)
+  if (hour >= 11 && hour < 14) {
+    return [
+      { id: "lunch", label: "Lunch", category: "Food", amount: "200", icon: Utensils },
+      { id: "transport", label: "Transport", category: "Transport", amount: "30", icon: Car },
+      { id: "coffee", label: "Coffee", category: "Food", amount: "50", icon: Coffee },
+    ]
+  }
+
+  // Afternoon (2 PM - 5 PM)
+  if (hour >= 14 && hour < 17) {
+    return [
+      { id: "snack", label: "Snack", category: "Food", amount: "100", icon: Coffee },
+      { id: "transport", label: "Transport", category: "Transport", amount: "30", icon: Car },
+      { id: "groceries", label: "Groceries", category: "Groceries", amount: "500", icon: ShoppingCart },
+    ]
+  }
+
+  // Evening (5 PM - 10 PM)
+  if (hour >= 17 && hour < 22) {
+    return [
+      { id: "dinner", label: "Dinner", category: "Food", amount: "300", icon: Utensils },
+      { id: "groceries", label: "Groceries", category: "Groceries", amount: "500", icon: ShoppingCart },
+      { id: "transport", label: "Transport", category: "Transport", amount: "50", icon: Car },
+    ]
+  }
+
+  // Night (10 PM - 5 AM)
+  return [
+    { id: "entertainment", label: "Fun", category: "Entertainment", amount: "500", icon: Film },
+    { id: "taxi", label: "Taxi", category: "Transport", amount: "300", icon: Car },
+    { id: "snack", label: "Late Snack", category: "Food", amount: "150", icon: Moon },
+  ]
+}
 
 // Ethiopian Income Types for Contextual Selection
 const INCOME_CATEGORIES = [
@@ -57,6 +114,7 @@ export const TransactionModal: React.FC = () => {
   const [isRecurring, setIsRecurring] = useState(false)
 
   // UI State
+  const [smartSuggestions, setSmartSuggestions] = useState<SmartSuggestion[]>([])
   const [suggestions, setSuggestions] = useState<string[]>([])
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
@@ -179,7 +237,7 @@ export const TransactionModal: React.FC = () => {
       setShowVoiceModal(false) // Reset voice modal state
       setShowQuickTemplates(false) // Reset templates state
       if (editingTransaction) {
-        setAmount(editingTransaction.amount.toLocaleString())
+        setAmount(editingTransaction.amount?.toLocaleString() || "")
         setTitle(editingTransaction.title)
         setType(editingTransaction.type === "transfer" ? "expense" : editingTransaction.type)
         setCategory(editingTransaction.category)
@@ -228,6 +286,22 @@ export const TransactionModal: React.FC = () => {
       setIsScanning(false)
     }
   }, [isTransactionModalOpen, editingTransaction, prefillTx, state.accounts, state.budgetCategories, scannedImage])
+
+  // Load Smart Suggestions on Open
+  useEffect(() => {
+    if (isTransactionModalOpen && !editingTransaction) {
+      setSmartSuggestions(getSmartSuggestions())
+    }
+  }, [isTransactionModalOpen, editingTransaction])
+
+  // Handle Smart Suggestion Click
+  const handleSmartClick = (s: SmartSuggestion) => {
+    setTitle(s.label)
+    setCategory(s.category)
+    if (s.amount) setAmount(s.amount)
+    // Optional: Vibrate for feedback
+    if (navigator.vibrate) navigator.vibrate(10)
+  }
 
   // Auto-suggest logic
   useEffect(() => {
@@ -631,68 +705,24 @@ export const TransactionModal: React.FC = () => {
               </div>
             )}
 
-            {/* Input Method Selector - Prominent buttons when form is empty */}
-            {!editingTransaction && !amount && !title && !receiptPreview && (
-              <div className="mb-6">
-                <p className="text-xs text-theme-secondary text-center mb-3 uppercase tracking-wider font-bold">
-                  How do you want to add this?
-                </p>
-                <div className="grid grid-cols-2 gap-3">
-                  {/* Voice Button */}
-                  <button
-                    onClick={() => setShowVoiceModal(true)}
-                    className="flex flex-col items-center justify-center p-4 bg-gradient-to-br from-cyan-500/20 to-blue-600/20 border-2 border-cyan-500/50 rounded-2xl hover:border-cyan-400 hover:from-cyan-500/30 hover:to-blue-600/30 transition-all group btn-press"
-                  >
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center mb-2 group-hover:shadow-[0_0_20px_rgba(6,182,212,0.5)] transition-all">
-                      <Mic size={24} className="text-white" />
-                    </div>
-                    <span className="text-sm font-bold text-cyan-400">Voice</span>
-                    <span className="text-[10px] text-theme-secondary">Speak it</span>
-                  </button>
-
-                  {/* Scan Button */}
-                  <button
-                    onClick={handleCameraClick}
-                    className="flex flex-col items-center justify-center p-4 bg-gradient-to-br from-purple-500/20 to-pink-600/20 border-2 border-purple-500/50 rounded-2xl hover:border-purple-400 hover:from-purple-500/30 hover:to-pink-600/30 transition-all group btn-press"
-                  >
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center mb-2 group-hover:shadow-[0_0_20px_rgba(168,85,247,0.5)] transition-all">
-                      <Icons.Camera size={24} className="text-white" />
-                    </div>
-                    <span className="text-sm font-bold text-purple-400">Scan</span>
-                    <span className="text-[10px] text-theme-secondary">Receipt</span>
-                  </button>
-
-                  {/* Paste SMS Button */}
-                  <button
-                    onClick={() => setShowPasteModal(true)}
-                    className="flex flex-col items-center justify-center p-4 bg-gradient-to-br from-yellow-500/20 to-orange-600/20 border-2 border-yellow-500/50 rounded-2xl hover:border-yellow-400 hover:from-yellow-500/30 hover:to-orange-600/30 transition-all group btn-press"
-                  >
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-yellow-500 to-orange-600 flex items-center justify-center mb-2 group-hover:shadow-[0_0_20px_rgba(234,179,8,0.5)] transition-all">
-                      <Icons.MessageSquare size={24} className="text-white" />
-                    </div>
-                    <span className="text-sm font-bold text-yellow-400">Paste SMS</span>
-                    <span className="text-[10px] text-theme-secondary">Bank Text</span>
-                  </button>
-
-                  {/* Manual Button */}
-                  <button
-                    onClick={() => amountInputRef.current?.focus()}
-                    className="flex flex-col items-center justify-center p-4 bg-gradient-to-br from-emerald-500/20 to-teal-600/20 border-2 border-emerald-500/50 rounded-2xl hover:border-emerald-400 hover:from-emerald-500/30 hover:to-teal-600/30 transition-all group btn-press"
-                  >
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center mb-2 group-hover:shadow-[0_0_20px_rgba(16,185,129,0.5)] transition-all">
-                      <Icons.Edit size={24} className="text-white" />
-                    </div>
-                    <span className="text-sm font-bold text-emerald-400">Manual</span>
-                    <span className="text-[10px] text-theme-secondary">Type it</span>
-                  </button>
-                </div>
+            {/* Voice Input Trigger - Prominent */}
+            {!editingTransaction && !amount && (
+              <div className="flex justify-center mb-2">
+                <button
+                  onClick={() => setShowVoiceModal(true)}
+                  className="flex items-center gap-2 px-6 py-3 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 rounded-full border border-cyan-500/30 transition-all active:scale-95 group"
+                >
+                  <div className="p-2 bg-cyan-500 rounded-full text-black group-hover:scale-110 transition-transform shadow-[0_0_15px_rgba(6,182,212,0.4)]">
+                    <Mic size={20} />
+                  </div>
+                  <span className="font-bold text-sm">Tap to Speak</span>
+                </button>
               </div>
             )}
 
-            {/* 1. Amount & Type Section */}
             <div className="bg-black/20 p-6 rounded-3xl border border-white/5 space-y-6">
               <div className="text-center">
-                <label className="text-xs font-bold text-theme-secondary uppercase tracking-wider mb-2 block">Amount</label>
+                <label className="text-xs font-medium text-theme-secondary mb-2 block">Amount</label>
                 <div className="relative inline-block">
                   <span className="absolute left-0 top-1/2 -translate-y-1/2 text-theme-secondary text-2xl font-medium -ml-8">
                     ETB
@@ -710,6 +740,22 @@ export const TransactionModal: React.FC = () => {
                 </div>
                 {errors.amount && <p className="text-xs text-rose-500 font-bold mt-1">Amount is required</p>}
               </div>
+
+              {/* Smart Suggestions (Quick Chips) */}
+              {!editingTransaction && (
+                <div className="flex justify-center gap-3">
+                  {smartSuggestions.map((s) => (
+                    <button
+                      key={s.id}
+                      onClick={() => handleSmartClick(s)}
+                      className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 rounded-full border border-white/5 transition-all active:scale-95"
+                    >
+                      <s.icon size={14} className="text-cyan-400" />
+                      <span className="text-xs font-medium text-gray-300">{s.label}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
 
               {/* Type Toggle */}
               <div className="flex bg-black/40 p-1.5 rounded-2xl border border-white/10">
@@ -736,7 +782,7 @@ export const TransactionModal: React.FC = () => {
 
             {/* 2. Title & Payee */}
             <div className="space-y-2">
-              <label className="text-xs font-bold text-theme-secondary uppercase tracking-wider ml-1">Title / Payee</label>
+              <label className="text-xs font-medium text-theme-secondary ml-1">Title / Payee</label>
               <div className={`relative rounded-2xl bg-black/20 border border-white/5 focus-within:border-cyan-500/50 focus-within:bg-black/40 transition-all ${errors.title ? "border-rose-500" : ""}`}>
                 <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">
                   <Icons.Edit size={20} />
@@ -772,7 +818,7 @@ export const TransactionModal: React.FC = () => {
 
             {/* 3. Category Selection - GRID LAYOUT */}
             <div className="space-y-3">
-              <label className="text-xs font-bold text-theme-secondary uppercase tracking-wider ml-1">Category</label>
+              <label className="text-xs font-medium text-theme-secondary ml-1">Category</label>
               <div className="grid grid-cols-3 gap-2">
                 {type === "expense"
                   ? categories.map((cat) => (

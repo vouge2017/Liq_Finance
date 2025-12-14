@@ -20,6 +20,7 @@ import { FeedbackModal } from "@/shared/components/FeedbackModal"
 import { DataExportModal } from "@/shared/components/DataExportModal"
 import { LanguageSwitcher } from "@/shared/components/LanguageSwitcher"
 import { OfflineBanner } from "@/shared/components/OfflineBanner"
+import { QuickActions } from "@/features/dashboard/QuickActions"
 
 
 // Global Notification Component
@@ -186,6 +187,7 @@ function MainLayout() {
         {activeTab === "dashboard" && (
           <div className="animate-fade-in">
             {visibleWidgets.balance && <BalanceCard />}
+            <QuickActions />
             {visibleWidgets.budget && <ExpenseTracking />}
             {visibleWidgets.goals && <SavingsGoals />}
             {visibleWidgets.transactions && <TransactionList />}

@@ -432,26 +432,30 @@ export const GoalsPage: React.FC = () => {
                 </div>
             </div>
 
-            {/* Pill Segmented Control - IMPROVED */}
-            <div className="bg-black/40 p-1.5 rounded-2xl border border-theme flex relative z-10">
-                <button
-                    onClick={() => setActiveTab('personal')}
-                    className={`flex-1 py-3 rounded-xl text-xs font-bold transition-all relative z-10 ${activeTab === 'personal' ? 'text-cyan-400 bg-theme-card shadow-md shadow-black/20 transform scale-[1.02]' : 'text-theme-secondary hover:text-white'}`}
-                >
-                    Savings
-                </button>
-                <button
-                    onClick={() => setActiveTab('iqub')}
-                    className={`flex-1 py-3 rounded-xl text-xs font-bold transition-all relative z-10 ${activeTab === 'iqub' ? 'text-pink-500 bg-theme-card shadow-md shadow-black/20 transform scale-[1.02]' : 'text-theme-secondary hover:text-white'}`}
-                >
-                    Equb
-                </button>
-                <button
-                    onClick={() => setActiveTab('iddir')}
-                    className={`flex-1 py-3 rounded-xl text-xs font-bold transition-all relative z-10 ${activeTab === 'iddir' ? 'text-rose-500 bg-theme-card shadow-md shadow-black/20 transform scale-[1.02]' : 'text-theme-secondary hover:text-white'}`}
-                >
-                    Iddir
-                </button>
+            {/* --- FLOATING GLASS TABS (NEW) --- */}
+            <div className="sticky top-24 z-30 mb-6">
+                <div className="glass-panel p-1.5 rounded-full flex items-center justify-between shadow-lg mx-4 border border-white/10">
+                    {(['personal', 'iqub', 'iddir'] as const).map((tab) => (
+                        <button
+                            key={tab}
+                            onClick={() => setActiveTab(tab)}
+                            className={`flex-1 py-2.5 px-4 rounded-full text-xs font-bold transition-all duration-300 relative overflow-hidden ${activeTab === tab
+                                ? 'text-white shadow-md'
+                                : 'text-theme-secondary hover:text-theme-primary hover:bg-white/5'
+                                }`}
+                        >
+                            {activeTab === tab && (
+                                <div className="absolute inset-0 bg-gradient-to-r from-cyan-600 to-blue-600 rounded-full -z-10 animate-fade-in"></div>
+                            )}
+                            <span className="relative z-10 flex items-center justify-center gap-2">
+                                {tab === 'personal' && <Icons.Goals size={14} />}
+                                {tab === 'iqub' && <Icons.Users size={14} />}
+                                {tab === 'iddir' && <Icons.Heart size={14} />}
+                                {tab === 'personal' ? 'My Goals' : tab === 'iqub' ? 'Digital Iqub' : 'Iddir'}
+                            </span>
+                        </button>
+                    ))}
+                </div>
             </div>
 
             {/* --- PERSONAL GOALS VIEW --- */}
@@ -476,7 +480,7 @@ export const GoalsPage: React.FC = () => {
                             <div
                                 key={goal.id}
                                 onClick={() => setSelectedGoalDetail(goal)}
-                                className="bg-theme-card p-5 rounded-3xl border border-theme shadow-sm relative overflow-hidden group cursor-pointer transition-transform active:scale-[0.99] card-hover"
+                                className="soft-card p-5 rounded-3xl cursor-pointer group hover:shadow-md relative overflow-hidden transition-transform active:scale-[0.99]"
                             >
                                 {isComplete && <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/10 rounded-full blur-2xl -mr-8 -mt-8 pointer-events-none"></div>}
 
@@ -564,28 +568,45 @@ export const GoalsPage: React.FC = () => {
             {/* --- DIGITAL IQUB VIEW --- */}
             {activeTab === 'iqub' && (
                 <div className="space-y-6 animate-fade-in">
-                    {/* Promo Banner */}
-                    <div className="bg-gradient-to-r from-purple-900 to-indigo-900 rounded-3xl p-6 text-white relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
-                        <div className="flex items-center gap-3 mb-2">
-                            <Icons.Users className="text-purple-300" />
-                            <h3 className="font-bold text-lg">Digital Iqub</h3>
+                    {/* Iqub Hero Banner */}
+                    <div className="bg-gradient-to-br from-indigo-900 to-purple-900 rounded-3xl p-6 relative overflow-hidden shadow-lg text-white mb-6">
+                        <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
+
+                        <div className="relative z-10">
+                            <div className="flex justify-between items-start mb-6">
+                                <div>
+                                    <h2 className="text-2xl font-bold mb-1">Digital Iqub</h2>
+                                    <p className="text-indigo-200 text-xs">Modern rotating savings circles.</p>
+                                </div>
+                                <button
+                                    onClick={() => openAddIqubModal()}
+                                    className="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-full text-xs font-bold backdrop-blur-md border border-white/10 transition-colors"
+                                >
+                                    + New Circle
+                                </button>
+                            </div>
+
+                            <div className="grid grid-cols-3 gap-2">
+                                <div className="bg-black/20 rounded-xl p-3 text-center backdrop-blur-sm">
+                                    <span className="block text-lg font-bold">{iqubs.length}</span>
+                                    <span className="text-[10px] text-indigo-200 uppercase tracking-wider">Active</span>
+                                </div>
+                                <div className="bg-black/20 rounded-xl p-3 text-center backdrop-blur-sm">
+                                    <span className="block text-lg font-bold">{iqubs.reduce((acc, i) => acc + i.members, 0)}</span>
+                                    <span className="text-[10px] text-indigo-200 uppercase tracking-wider">Members</span>
+                                </div>
+                                <div className="bg-black/20 rounded-xl p-3 text-center backdrop-blur-sm">
+                                    <span className="block text-lg font-bold text-emerald-400">98%</span>
+                                    <span className="text-[10px] text-indigo-200 uppercase tracking-wider">Payout</span>
+                                </div>
+                            </div>
                         </div>
-                        <p className="text-sm opacity-80 mb-4">
-                            Manage your rotating savings securely. Track cycles, payments, and payouts all in one place.
-                        </p>
-                        <button
-                            onClick={() => openAddIqubModal()}
-                            className="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-xl text-xs font-bold transition-colors"
-                        >
-                            Start New Iqub
-                        </button>
                     </div>
 
                     {iqubs.map(iqub => (
                         <div
                             key={iqub.id}
-                            className="bg-theme-card rounded-3xl p-6 border border-theme shadow-sm relative"
+                            className="soft-card p-6 rounded-3xl relative cursor-pointer hover:shadow-md transition-all"
                             onClick={() => setSelectedIqubDetail(iqub)}
                         >
                             {/* Menu */}
@@ -694,22 +715,24 @@ export const GoalsPage: React.FC = () => {
             {/* --- IDDIR VIEW (Phase 2) --- */}
             {activeTab === 'iddir' && (
                 <div className="space-y-6 animate-fade-in">
-                    {/* Iddir Banner */}
-                    <div className="bg-gradient-to-r from-rose-900 to-pink-900 rounded-3xl p-6 text-white relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
-                        <div className="flex items-center gap-3 mb-2">
-                            <Icons.Iddir className="text-rose-300" />
-                            <h3 className="font-bold text-lg">Social Insurance (Iddir)</h3>
+                    {/* Iddir Hero Banner */}
+                    <div className="bg-gradient-to-br from-rose-900 to-pink-900 rounded-3xl p-6 relative overflow-hidden shadow-lg text-white mb-6">
+                        <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full blur-3xl -ml-10 -mb-10 pointer-events-none"></div>
+
+                        <div className="relative z-10">
+                            <div className="flex justify-between items-start mb-6">
+                                <div>
+                                    <h2 className="text-2xl font-bold mb-1">Community Iddir</h2>
+                                    <p className="text-rose-200 text-xs">Social insurance & emergency funds.</p>
+                                </div>
+                                <button
+                                    onClick={() => openAddIddirModal()}
+                                    className="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-full text-xs font-bold backdrop-blur-md border border-white/10 transition-colors"
+                                >
+                                    + Join Iddir
+                                </button>
+                            </div>
                         </div>
-                        <p className="text-sm opacity-80 mb-4">
-                            Keep track of your community obligations. Never miss a monthly contribution.
-                        </p>
-                        <button
-                            onClick={() => openAddIddirModal()}
-                            className="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-xl text-xs font-bold transition-colors"
-                        >
-                            Register New Iddir
-                        </button>
                     </div>
 
                     {iddirs.map(iddir => {
@@ -718,7 +741,7 @@ export const GoalsPage: React.FC = () => {
                         return (
                             <div
                                 key={iddir.id}
-                                className={`bg-theme-card rounded-3xl p-6 border shadow-sm relative group transition-colors ${isPaidThisMonth ? 'border-emerald-500/50' : 'border-theme'}`}
+                                className={`soft-card p-6 rounded-3xl relative group transition-colors ${isPaidThisMonth ? 'border-emerald-500/50' : ''}`}
                             >
                                 {/* Edit/Delete Menu for Iddir */}
                                 <div className="absolute top-6 right-6 z-10">

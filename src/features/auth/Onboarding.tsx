@@ -73,10 +73,11 @@ export const Onboarding: React.FC = () => {
     return clean
   }
 
-  // Check if phone is valid: exactly 9 digits starting with 7 or 9
+  // Check if phone is valid: permissive but safe
   const isPhoneValid = (p: string): boolean => {
     const clean = normalizePhoneInput(p)
-    return /^[79]\d{8}$/.test(clean)
+    // Must be 9 digits and start with 7 or 9
+    return clean.length === 9 && ['7', '9'].includes(clean[0])
   }
 
   // Check if the button should be enabled for step 1
@@ -97,7 +98,7 @@ export const Onboarding: React.FC = () => {
         return
       }
       if (!validatePhone(phone)) {
-        setPhoneError("Must be 9 digits (starting with 7 or 9) or 10 digits (starting with 0)")
+        setPhoneError("Please enter a valid phone number")
         if (navigator.vibrate) navigator.vibrate(200)
         return
       }
@@ -106,8 +107,8 @@ export const Onboarding: React.FC = () => {
 
     if (step === 2) {
       const nameParts = name.trim().split(/\s+/)
-      if (nameParts.length < 2) {
-        return // Don't proceed if full name not entered
+      if (nameParts.length < 1) {
+        return // Require at least one name
       }
     }
     if (step === 3 && selectedGoals.length === 0) return
@@ -248,7 +249,7 @@ export const Onboarding: React.FC = () => {
                 autoFocus
               />
             </div>
-            <p className="text-[10px] text-gray-500 mt-3">Please enter both first and last name</p>
+            <p className="text-[10px] text-gray-500 mt-3">What should we call you?</p>
           </div>
         )
       case 3:
@@ -360,45 +361,18 @@ export const Onboarding: React.FC = () => {
       <div className="absolute top-0 right-0 w-72 h-72 bg-cyan-500/5 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none"></div>
       <div className="absolute bottom-0 left-0 w-72 h-72 bg-purple-500/5 rounded-full blur-3xl -ml-20 -mb-20 pointer-events-none"></div>
 
-      {/* Progress Indicators */}
+      {/* Progress Indicators - Simplified */}
       <div className="relative z-10 w-full max-w-sm pt-4">
-        {/* Step Counter */}
-        {step > 0 && (
-          <div className="flex justify-between items-center mb-3">
-            <span className="text-xs text-gray-500 font-bold uppercase tracking-wider">
-              Step {step} of 4
-            </span>
-            <span className="text-xs text-cyan-400 font-medium">
-              {step === 1 && "Phone Number"}
-              {step === 2 && "Your Name"}
-              {step === 3 && "Your Goals"}
-              {step === 4 && "Ready!"}
-            </span>
-          </div>
-        )}
-
-        {/* Progress Bar */}
-        <div className="h-1.5 bg-gray-800 rounded-full overflow-hidden">
-          <div
-            className="h-full bg-gradient-to-r from-cyan-500 to-cyan-400 rounded-full transition-all duration-500 ease-out"
-            style={{ width: `${(step / 4) * 100}%` }}
-          />
-        </div>
-
-        {/* Step Dots */}
-        <div className="flex justify-between mt-2 px-1">
+        {/* Step Dots Only */}
+        <div className="flex justify-center gap-2 mt-2 px-1">
           {[1, 2, 3, 4].map((i) => (
             <div
               key={i}
-              className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold transition-all duration-300 ${i < step
-                ? "bg-cyan-500 text-black"
-                : i === step
-                  ? "bg-cyan-500/20 text-cyan-400 border-2 border-cyan-500"
-                  : "bg-gray-800 text-gray-600"
+              className={`w-2 h-2 rounded-full transition-all duration-300 ${i <= step
+                ? "bg-cyan-500"
+                : "bg-gray-800"
                 }`}
-            >
-              {i < step ? "✓" : i}
-            </div>
+            />
           ))}
         </div>
       </div>
@@ -422,7 +396,7 @@ export const Onboarding: React.FC = () => {
           onClick={handleNext}
           disabled={
             (step === 1 && !isPhoneButtonEnabled()) ||
-            (step === 2 && name.trim().split(/\s+/).length < 2) ||
+            (step === 2 && !name.trim()) ||
             (step === 3 && selectedGoals.length === 0)
           }
           className="w-full py-4 rounded-2xl font-bold text-lg text-black bg-gradient-to-r from-cyan-500 to-cyan-400 hover:from-cyan-400 hover:to-cyan-300 transition-all shadow-[0_0_30px_rgba(6,182,212,0.4)] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none flex items-center justify-center gap-2"
