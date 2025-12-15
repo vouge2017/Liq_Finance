@@ -74,3 +74,37 @@ export const toGregorianDateString = (dateString: string): string => {
 
   return `${gregMonthNames[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
 };
+
+export const getCurrentBudgetMonth = (startDay: number = 1, referenceDate: Date = new Date()): { start: Date, end: Date } => {
+  const now = referenceDate;
+  const currentDay = now.getDate();
+  const currentMonth = now.getMonth();
+  const currentYear = now.getFullYear();
+
+  let start: Date;
+  let end: Date;
+
+  if (currentDay >= startDay) {
+    // We are in the cycle starting this month
+    start = new Date(currentYear, currentMonth, startDay);
+    // End is next month, startDay - 1
+    // Handle year rollover automatically by Date constructor
+    end = new Date(currentYear, currentMonth + 1, startDay - 1);
+  } else {
+    // We are in the cycle that started last month
+    start = new Date(currentYear, currentMonth - 1, startDay);
+    end = new Date(currentYear, currentMonth, startDay - 1);
+  }
+
+  // Set times to boundaries
+  start.setHours(0, 0, 0, 0);
+  end.setHours(23, 59, 59, 999);
+
+  return { start, end };
+};
+
+export const isDateInBudgetMonth = (dateStr: string, budgetStart: Date, budgetEnd: Date): boolean => {
+  const d = new Date(dateStr);
+  return d >= budgetStart && d <= budgetEnd;
+};
+

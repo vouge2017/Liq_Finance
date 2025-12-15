@@ -130,7 +130,14 @@ export interface Account {
   id: string;
   name: string; // e.g., "Savings", "Salary"
   institution: string; // 'CBE' | 'Dashen' | 'Telebirr' | 'Cash'
-  type: 'Bank' | 'Mobile Money' | 'Cash';
+  type: 'Bank' | 'Mobile Money' | 'Cash' | 'Loan'; // Added 'Loan'
+  subtype?: 'Digital Loan' | 'Micro Loan' | 'Personal Loan'; // New
+  loanDetails?: {
+    provider: string;
+    dueDate?: string;
+    interestRate?: number;
+    principal?: number;
+  };
   balance: number;
   accountNumber?: string;
   color: string; // Tailwind gradient class
@@ -181,6 +188,7 @@ export interface AppState {
   familyMembers: FamilyMember[]; // New: Community
   invitations: Invitation[]; // New: Community
   defaultAccountId?: string;
+  budgetStartDate: number; // New: Day of month (1-31) to start budget cycle
 }
 
 export interface NavigationState {
@@ -212,6 +220,7 @@ export interface AppContextType {
   setUserName: (name: string) => void;
   setUserPhone: (phone: string) => void; // New
   setUserGoal: (goal: string) => void;
+  setBudgetStartDate: (day: number) => void; // New: Flexible Pay Day
 
   addAccount: (account: Account) => void;
   updateAccount: (account: Account) => void;
@@ -294,4 +303,5 @@ export interface AppContextType {
   hasOnboarded: boolean;
   completeOnboarding: () => void;
   logout: () => void;
+  restoreData: (data: AppState) => void;
 }

@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useAppContext } from '@/context/AppContext';
+import { getCurrentBudgetMonth, isDateInBudgetMonth } from '@/utils/dateUtils';
 import { Icons } from '@/shared/components/Icons';
 import { BudgetCategory, Transaction, RecurringTransaction } from '@/types';
 import { HorizontalScroll } from '@/shared/components/HorizontalScroll';
@@ -145,12 +146,12 @@ export const BudgetPage: React.FC = () => {
 
     // --- Calculations based on Month ---
     const calculatedBudget = useMemo(() => {
-        const month = currentDate.getMonth();
-        const year = currentDate.getFullYear();
+        // Use the user's preferred start date
+        const startDay = state.budgetStartDate || 1;
+        const { start: budgetStart, end: budgetEnd } = getCurrentBudgetMonth(startDay, currentDate);
 
         const transactionsThisMonth = transactions.filter(t => {
-            const d = new Date(t.date);
-            return d.getMonth() === month && d.getFullYear() === year && t.type === 'expense';
+            return isDateInBudgetMonth(t.date, budgetStart, budgetEnd) && t.type === 'expense';
         });
 
         // 1. Calculate spent for known categories

@@ -21,13 +21,13 @@ interface Props {
 }
 
 export const FinancialProfileModal: React.FC<Props> = ({ onClose }) => {
-    const { state, addIncomeSource, updateIncomeSource, deleteIncomeSource, setActiveTab, openTransactionModal, formatDate } = useAppContext();
+    const { state, addIncomeSource, updateIncomeSource, deleteIncomeSource, setActiveTab, openTransactionModal, formatDate, setBudgetStartDate } = useAppContext();
     const { incomeSources, accounts, transactions } = state;
 
     const [isAdding, setIsAdding] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
     const [showSuccess, setShowSuccess] = useState(false);
-    
+
     // Form State
     const [name, setName] = useState('');
     const [amount, setAmount] = useState('');
@@ -36,7 +36,7 @@ export const FinancialProfileModal: React.FC<Props> = ({ onClose }) => {
     const [payday, setPayday] = useState('');
     const [remind, setRemind] = useState(false);
     const [linkedAccount, setLinkedAccount] = useState('');
-    
+
     // Validation State
     const [errors, setErrors] = useState({ name: false, amount: false });
 
@@ -85,7 +85,7 @@ export const FinancialProfileModal: React.FC<Props> = ({ onClose }) => {
 
         if (newErrors.name || newErrors.amount) {
             setErrors(newErrors);
-            if(navigator.vibrate) navigator.vibrate(200);
+            if (navigator.vibrate) navigator.vibrate(200);
             return;
         }
 
@@ -94,7 +94,7 @@ export const FinancialProfileModal: React.FC<Props> = ({ onClose }) => {
             name,
             type,
             amount: parseFloat(amount.replace(/,/g, '')),
-            frequency, 
+            frequency,
             payday: payday ? parseInt(payday) : undefined,
             stability: (type === 'Salary' || type === 'Rent') ? 'Stable' : 'Variable',
             remindPayday: remind,
@@ -126,16 +126,16 @@ export const FinancialProfileModal: React.FC<Props> = ({ onClose }) => {
         // Find latest income transaction with same title
         const matches = transactions
             .filter(t => t.type === 'income' && t.title.toLowerCase() === sourceName.toLowerCase())
-            .sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-        
+            .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
         return matches.length > 0 ? matches[0].date : null;
     };
 
     const totalMonthlyIncome = useMemo(() => {
         return incomeSources.reduce((sum, s) => {
-            if(s.frequency === 'Monthly') return sum + s.amount;
-            if(s.frequency === 'Weekly') return sum + (s.amount * 4);
-            if(s.frequency === 'Bi-Weekly') return sum + (s.amount * 2);
+            if (s.frequency === 'Monthly') return sum + s.amount;
+            if (s.frequency === 'Weekly') return sum + (s.amount * 4);
+            if (s.frequency === 'Bi-Weekly') return sum + (s.amount * 2);
             return sum;
         }, 0);
     }, [incomeSources]);
@@ -145,22 +145,22 @@ export const FinancialProfileModal: React.FC<Props> = ({ onClose }) => {
             <div className="fixed inset-0 modal-overlay z-[110] flex items-center justify-center p-4" onClick={onClose}>
                 <div className="modal-content w-full max-w-sm rounded-3xl p-8 animate-scale-up text-center relative overflow-hidden" onClick={e => e.stopPropagation()}>
                     <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
-                    
+
                     <div className="w-20 h-20 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-6 text-emerald-500 animate-bounce">
                         <Icons.CheckCircle size={40} />
                     </div>
-                    
+
                     <h3 className="text-2xl font-bold text-white mb-2">Profile Updated!</h3>
                     <p className="text-theme-secondary text-sm mb-8">Your income source has been saved. We can now plan your budget more accurately.</p>
-                    
+
                     <div className="space-y-3">
-                        <button 
+                        <button
                             onClick={() => { setShowSuccess(false); onClose(); setActiveTab('budget'); }}
                             className="w-full py-4 bg-emerald-500 text-white font-bold rounded-2xl shadow-lg shadow-emerald-500/20 hover:scale-[1.02] transition-transform"
                         >
                             Go to Budget
                         </button>
-                        <button 
+                        <button
                             onClick={() => { setShowSuccess(false); resetForm(); }}
                             className="w-full py-4 bg-theme-main text-theme-secondary font-bold rounded-2xl hover:text-white transition-colors"
                         >
@@ -175,10 +175,10 @@ export const FinancialProfileModal: React.FC<Props> = ({ onClose }) => {
     return (
         <div className="fixed inset-0 modal-overlay z-[110] flex items-center justify-center p-4" onClick={onClose}>
             <div className="modal-content w-full max-w-md rounded-3xl p-6 animate-scale-up h-[85vh] flex flex-col" onClick={e => e.stopPropagation()}>
-                
+
                 {/* Drag Handle */}
                 <div className="w-16 h-1.5 modal-handle rounded-full mx-auto mb-6 sm:hidden shrink-0" />
-                
+
                 {/* Header */}
                 <div className="flex justify-between items-center mb-6 shrink-0">
                     <div>
@@ -192,13 +192,40 @@ export const FinancialProfileModal: React.FC<Props> = ({ onClose }) => {
 
                 {/* SUMMARY CARD */}
                 {!isAdding && (
-                    <div className="bg-gradient-to-r from-emerald-900 to-teal-900 rounded-2xl p-5 mb-6 border border-emerald-500/30 flex justify-between items-center shadow-lg shrink-0">
-                        <div>
-                            <p className="text-xs text-emerald-200/80 uppercase font-bold tracking-wider mb-1">Total Monthly Income</p>
-                            <p className="text-2xl font-bold text-white tracking-tight">{totalMonthlyIncome.toLocaleString()} ETB</p>
+                    <div className="space-y-4 mb-6 shrink-0">
+                        {/* Summary Card */}
+                        <div className="bg-gradient-to-r from-emerald-900 to-teal-900 rounded-2xl p-5 border border-emerald-500/30 flex justify-between items-center shadow-lg">
+                            <div>
+                                <p className="text-xs text-emerald-200/80 uppercase font-bold tracking-wider mb-1">Total Monthly Income</p>
+                                <p className="text-2xl font-bold text-white tracking-tight">{totalMonthlyIncome.toLocaleString()} ETB</p>
+                            </div>
+                            <div className="w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center border border-emerald-500/30">
+                                <Icons.Briefcase className="text-emerald-400" size={24} />
+                            </div>
                         </div>
-                        <div className="w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center border border-emerald-500/30">
-                            <Icons.Briefcase className="text-emerald-400" size={24} />
+
+                        {/* Budget Start Date Setting */}
+                        <div className="bg-theme-card p-4 rounded-2xl border border-theme flex items-center justify-between">
+                            <div>
+                                <h4 className="font-bold text-theme-primary text-sm">Budget Start Date</h4>
+                                <p className="text-xs text-theme-secondary">When does your month start?</p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <span className="text-xs font-bold text-cyan-400">Day</span>
+                                <input
+                                    type="number"
+                                    min="1"
+                                    max="31"
+                                    value={state.budgetStartDate || 1}
+                                    onChange={(e) => {
+                                        const val = parseInt(e.target.value);
+                                        if (val >= 1 && val <= 31) {
+                                            setBudgetStartDate(val);
+                                        }
+                                    }}
+                                    className="w-12 bg-theme-main p-2 rounded-lg text-center text-sm font-bold border border-theme outline-none focus:border-cyan-500"
+                                />
+                            </div>
                         </div>
                     </div>
                 )}
@@ -215,7 +242,7 @@ export const FinancialProfileModal: React.FC<Props> = ({ onClose }) => {
                                 <p className="text-theme-secondary text-sm mb-6 max-w-[200px] leading-relaxed">
                                     Add your salary or business income to unlock smart budgeting.
                                 </p>
-                                <button 
+                                <button
                                     onClick={() => setIsAdding(true)}
                                     className="flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white px-6 py-3 rounded-2xl font-bold transition-all shadow-lg shadow-emerald-500/20 active:scale-95"
                                 >
@@ -244,7 +271,7 @@ export const FinancialProfileModal: React.FC<Props> = ({ onClose }) => {
                                             </div>
                                         </div>
                                         <div className="flex gap-2">
-                                            <button 
+                                            <button
                                                 onClick={() => openEdit(source)}
                                                 className="p-2 text-theme-secondary hover:text-cyan-400 hover:bg-theme-card rounded-full transition-colors"
                                             >
@@ -262,7 +289,7 @@ export const FinancialProfileModal: React.FC<Props> = ({ onClose }) => {
                                             </span>
                                         </div>
 
-                                        <button 
+                                        <button
                                             onClick={() => handleReceiveNow(source)}
                                             className="text-xs font-bold text-cyan-400 flex items-center gap-1 hover:underline"
                                         >
@@ -282,15 +309,15 @@ export const FinancialProfileModal: React.FC<Props> = ({ onClose }) => {
                 {isAdding ? (
                     <div className="bg-theme-main p-5 rounded-2xl border border-theme space-y-4 animate-fade-in flex-1 overflow-y-auto no-scrollbar">
                         <h3 className="font-bold text-theme-primary text-sm">{editingId ? 'Edit Income Source' : 'New Income Source'}</h3>
-                        
+
                         {/* Name */}
                         <div>
                             <label className={`text-xs font-bold uppercase mb-1.5 block ${errors.name ? 'text-rose-500' : 'text-theme-secondary'}`}>Source Name</label>
-                            <input 
-                                type="text" 
-                                value={name} 
-                                onChange={e => { setName(e.target.value); setErrors(p => ({...p, name: false})); }} 
-                                placeholder="e.g. Primary Job" 
+                            <input
+                                type="text"
+                                value={name}
+                                onChange={e => { setName(e.target.value); setErrors(p => ({ ...p, name: false })); }}
+                                placeholder="e.g. Primary Job"
                                 className={`w-full bg-theme-card p-3 rounded-xl text-sm outline-none border transition-colors ${errors.name ? 'border-rose-500 bg-rose-500/10' : 'border-theme focus:border-cyan-500'}`}
                             />
                             {errors.name && <p className="text-[10px] text-rose-500 font-bold mt-1">Required</p>}
@@ -301,7 +328,7 @@ export const FinancialProfileModal: React.FC<Props> = ({ onClose }) => {
                             <label className="text-xs font-bold text-theme-secondary uppercase mb-1.5 block">Income Type</label>
                             <HorizontalScroll className="flex gap-3 pb-2">
                                 {INCOME_TYPES.map(t => (
-                                    <button 
+                                    <button
                                         key={t.id}
                                         onClick={() => setType(t.id as any)}
                                         className={`flex flex-col items-center justify-center p-3 rounded-xl border min-w-[80px] transition-all ${type === t.id ? `bg-${t.color.replace('bg-', '')}-500/10 border-${t.color.replace('bg-', '')}-500` : 'bg-theme-card border-theme opacity-60 hover:opacity-100'}`}
@@ -319,12 +346,12 @@ export const FinancialProfileModal: React.FC<Props> = ({ onClose }) => {
                         <div>
                             <label className={`text-xs font-bold uppercase mb-1.5 block ${errors.amount ? 'text-rose-500' : 'text-theme-secondary'}`}>Expected Amount</label>
                             <div className="relative">
-                                <input 
-                                    type="text" 
+                                <input
+                                    type="text"
                                     inputMode="decimal"
-                                    value={amount} 
-                                    onChange={e => { setAmount(formatNumberInput(e.target.value)); setErrors(p => ({...p, amount: false})); }} 
-                                    placeholder="0.00" 
+                                    value={amount}
+                                    onChange={e => { setAmount(formatNumberInput(e.target.value)); setErrors(p => ({ ...p, amount: false })); }}
+                                    placeholder="0.00"
                                     className={`w-full bg-theme-card p-3 pl-14 rounded-xl text-lg font-bold outline-none border transition-colors font-mono ${errors.amount ? 'border-rose-500 bg-rose-500/10' : 'border-theme focus:border-cyan-500'}`}
                                 />
                                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-theme-secondary font-bold text-sm">ETB</span>
@@ -353,19 +380,19 @@ export const FinancialProfileModal: React.FC<Props> = ({ onClose }) => {
                             <div className="bg-theme-card p-3 rounded-xl border border-theme">
                                 <div className="flex justify-between items-center mb-2">
                                     <label className="text-xs font-bold text-theme-secondary">Payday (Day of Month)</label>
-                                    <input 
-                                        type="number" 
-                                        min="1" 
-                                        max="31" 
-                                        value={payday} 
-                                        onChange={e => setPayday(e.target.value)} 
+                                    <input
+                                        type="number"
+                                        min="1"
+                                        max="31"
+                                        value={payday}
+                                        onChange={e => setPayday(e.target.value)}
                                         placeholder="25"
                                         className="w-16 bg-theme-main p-1.5 rounded-lg text-center text-sm font-bold border border-theme outline-none focus:border-cyan-500"
                                     />
                                 </div>
                                 <div className="flex items-center justify-between pt-2 border-t border-theme/50">
                                     <span className="text-xs text-theme-secondary">Get Notification?</span>
-                                    <button 
+                                    <button
                                         onClick={() => setRemind(!remind)}
                                         className={`w-10 h-6 rounded-full relative transition-colors ${remind ? 'bg-cyan-500' : 'bg-gray-700'}`}
                                     >
@@ -378,7 +405,7 @@ export const FinancialProfileModal: React.FC<Props> = ({ onClose }) => {
                         {/* LINKED ACCOUNT - NEW */}
                         <div>
                             <label className="text-xs font-bold text-theme-secondary uppercase mb-1.5 block">Deposit To (Optional)</label>
-                            <select 
+                            <select
                                 value={linkedAccount}
                                 onChange={e => setLinkedAccount(e.target.value)}
                                 className="w-full bg-theme-card p-3 rounded-xl text-sm outline-none border border-theme focus:border-cyan-500 transition-colors"
@@ -399,7 +426,7 @@ export const FinancialProfileModal: React.FC<Props> = ({ onClose }) => {
                     </div>
                 ) : (
                     incomeSources.length > 0 && (
-                        <button 
+                        <button
                             onClick={() => setIsAdding(true)}
                             className="w-full py-4 border-2 border-dashed border-theme rounded-2xl flex items-center justify-center gap-2 text-theme-secondary hover:text-cyan-400 hover:border-cyan-400/50 hover:bg-theme-card transition-all mb-4 shrink-0"
                         >

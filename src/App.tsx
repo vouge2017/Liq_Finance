@@ -17,7 +17,7 @@ import { TransactionModal } from "@/features/budget/TransactionModal"
 import { Onboarding } from "@/features/auth/Onboarding"
 import { FinancialProfileModal } from "@/features/auth/FinancialProfileModal"
 import { FeedbackModal } from "@/shared/components/FeedbackModal"
-import { DataExportModal } from "@/shared/components/DataExportModal"
+import { DataManagementModal } from "@/shared/components/DataManagementModal"
 import { LanguageSwitcher } from "@/shared/components/LanguageSwitcher"
 import { OfflineBanner } from "@/shared/components/OfflineBanner"
 import { QuickActions } from "@/features/dashboard/QuickActions"
@@ -70,7 +70,7 @@ function MainLayout() {
   const [showFinancialProfile, setShowFinancialProfile] = useState(false)
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
   const [showFeedbackModal, setShowFeedbackModal] = useState(false)
-  const [showExportModal, setShowExportModal] = useState(false)
+  const [showDataManagementModal, setShowDataManagementModal] = useState(false)
 
   // UI State for Profile Modal Collapsibles
   const [isDashboardSettingsOpen, setIsDashboardSettingsOpen] = useState(false)
@@ -107,7 +107,7 @@ function MainLayout() {
       <TransactionModal />
       {showFinancialProfile && <FinancialProfileModal onClose={() => setShowFinancialProfile(false)} />}
       <FeedbackModal isOpen={showFeedbackModal} onClose={() => setShowFeedbackModal(false)} />
-      <DataExportModal isOpen={showExportModal} onClose={() => setShowExportModal(false)} />
+      <DataManagementModal isOpen={showDataManagementModal} onClose={() => setShowDataManagementModal(false)} />
       <NotificationToast />
 
       {/* Header */}
@@ -333,18 +333,18 @@ function MainLayout() {
 
               <button
                 onClick={() => {
-                  setShowExportModal(true)
+                  setShowDataManagementModal(true)
                   setShowProfileModal(false)
                 }}
                 className="w-full p-4 rounded-2xl bg-theme-main border border-theme flex items-center justify-between hover:bg-theme-card transition-colors group active:scale-[0.98]"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-purple-500/10 flex items-center justify-center text-purple-500 group-hover:bg-purple-500 group-hover:text-white transition-colors">
-                    <Icons.Download size={20} />
+                  <div className="w-10 h-10 rounded-full bg-cyan-500/10 flex items-center justify-center text-cyan-500 group-hover:bg-cyan-500 group-hover:text-white transition-colors">
+                    <Icons.Database size={20} />
                   </div>
                   <div className="text-left">
-                    <span className="font-bold text-theme-primary block">Export Data</span>
-                    <span className="text-[10px] text-theme-secondary">Download your financial data</span>
+                    <span className="font-bold text-theme-primary block">Data Management</span>
+                    <span className="text-[10px] text-theme-secondary">Backup & Restore</span>
                   </div>
                 </div>
                 <Icons.ChevronRight size={18} className="text-theme-secondary" />

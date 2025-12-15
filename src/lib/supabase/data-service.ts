@@ -31,6 +31,7 @@ export interface UserProfileData {
   privacy_mode: boolean
   ai_consent: boolean
   onboarding_completed: boolean
+  budget_start_date: number
 }
 
 export async function getProfile(userId: string): Promise<UserProfileData | null> {
@@ -86,6 +87,8 @@ export async function getAccounts(userId: string): Promise<Account[]> {
     accountNumber: a.account_number,
     color: a.color,
     profile: a.profile as Account["profile"],
+    subtype: a.subtype,
+    loanDetails: a.loan_details,
   }))
 }
 
@@ -103,6 +106,8 @@ export async function createAccount(userId: string, account: Omit<Account, "id">
       account_number: account.accountNumber,
       color: account.color,
       profile: account.profile,
+      subtype: account.subtype,
+      loan_details: account.loanDetails,
     })
     .select()
     .single()
@@ -121,6 +126,8 @@ export async function createAccount(userId: string, account: Omit<Account, "id">
     accountNumber: data.account_number,
     color: data.color,
     profile: data.profile,
+    subtype: data.subtype,
+    loanDetails: data.loan_details,
   }
 }
 
@@ -137,6 +144,8 @@ export async function updateAccount(account: Account): Promise<boolean> {
       account_number: account.accountNumber,
       color: account.color,
       profile: account.profile,
+      subtype: account.subtype,
+      loan_details: account.loanDetails,
       updated_at: new Date().toISOString(),
     })
     .eq("id", account.id)

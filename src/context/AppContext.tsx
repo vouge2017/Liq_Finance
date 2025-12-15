@@ -20,7 +20,7 @@ import type {
   FinancialContext,
   Iddir,
 } from "../types"
-import { toEthiopianDateString, toGregorianDateString } from "../utils/dateUtils"
+import { toEthiopianDateString, toGregorianDateString, getCurrentBudgetMonth, isDateInBudgetMonth } from "../utils/dateUtils"
 import * as dataService from "@/lib/supabase/data-service"
 import type { UserData } from "@/hooks/use-user-data"
 import { FamilyMember, Invitation } from "@/types"
@@ -117,7 +117,9 @@ const emptyState: AppState = {
   accounts: [],
   familyMembers: [],
   invitations: [],
+  invitations: [],
   defaultAccountId: undefined,
+  budgetStartDate: 1,
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined)
@@ -147,18 +149,17 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children, initialData,
     const totalBalance = initialData.accounts.reduce((sum, a) => sum + a.balance, 0)
 
     // Calculate spent for budget categories
-    const currentMonth = new Date().getMonth()
-    const currentYear = new Date().getFullYear()
+    // Use the user's preferred start date (default 1)
+    const startDay = initialData.profile?.budget_start_date || 1
+    const { start: budgetStart, end: budgetEnd } = getCurrentBudgetMonth(startDay)
 
     const budgetWithSpent = (
       initialData.budgetCategories.length > 0 ? initialData.budgetCategories : defaultBudgetCategories
     ).map((cat) => {
       const spent = initialData.transactions
         .filter((t) => {
-          const d = new Date(t.date)
           return (
-            d.getMonth() === currentMonth &&
-            d.getFullYear() === currentYear &&
+            isDateInBudgetMonth(t.date, budgetStart, budgetEnd) &&
             t.type === "expense" &&
             t.category === cat.name
           )
@@ -185,7 +186,9 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children, initialData,
       accounts: initialData.accounts,
       familyMembers: [], // TODO: Load from Supabase
       invitations: [], // TODO: Load from Supabase
+      invitations: [], // TODO: Load from Supabase
       defaultAccountId: initialData.accounts.find((a) => a.name === "Primary")?.id || initialData.accounts[0]?.id,
+      budgetStartDate: initialData.profile?.budget_start_date || 1,
     }
   }, [initialData])
 
@@ -325,6 +328,16 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children, initialData,
       setFullState((prev) => ({ ...prev, userGoal: goal }))
       if (userId) {
         dataService.upsertProfile(userId, { financial_goal: goal })
+      }
+    },
+    [userId],
+  )
+
+  const setBudgetStartDate = useCallback(
+    (day: number) => {
+      setFullState((prev) => ({ ...prev, budgetStartDate: day }))
+      if (userId) {
+        dataService.upsertProfile(userId, { budget_start_date: day })
       }
     },
     [userId],
@@ -1062,18 +1075,19 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children, initialData,
 
   // ============ BUDGET SPENT CALCULATION ============
 
+  // ============ BUDGET SPENT CALCULATION ============
+
   useEffect(() => {
-    const currentMonth = new Date().getMonth()
-    const currentYear = new Date().getFullYear()
+    // Recalculate spent whenever transactions or start date changes
+    const startDay = fullState.budgetStartDate
+    const { start: budgetStart, end: budgetEnd } = getCurrentBudgetMonth(startDay)
 
     setFullState((prev) => {
       const newBudgetCategories = prev.budgetCategories.map((cat) => {
         const spent = prev.transactions
           .filter((t) => {
-            const d = new Date(t.date)
             return (
-              d.getMonth() === currentMonth &&
-              d.getFullYear() === currentYear &&
+              isDateInBudgetMonth(t.date, budgetStart, budgetEnd) &&
               t.type === "expense" &&
               t.category === cat.name
             )
@@ -1088,7 +1102,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children, initialData,
 
       return { ...prev, budgetCategories: newBudgetCategories }
     })
-  }, [fullState.transactions])
+  }, [fullState.transactions, fullState.budgetStartDate])
 
   // ============ FILTERED STATE ============
 
@@ -1194,6 +1208,11 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children, initialData,
     showNotification(`Invitation sent to ${emailOrPhone}`, "success")
   }, [showNotification])
 
+  const restoreData = useCallback((data: AppState) => {
+    setFullState(data);
+    showNotification("Data restored successfully", "success");
+  }, [showNotification]);
+
   const value = useMemo(
     () => ({
       state: filteredState,
@@ -1214,6 +1233,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children, initialData,
       setUserName: (name: string) => setFullState((prev) => ({ ...prev, userName: name })),
       setUserPhone: (phone: string) => setFullState((prev) => ({ ...prev, userPhone: phone })),
       setUserGoal: (goal: string) => setFullState((prev) => ({ ...prev, userGoal: goal })),
+      setBudgetStartDate,
       addAccount,
       updateAccount,
       deleteAccount,
@@ -1266,6 +1286,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children, initialData,
       addFamilyMember,
       removeFamilyMember,
       sendInvitation,
+      restoreData,
     }),
     [
       filteredState,

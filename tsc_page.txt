@@ -1,0 +1,3 @@
+npm info using npm@10.9.2
+npm info using node@v22.17.0
+src/features/accounts/AccountsPage.tsx(682,18): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
