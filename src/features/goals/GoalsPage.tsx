@@ -1,9 +1,12 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAppContext } from '@/context/AppContext';
 import { Icons } from '@/shared/components/Icons';
 import { EmptyState } from '@/shared/components/EmptyState';
 import { SavingsGoal, Iqub, Account, Iddir } from '@/types';
 import { HorizontalScroll } from '@/shared/components/HorizontalScroll';
+import { GoalVisual } from './components/GoalVisual';
+import { CelebrationOverlay } from '@/shared/components/CelebrationOverlay';
 
 const GOAL_ICONS = [
     { id: 'car', icon: Icons.Car, color: 'from-orange-400 to-red-500', label: 'Vehicle' },
@@ -18,6 +21,7 @@ const GOAL_ICONS = [
 ];
 
 export const GoalsPage: React.FC = () => {
+    const { t } = useTranslation();
     const {
         state,
         isPrivacyMode,
@@ -413,24 +417,17 @@ export const GoalsPage: React.FC = () => {
                     </div>
                 </div>
             </div>
-        )
+        );
     }
 
     return (
-        <div className="pb-28 animate-push space-y-6 relative">
-
-            {/* Header */}
-            <div className="flex justify-between items-center px-1">
-                <div>
-                    <h2 className="text-theme-primary text-xl font-bold">
-                        Community Finance
-                    </h2>
-                    <p className="text-theme-secondary text-xs ethiopic">የማህበረሰብ ገንዘብ</p>
-                </div>
-                <div className="w-10 h-10 rounded-full bg-cyan-500/10 flex items-center justify-center text-cyan-400">
-                    <Icons.Trophy size={20} />
-                </div>
-            </div>
+        <div className="pb-24">
+            <CelebrationOverlay
+                isVisible={showCelebration}
+                onClose={() => setShowCelebration(false)}
+                title="Congratulations!"
+                message="You've successfully claimed your Iqub win. The funds are now available in your account."
+            />
 
             {/* --- FLOATING GLASS TABS (NEW) --- */}
             <div className="sticky top-24 z-30 mb-6">
@@ -459,421 +456,431 @@ export const GoalsPage: React.FC = () => {
             </div>
 
             {/* --- PERSONAL GOALS VIEW --- */}
-            {activeTab === 'personal' && (
-                <div className="space-y-4 animate-fade-in">
-                    <div className="flex justify-between items-center mb-2 px-1">
-                        <h3 className="text-sm font-bold text-theme-secondary uppercase tracking-wider">Active Goals</h3>
-                        <button
-                            onClick={() => openAddGoalModal()}
-                            className="text-xs text-cyan-400 font-medium flex items-center gap-1 bg-cyan-500/10 px-3 py-1.5 rounded-full hover:bg-cyan-500/20 transition-colors"
-                        >
-                            <Icons.Plus size={12} /> New Goal
-                        </button>
-                    </div>
-
-                    {savingsGoals.map(goal => {
-                        const percentage = Math.min((goal.currentAmount / goal.targetAmount) * 100, 100);
-                        const isComplete = percentage >= 100;
-                        const iconObj = GOAL_ICONS.find(i => i.id === goal.icon) || GOAL_ICONS[0];
-
-                        return (
-                            <div
-                                key={goal.id}
-                                onClick={() => setSelectedGoalDetail(goal)}
-                                className="soft-card p-5 rounded-3xl cursor-pointer group hover:shadow-md relative overflow-hidden transition-transform active:scale-[0.99]"
+            {
+                activeTab === 'personal' && (
+                    <div className="space-y-4 animate-fade-in">
+                        <div className="flex justify-between items-center mb-2 px-1">
+                            <h3 className="text-sm font-bold text-theme-secondary uppercase tracking-wider">Active Goals</h3>
+                            <button
+                                onClick={() => openAddGoalModal()}
+                                className="text-xs text-cyan-400 font-medium flex items-center gap-1 bg-cyan-500/10 px-3 py-1.5 rounded-full hover:bg-cyan-500/20 transition-colors"
                             >
-                                {isComplete && <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/10 rounded-full blur-2xl -mr-8 -mt-8 pointer-events-none"></div>}
+                                <Icons.Plus size={12} /> New Goal
+                            </button>
+                        </div>
 
-                                <div className="flex justify-between items-start mb-4 relative z-10">
-                                    <div className="flex items-center gap-4">
-                                        {/* Render Gradient Icon */}
-                                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center bg-gradient-to-br ${iconObj.color} shadow-lg shadow-${goal.color}-500/20 text-white`}>
-                                            <iconObj.icon size={24} />
-                                        </div>
-                                        <div>
-                                            <h4 className="font-bold text-theme-primary text-lg">{goal.title}</h4>
-                                            <div className="flex items-center gap-2">
-                                                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${isComplete ? 'bg-emerald-500/20 text-emerald-500' : 'bg-theme-main text-theme-secondary'}`}>
-                                                    {isComplete ? 'Completed!' : 'On Track'}
-                                                </span>
-                                                {goal.deadline && (
-                                                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-theme-main text-theme-secondary flex items-center gap-1">
-                                                        <Icons.CalendarClock size={10} /> {getDaysLeft(goal.deadline)} days
+                        {savingsGoals.map(goal => {
+                            const percentage = Math.min((goal.currentAmount / goal.targetAmount) * 100, 100);
+                            const isComplete = percentage >= 100;
+                            const iconObj = GOAL_ICONS.find(i => i.id === goal.icon) || GOAL_ICONS[0];
+
+                            return (
+                                <div
+                                    key={goal.id}
+                                    onClick={() => setSelectedGoalDetail(goal)}
+                                    className="soft-card p-5 rounded-3xl cursor-pointer group hover:shadow-md relative overflow-hidden transition-transform active:scale-[0.99]"
+                                >
+                                    {isComplete && <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/10 rounded-full blur-2xl -mr-8 -mt-8 pointer-events-none"></div>}
+
+                                    <div className="flex justify-between items-start mb-4 relative z-10">
+                                        <div className="flex items-center gap-4">
+                                            {/* Render Gradient Icon */}
+                                            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center bg-gradient-to-br ${iconObj.color} shadow-lg shadow-${goal.color}-500/20 text-white`}>
+                                                <iconObj.icon size={24} />
+                                            </div>
+                                            <div>
+                                                <h4 className="font-bold text-theme-primary text-lg">{goal.title}</h4>
+                                                <div className="flex items-center gap-2">
+                                                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${isComplete ? 'bg-emerald-500/20 text-emerald-500' : 'bg-theme-main text-theme-secondary'}`}>
+                                                        {isComplete ? 'Completed!' : 'On Track'}
                                                     </span>
+                                                    {goal.deadline && (
+                                                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-theme-main text-theme-secondary flex items-center gap-1">
+                                                            <Icons.CalendarClock size={10} /> {getDaysLeft(goal.deadline)} days
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="flex flex-col items-end gap-2">
+                                            <div className="relative" onClick={e => e.stopPropagation()}>
+                                                <button onClick={() => setShowMenuId(showMenuId === goal.id ? null : goal.id)} className="p-1 rounded-full hover:bg-theme-main">
+                                                    <Icons.MoreVertical size={16} className="text-theme-secondary" />
+                                                </button>
+                                                {showMenuId === goal.id && (
+                                                    <div className="absolute right-0 top-6 bg-theme-main border border-theme rounded-xl shadow-xl z-20 w-32 py-1">
+                                                        <button onClick={() => { openAddGoalModal(goal); setShowMenuId(null); }} className="w-full text-left px-4 py-2 text-xs text-theme-primary hover:bg-theme-card flex items-center gap-2">
+                                                            <Icons.Edit size={12} /> Edit
+                                                        </button>
+                                                        <button onClick={() => deleteItem('goal', goal.id)} className="w-full text-left px-4 py-2 text-xs text-rose-500 hover:bg-theme-card flex items-center gap-2">
+                                                            <Icons.Delete size={12} /> Delete
+                                                        </button>
+                                                    </div>
                                                 )}
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="flex flex-col items-end gap-2">
-                                        <div className="relative" onClick={e => e.stopPropagation()}>
-                                            <button onClick={() => setShowMenuId(showMenuId === goal.id ? null : goal.id)} className="p-1 rounded-full hover:bg-theme-main">
-                                                <Icons.MoreVertical size={16} className="text-theme-secondary" />
-                                            </button>
-                                            {showMenuId === goal.id && (
-                                                <div className="absolute right-0 top-6 bg-theme-main border border-theme rounded-xl shadow-xl z-20 w-32 py-1">
-                                                    <button onClick={() => { openAddGoalModal(goal); setShowMenuId(null); }} className="w-full text-left px-4 py-2 text-xs text-theme-primary hover:bg-theme-card flex items-center gap-2">
-                                                        <Icons.Edit size={12} /> Edit
-                                                    </button>
-                                                    <button onClick={() => deleteItem('goal', goal.id)} className="w-full text-left px-4 py-2 text-xs text-rose-500 hover:bg-theme-card flex items-center gap-2">
-                                                        <Icons.Delete size={12} /> Delete
-                                                    </button>
-                                                </div>
-                                            )}
+
+                                    <div className="mb-4 relative z-10">
+                                        <GoalVisual
+                                            percentage={percentage}
+                                            color={goal.color}
+                                            icon={iconObj.icon}
+                                            isComplete={isComplete}
+                                        />
+                                        <div className="flex justify-between mt-2 text-xs text-theme-secondary">
+                                            <span>{isPrivacyMode ? '••••' : goal.currentAmount.toLocaleString()} ETB</span>
+                                            <span>Target: {isPrivacyMode ? '••••' : goal.targetAmount.toLocaleString()}</span>
                                         </div>
                                     </div>
-                                </div>
 
-                                <div className="mb-4 relative z-10">
-                                    <div className="w-full h-3 bg-theme-main rounded-full overflow-hidden">
-                                        <div
-                                            className={`h-full rounded-full transition-all duration-1000 ${isComplete ? 'bg-emerald-500' : goal.color === 'cyan' ? 'bg-cyan-400' : goal.color === 'pink' ? 'bg-pink-500' : 'bg-yellow-400'}`}
-                                            style={{ width: `${percentage}%` }}
-                                        ></div>
-                                    </div>
-                                    <div className="flex justify-between mt-2 text-xs text-theme-secondary">
-                                        <span>{isPrivacyMode ? '••••' : goal.currentAmount.toLocaleString()} ETB</span>
-                                        <span>Target: {isPrivacyMode ? '••••' : goal.targetAmount.toLocaleString()}</span>
-                                    </div>
-                                </div>
-
-                                {!isComplete && (
-                                    <div className="flex gap-3 relative z-10">
-                                        <button
-                                            onClick={(e) => { e.stopPropagation(); setContributionModal(goal.id); setContributionAccount(goal.defaultAccountId || accounts[0]?.id || ''); }}
-                                            className="flex-1 py-3 bg-theme-main hover:bg-theme-main/80 border border-theme rounded-xl text-sm font-bold text-theme-primary transition-colors btn-press"
-                                        >
-                                            Add Funds
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
-                        )
-                    })}
-
-                    {savingsGoals.length === 0 && (
-                        <EmptyState
-                            icon={<Icons.Goals size={32} />}
-                            title="No dreams yet?"
-                            description="Define your dreams. Set a target to start saving systematically."
-                            action={{
-                                label: `Create ${activeProfile} Goal`,
-                                onClick: () => openAddGoalModal(),
-                                icon: <Icons.Plus size={18} />
-                            }}
-                        />
-                    )}
-                </div>
-            )}
-
-            {/* --- DIGITAL IQUB VIEW --- */}
-            {activeTab === 'iqub' && (
-                <div className="space-y-6 animate-fade-in">
-                    {/* Iqub Hero Banner */}
-                    <div className="bg-gradient-to-br from-indigo-900 to-purple-900 rounded-3xl p-6 relative overflow-hidden shadow-lg text-white mb-6">
-                        <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
-
-                        <div className="relative z-10">
-                            <div className="flex justify-between items-start mb-6">
-                                <div>
-                                    <h2 className="text-2xl font-bold mb-1">Digital Iqub</h2>
-                                    <p className="text-indigo-200 text-xs">Modern rotating savings circles.</p>
-                                </div>
-                                <button
-                                    onClick={() => openAddIqubModal()}
-                                    className="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-full text-xs font-bold backdrop-blur-md border border-white/10 transition-colors"
-                                >
-                                    + New Circle
-                                </button>
-                            </div>
-
-                            <div className="grid grid-cols-3 gap-2">
-                                <div className="bg-black/20 rounded-xl p-3 text-center backdrop-blur-sm">
-                                    <span className="block text-lg font-bold">{iqubs.length}</span>
-                                    <span className="text-[10px] text-indigo-200 uppercase tracking-wider">Active</span>
-                                </div>
-                                <div className="bg-black/20 rounded-xl p-3 text-center backdrop-blur-sm">
-                                    <span className="block text-lg font-bold">{iqubs.reduce((acc, i) => acc + i.members, 0)}</span>
-                                    <span className="text-[10px] text-indigo-200 uppercase tracking-wider">Members</span>
-                                </div>
-                                <div className="bg-black/20 rounded-xl p-3 text-center backdrop-blur-sm">
-                                    <span className="block text-lg font-bold text-emerald-400">98%</span>
-                                    <span className="text-[10px] text-indigo-200 uppercase tracking-wider">Payout</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {iqubs.map(iqub => (
-                        <div
-                            key={iqub.id}
-                            className="soft-card p-6 rounded-3xl relative cursor-pointer hover:shadow-md transition-all"
-                            onClick={() => setSelectedIqubDetail(iqub)}
-                        >
-                            {/* Menu */}
-                            <div className="absolute top-6 right-6 z-10" onClick={e => e.stopPropagation()}>
-                                <button onClick={() => setShowMenuId(showMenuId === iqub.id ? null : iqub.id)} className="p-1 rounded-full hover:bg-theme-main">
-                                    <Icons.MoreVertical size={16} className="text-theme-secondary" />
-                                </button>
-                                {showMenuId === iqub.id && (
-                                    <div className="absolute right-0 top-6 bg-theme-main border border-theme rounded-xl shadow-xl z-20 w-32 py-1">
-                                        <button onClick={() => { openAddIqubModal(iqub); setShowMenuId(null); }} className="w-full text-left px-4 py-2 text-xs text-theme-primary hover:bg-theme-card flex items-center gap-2">
-                                            <Icons.Edit size={12} /> Edit
-                                        </button>
-                                        <button onClick={() => deleteItem('iqub', iqub.id)} className="w-full text-left px-4 py-2 text-xs text-rose-500 hover:bg-theme-card flex items-center gap-2">
-                                            <Icons.Delete size={12} /> Delete
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
-
-                            <div className="flex justify-between items-start mb-4">
-                                <div>
-                                    <h4 className="font-bold text-theme-primary text-xl mb-1">{iqub.title}</h4>
-                                    <p className="text-xs text-theme-secondary flex items-center gap-2 mb-1">
-                                        <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-                                        {iqub.cycle} Cycle • {iqub.members} Members
-                                    </p>
-                                    {iqub.purpose && (
-                                        <p className="text-[10px] text-cyan-400 font-medium">Goal: {iqub.purpose}</p>
+                                    {!isComplete && (
+                                        <div className="flex gap-3 relative z-10">
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); setContributionModal(goal.id); setContributionAccount(goal.defaultAccountId || accounts[0]?.id || ''); }}
+                                                className="flex-1 py-3 bg-theme-main hover:bg-theme-main/80 border border-theme rounded-xl text-sm font-bold text-theme-primary transition-colors btn-press"
+                                            >
+                                                Add Funds
+                                            </button>
+                                        </div>
                                     )}
                                 </div>
-                            </div>
+                            )
+                        })}
 
-                            {/* Visual Blocks Tracker */}
-                            <HorizontalScroll className="flex gap-1 mb-6 py-2">
-                                {Array.from({ length: iqub.members }).map((_, idx) => {
-                                    const roundNum = idx + 1;
-                                    const isPaid = roundNum <= iqub.paidRounds;
-                                    const isWinRound = iqub.winningRound === roundNum;
-
-                                    return (
-                                        <div
-                                            key={idx}
-                                            className={`h-8 w-8 rounded-lg shrink-0 flex items-center justify-center text-[10px] font-bold border transition-colors ${isWinRound ? 'bg-yellow-500 border-yellow-400 text-black shadow-lg shadow-yellow-500/30 scale-110 z-10' :
-                                                isPaid ? 'bg-emerald-500 border-emerald-400 text-black' :
-                                                    'bg-theme-main border-theme text-theme-secondary'
-                                                }`}
-                                        >
-                                            {isWinRound ? <Icons.Trophy size={14} /> : isPaid ? <Icons.Check size={14} /> : roundNum}
-                                        </div>
-                                    )
-                                })}
-                            </HorizontalScroll>
-
-                            <div className="bg-theme-main rounded-2xl p-4 border border-theme mb-6 flex items-center justify-between">
-                                <div>
-                                    <p className="text-[10px] text-theme-secondary uppercase tracking-wider mb-1">Your Turn</p>
-                                    <p className="text-theme-primary font-bold">{iqub.myTurnDate ? new Date(iqub.myTurnDate).toLocaleDateString() : 'Not Set'}</p>
-                                </div>
-                                <div className="h-8 w-px bg-theme-secondary/20"></div>
-                                <div>
-                                    <p className="text-[10px] text-theme-secondary uppercase tracking-wider mb-1">Total Payout</p>
-                                    <p className="text-cyan-400 font-bold">{isPrivacyMode ? '••••' : (iqub.payoutAmount).toLocaleString()}</p>
-                                </div>
-                            </div>
-
-                            {/* Actions */}
-                            <div className="flex gap-3" onClick={e => e.stopPropagation()}>
-                                <button
-                                    onClick={() => { setShowPayIqubModal(iqub); setIqubPayAccount(accounts[0]?.id || ''); }}
-                                    disabled={iqub.paidRounds >= iqub.members}
-                                    className="flex-1 py-4 bg-theme-main hover:bg-theme-card border border-theme text-theme-primary font-bold rounded-2xl transition-all disabled:opacity-50"
-                                >
-                                    Pay {isPrivacyMode ? '••••' : iqub.amount}
-                                </button>
-
-                                {!iqub.hasWon ? (
-                                    <button
-                                        onClick={() => handleClaimWin(iqub)}
-                                        className="flex-1 py-4 bg-gradient-to-r from-yellow-600 to-yellow-500 hover:from-yellow-500 hover:to-yellow-400 text-black font-bold rounded-2xl shadow-lg shadow-yellow-500/20 transition-all active:scale-95 flex items-center justify-center gap-2"
-                                    >
-                                        <Icons.Trophy size={18} /> I Won!
-                                    </button>
-                                ) : (
-                                    <div className="flex-1 py-4 bg-yellow-500/10 border border-yellow-500/30 text-yellow-500 font-bold rounded-2xl flex items-center justify-center gap-2">
-                                        <Icons.CheckCircle size={18} /> Payout Recieved
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    ))}
-                    {iqubs.length === 0 && (
-                        <EmptyState
-                            icon={<Icons.Users size={32} />}
-                            title="No Iqubs Active"
-                            description="Join a digital Iqub to save with friends and colleagues. Track rounds and payouts easily."
-                            action={{
-                                label: "Start New Iqub",
-                                onClick: () => openAddIqubModal(),
-                                icon: <Icons.Plus size={18} />
-                            }}
-                        />
-                    )}
-                </div>
-            )}
-
-            {/* --- IDDIR VIEW (Phase 2) --- */}
-            {activeTab === 'iddir' && (
-                <div className="space-y-6 animate-fade-in">
-                    {/* Iddir Hero Banner */}
-                    <div className="bg-gradient-to-br from-rose-900 to-pink-900 rounded-3xl p-6 relative overflow-hidden shadow-lg text-white mb-6">
-                        <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full blur-3xl -ml-10 -mb-10 pointer-events-none"></div>
-
-                        <div className="relative z-10">
-                            <div className="flex justify-between items-start mb-6">
-                                <div>
-                                    <h2 className="text-2xl font-bold mb-1">Community Iddir</h2>
-                                    <p className="text-rose-200 text-xs">Social insurance & emergency funds.</p>
-                                </div>
-                                <button
-                                    onClick={() => openAddIddirModal()}
-                                    className="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-full text-xs font-bold backdrop-blur-md border border-white/10 transition-colors"
-                                >
-                                    + Join Iddir
-                                </button>
-                            </div>
-                        </div>
+                        {savingsGoals.length === 0 && (
+                            <EmptyState
+                                icon={<Icons.Goals size={32} />}
+                                title="No dreams yet?"
+                                description="Define your dreams. Set a target to start saving systematically."
+                                action={{
+                                    label: `Create ${activeProfile} Goal`,
+                                    onClick: () => openAddGoalModal(),
+                                    icon: <Icons.Plus size={18} />
+                                }}
+                            />
+                        )}
                     </div>
+                )
+            }
 
-                    {iddirs.map(iddir => {
-                        const isPaidThisMonth = iddir.lastPaidDate && new Date(iddir.lastPaidDate).getMonth() === new Date().getMonth() && new Date(iddir.lastPaidDate).getFullYear() === new Date().getFullYear();
+            {/* --- DIGITAL IQUB VIEW --- */}
+            {
+                activeTab === 'iqub' && (
+                    <div className="space-y-6 animate-fade-in">
+                        {/* Iqub Hero Banner */}
+                        <div className="bg-gradient-to-br from-indigo-900 to-purple-900 rounded-3xl p-6 relative overflow-hidden shadow-lg text-white mb-6">
+                            <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
 
-                        return (
-                            <div
-                                key={iddir.id}
-                                className={`soft-card p-6 rounded-3xl relative group transition-colors ${isPaidThisMonth ? 'border-emerald-500/50' : ''}`}
-                            >
-                                {/* Edit/Delete Menu for Iddir */}
-                                <div className="absolute top-6 right-6 z-10">
-                                    <button onClick={() => setShowMenuId(showMenuId === iddir.id ? null : iddir.id)} className="p-2 rounded-full hover:bg-theme-main text-theme-secondary">
-                                        <Icons.MoreVertical size={16} />
+                            <div className="relative z-10">
+                                <div className="flex justify-between items-start mb-6">
+                                    <div>
+                                        <h2 className="text-2xl font-bold mb-1">Digital Iqub</h2>
+                                        <p className="text-indigo-200 text-xs">Modern rotating savings circles.</p>
+                                    </div>
+                                    <button
+                                        onClick={() => openAddIqubModal()}
+                                        className="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-full text-xs font-bold backdrop-blur-md border border-white/10 transition-colors"
+                                    >
+                                        + New Circle
                                     </button>
-                                    {showMenuId === iddir.id && (
+                                </div>
+
+                                <div className="grid grid-cols-3 gap-2">
+                                    <div className="bg-black/20 rounded-xl p-3 text-center backdrop-blur-sm">
+                                        <span className="block text-lg font-bold">{iqubs.length}</span>
+                                        <span className="text-[10px] text-indigo-200 uppercase tracking-wider">Active</span>
+                                    </div>
+                                    <div className="bg-black/20 rounded-xl p-3 text-center backdrop-blur-sm">
+                                        <span className="block text-lg font-bold">{iqubs.reduce((acc, i) => acc + i.members, 0)}</span>
+                                        <span className="text-[10px] text-indigo-200 uppercase tracking-wider">Members</span>
+                                    </div>
+                                    <div className="bg-black/20 rounded-xl p-3 text-center backdrop-blur-sm">
+                                        <span className="block text-lg font-bold text-emerald-400">98%</span>
+                                        <span className="text-[10px] text-indigo-200 uppercase tracking-wider">Payout</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {iqubs.map(iqub => (
+                            <div
+                                key={iqub.id}
+                                className="soft-card p-6 rounded-3xl relative cursor-pointer hover:shadow-md transition-all"
+                                onClick={() => setSelectedIqubDetail(iqub)}
+                            >
+                                {/* Menu */}
+                                <div className="absolute top-6 right-6 z-10" onClick={e => e.stopPropagation()}>
+                                    <button onClick={() => setShowMenuId(showMenuId === iqub.id ? null : iqub.id)} className="p-1 rounded-full hover:bg-theme-main">
+                                        <Icons.MoreVertical size={16} className="text-theme-secondary" />
+                                    </button>
+                                    {showMenuId === iqub.id && (
                                         <div className="absolute right-0 top-6 bg-theme-main border border-theme rounded-xl shadow-xl z-20 w-32 py-1">
-                                            <button onClick={() => { openAddIddirModal(iddir); setShowMenuId(null); }} className="w-full text-left px-4 py-2 text-xs text-theme-primary hover:bg-theme-card flex items-center gap-2">
+                                            <button onClick={() => { openAddIqubModal(iqub); setShowMenuId(null); }} className="w-full text-left px-4 py-2 text-xs text-theme-primary hover:bg-theme-card flex items-center gap-2">
                                                 <Icons.Edit size={12} /> Edit
                                             </button>
-                                            <button onClick={() => deleteItem('iddir', iddir.id)} className="w-full text-left px-4 py-2 text-xs text-rose-500 hover:bg-theme-card flex items-center gap-2">
+                                            <button onClick={() => deleteItem('iqub', iqub.id)} className="w-full text-left px-4 py-2 text-xs text-rose-500 hover:bg-theme-card flex items-center gap-2">
                                                 <Icons.Delete size={12} /> Delete
                                             </button>
                                         </div>
                                     )}
                                 </div>
 
-                                <div className="flex items-center gap-4 mb-4">
-                                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${isPaidThisMonth ? 'bg-emerald-500/20 text-emerald-500' : 'bg-rose-500/20 text-rose-500'}`}>
-                                        <Icons.Iddir size={24} />
-                                    </div>
+                                <div className="flex justify-between items-start mb-4">
                                     <div>
-                                        <div className="flex items-center gap-2">
-                                            <h4 className="font-bold text-theme-primary text-lg">{iddir.name}</h4>
-                                            {isPaidThisMonth && <Icons.CheckCircle size={18} fill="currentColor" className="text-emerald-500 bg-theme-card rounded-full" />}
-                                        </div>
-                                        <p className="text-xs text-theme-secondary">Monthly Due: Day {iddir.paymentDate}</p>
+                                        <h4 className="font-bold text-theme-primary text-xl mb-1">{iqub.title}</h4>
+                                        <p className="text-xs text-theme-secondary flex items-center gap-2 mb-1">
+                                            <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                                            {iqub.cycle} Cycle • {iqub.members} Members
+                                        </p>
+                                        {iqub.purpose && (
+                                            <p className="text-[10px] text-cyan-400 font-medium">Goal: {iqub.purpose}</p>
+                                        )}
                                     </div>
                                 </div>
 
-                                <div className="flex justify-between items-end">
-                                    <div>
-                                        <p className="text-[10px] text-theme-secondary uppercase font-bold mb-1">Contribution</p>
-                                        <p className="text-xl font-bold text-white">{iddir.monthlyContribution.toLocaleString()} <span className="text-sm font-normal text-theme-secondary">ETB</span></p>
-                                    </div>
+                                {/* Visual Blocks Tracker */}
+                                <HorizontalScroll className="flex gap-1 mb-6 py-2">
+                                    {Array.from({ length: iqub.members }).map((_, idx) => {
+                                        const roundNum = idx + 1;
+                                        const isPaid = roundNum <= iqub.paidRounds;
+                                        const isWinRound = iqub.winningRound === roundNum;
 
-                                    {isPaidThisMonth ? (
-                                        <div className="px-4 py-2 bg-emerald-500/10 border border-emerald-500/30 text-emerald-500 rounded-xl text-xs font-bold flex items-center gap-2">
-                                            <Icons.Check size={14} /> Paid
-                                        </div>
-                                    ) : (
+                                        return (
+                                            <div
+                                                key={idx}
+                                                className={`h-8 w-8 rounded-lg shrink-0 flex items-center justify-center text-[10px] font-bold border transition-colors ${isWinRound ? 'bg-yellow-500 border-yellow-400 text-black shadow-lg shadow-yellow-500/30 scale-110 z-10' :
+                                                    isPaid ? 'bg-emerald-500 border-emerald-400 text-black' :
+                                                        'bg-theme-main border-theme text-theme-secondary'
+                                                    }`}
+                                            >
+                                                {isWinRound ? <Icons.Trophy size={14} /> : isPaid ? <Icons.Check size={14} /> : roundNum}
+                                            </div>
+                                        )
+                                    })}
+                                </HorizontalScroll>
+
+                                <div className="bg-theme-main rounded-2xl p-4 border border-theme mb-6 flex items-center justify-between">
+                                    <div>
+                                        <p className="text-[10px] text-theme-secondary uppercase tracking-wider mb-1">Your Turn</p>
+                                        <p className="text-theme-primary font-bold">{iqub.myTurnDate ? new Date(iqub.myTurnDate).toLocaleDateString() : 'Not Set'}</p>
+                                    </div>
+                                    <div className="h-8 w-px bg-theme-secondary/20"></div>
+                                    <div>
+                                        <p className="text-[10px] text-theme-secondary uppercase tracking-wider mb-1">Total Payout</p>
+                                        <p className="text-cyan-400 font-bold">{isPrivacyMode ? '••••' : (iqub.payoutAmount).toLocaleString()}</p>
+                                    </div>
+                                </div>
+
+                                {/* Actions */}
+                                <div className="flex gap-3" onClick={e => e.stopPropagation()}>
+                                    <button
+                                        onClick={() => { setShowPayIqubModal(iqub); setIqubPayAccount(accounts[0]?.id || ''); }}
+                                        disabled={iqub.paidRounds >= iqub.members}
+                                        className="flex-1 py-4 bg-theme-main hover:bg-theme-card border border-theme text-theme-primary font-bold rounded-2xl transition-all disabled:opacity-50"
+                                    >
+                                        Pay {isPrivacyMode ? '••••' : iqub.amount}
+                                    </button>
+
+                                    {!iqub.hasWon ? (
                                         <button
-                                            onClick={() => markIddirPaid(iddir.id, accounts[0]?.id || '')}
-                                            className="px-6 py-3 bg-rose-500 text-white rounded-xl text-xs font-bold shadow-lg shadow-rose-500/20 hover:scale-[1.02] active:scale-95 transition-all"
+                                            onClick={() => handleClaimWin(iqub)}
+                                            className="flex-1 py-4 bg-gradient-to-r from-yellow-600 to-yellow-500 hover:from-yellow-500 hover:to-yellow-400 text-black font-bold rounded-2xl shadow-lg shadow-yellow-500/20 transition-all active:scale-95 flex items-center justify-center gap-2"
                                         >
-                                            Pay Now
+                                            <Icons.Trophy size={18} /> I Won!
                                         </button>
+                                    ) : (
+                                        <div className="flex-1 py-4 bg-yellow-500/10 border border-yellow-500/30 text-yellow-500 font-bold rounded-2xl flex items-center justify-center gap-2">
+                                            <Icons.CheckCircle size={18} /> Payout Recieved
+                                        </div>
                                     )}
                                 </div>
-
-                                {/* Reminder Badge */}
-                                {iddir.reminderEnabled && !isPaidThisMonth && (
-                                    <div className="absolute top-6 right-16 flex items-center gap-1 text-[10px] text-theme-secondary bg-theme-main px-2 py-1 rounded-full border border-theme">
-                                        <Icons.Bell size={10} /> {iddir.reminderDaysBefore}d before
-                                    </div>
-                                )}
                             </div>
-                        )
-                    })}
+                        ))}
+                        {iqubs.length === 0 && (
+                            <EmptyState
+                                icon={<Icons.Users size={32} />}
+                                title="No Iqubs Active"
+                                description="Join a digital Iqub to save with friends and colleagues. Track rounds and payouts easily."
+                                action={{
+                                    label: "Start New Iqub",
+                                    onClick: () => openAddIqubModal(),
+                                    icon: <Icons.Plus size={18} />
+                                }}
+                            />
+                        )}
+                    </div>
+                )
+            }
 
-                    {iddirs.length === 0 && (
-                        <EmptyState
-                            icon={<Icons.Iddir size={32} />}
-                            title="No Iddir memberships"
-                            description="Social insurance is crucial. Add your Iddir to track monthly dues."
-                            action={{
-                                label: "Register New Iddir",
-                                onClick: () => openAddIddirModal(),
-                                icon: <Icons.Plus size={18} />
-                            }}
-                        />
-                    )}
-                </div>
-            )}
+            {/* --- IDDIR VIEW (Phase 2) --- */}
+            {
+                activeTab === 'iddir' && (
+                    <div className="space-y-6 animate-fade-in">
+                        {/* Iddir Hero Banner */}
+                        <div className="bg-gradient-to-br from-rose-900 to-pink-900 rounded-3xl p-6 relative overflow-hidden shadow-lg text-white mb-6">
+                            <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full blur-3xl -ml-10 -mb-10 pointer-events-none"></div>
+
+                            <div className="relative z-10">
+                                <div className="flex justify-between items-start mb-6">
+                                    <div>
+                                        <h2 className="text-2xl font-bold mb-1">Community Iddir</h2>
+                                        <p className="text-rose-200 text-xs">Social insurance & emergency funds.</p>
+                                    </div>
+                                    <button
+                                        onClick={() => openAddIddirModal()}
+                                        className="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-full text-xs font-bold backdrop-blur-md border border-white/10 transition-colors"
+                                    >
+                                        + Join Iddir
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        {iddirs.map(iddir => {
+                            const isPaidThisMonth = iddir.lastPaidDate && new Date(iddir.lastPaidDate).getMonth() === new Date().getMonth() && new Date(iddir.lastPaidDate).getFullYear() === new Date().getFullYear();
+
+                            return (
+                                <div
+                                    key={iddir.id}
+                                    className={`soft-card p-6 rounded-3xl relative group transition-colors ${isPaidThisMonth ? 'border-emerald-500/50' : ''}`}
+                                >
+                                    {/* Edit/Delete Menu for Iddir */}
+                                    <div className="absolute top-6 right-6 z-10">
+                                        <button onClick={() => setShowMenuId(showMenuId === iddir.id ? null : iddir.id)} className="p-2 rounded-full hover:bg-theme-main text-theme-secondary">
+                                            <Icons.MoreVertical size={16} />
+                                        </button>
+                                        {showMenuId === iddir.id && (
+                                            <div className="absolute right-0 top-6 bg-theme-main border border-theme rounded-xl shadow-xl z-20 w-32 py-1">
+                                                <button onClick={() => { openAddIddirModal(iddir); setShowMenuId(null); }} className="w-full text-left px-4 py-2 text-xs text-theme-primary hover:bg-theme-card flex items-center gap-2">
+                                                    <Icons.Edit size={12} /> Edit
+                                                </button>
+                                                <button onClick={() => deleteItem('iddir', iddir.id)} className="w-full text-left px-4 py-2 text-xs text-rose-500 hover:bg-theme-card flex items-center gap-2">
+                                                    <Icons.Delete size={12} /> Delete
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <div className="flex items-center gap-4 mb-4">
+                                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${isPaidThisMonth ? 'bg-emerald-500/20 text-emerald-500' : 'bg-rose-500/20 text-rose-500'}`}>
+                                            <Icons.Iddir size={24} />
+                                        </div>
+                                        <div>
+                                            <div className="flex items-center gap-2">
+                                                <h4 className="font-bold text-theme-primary text-lg">{iddir.name}</h4>
+                                                {isPaidThisMonth && <Icons.CheckCircle size={18} fill="currentColor" className="text-emerald-500 bg-theme-card rounded-full" />}
+                                            </div>
+                                            <p className="text-xs text-theme-secondary">Monthly Due: Day {iddir.paymentDate}</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex justify-between items-end">
+                                        <div>
+                                            <p className="text-[10px] text-theme-secondary uppercase font-bold mb-1">Contribution</p>
+                                            <p className="text-xl font-bold text-white">{iddir.monthlyContribution.toLocaleString()} <span className="text-sm font-normal text-theme-secondary">ETB</span></p>
+                                        </div>
+
+                                        {isPaidThisMonth ? (
+                                            <div className="px-4 py-2 bg-emerald-500/10 border border-emerald-500/30 text-emerald-500 rounded-xl text-xs font-bold flex items-center gap-2">
+                                                <Icons.Check size={14} /> Paid
+                                            </div>
+                                        ) : (
+                                            <button
+                                                onClick={() => markIddirPaid(iddir.id, accounts[0]?.id || '')}
+                                                className="px-6 py-3 bg-rose-500 text-white rounded-xl text-xs font-bold shadow-lg shadow-rose-500/20 hover:scale-[1.02] active:scale-95 transition-all"
+                                            >
+                                                Pay Now
+                                            </button>
+                                        )}
+                                    </div>
+
+                                    {/* Reminder Badge */}
+                                    {iddir.reminderEnabled && !isPaidThisMonth && (
+                                        <div className="absolute top-6 right-16 flex items-center gap-1 text-[10px] text-theme-secondary bg-theme-main px-2 py-1 rounded-full border border-theme">
+                                            <Icons.Bell size={10} /> {iddir.reminderDaysBefore}d before
+                                        </div>
+                                    )}
+                                </div>
+                            )
+                        })}
+
+                        {iddirs.length === 0 && (
+                            <EmptyState
+                                icon={<Icons.Iddir size={32} />}
+                                title="No Iddir memberships"
+                                description="Social insurance is crucial. Add your Iddir to track monthly dues."
+                                action={{
+                                    label: "Register New Iddir",
+                                    onClick: () => openAddIddirModal(),
+                                    icon: <Icons.Plus size={18} />
+                                }}
+                            />
+                        )}
+                    </div>
+                )
+            }
 
             {/* CELEBRATION OVERLAY */}
-            {showCelebration && (
-                <div className="fixed inset-0 z-[120] flex items-center justify-center pointer-events-none">
-                    <div className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fade-in"></div>
-                    <div className="relative z-10 flex flex-col items-center animate-bounce">
-                        <div className="text-6xl mb-4">🎉</div>
-                        <Icons.Celebration size={120} className="text-yellow-400 drop-shadow-lg" />
-                        <h2 className="text-4xl font-bold text-white mt-8 drop-shadow-md text-center">Congratulations!</h2>
-                        <p className="text-white/80 text-lg mt-2">You won the Iqub Payout!</p>
+            {
+                showCelebration && (
+                    <div className="fixed inset-0 z-[120] flex items-center justify-center pointer-events-none">
+                        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fade-in"></div>
+                        <div className="relative z-10 flex flex-col items-center animate-bounce">
+                            <div className="text-6xl mb-4">🎉</div>
+                            <Icons.Celebration size={120} className="text-yellow-400 drop-shadow-lg" />
+                            <h2 className="text-4xl font-bold text-white mt-8 drop-shadow-md text-center">Congratulations!</h2>
+                            <p className="text-white/80 text-lg mt-2">You won the Iqub Payout!</p>
+                        </div>
                     </div>
-                </div>
-            )}
+                )
+            }
 
             {/* PAY IQUB MODAL */}
-            {showPayIqubModal && (
-                <div
-                    onClick={(e) => { if (e.target === e.currentTarget) setShowPayIqubModal(null); }}
-                    className="fixed inset-0 modal-overlay z-[90] flex items-end sm:items-center justify-center"
-                >
-                    <div className="modal-content w-full max-w-sm rounded-t-[2rem] sm:rounded-3xl animate-slide-up shadow-2xl relative flex flex-col max-h-[85vh]">
-                        <div className="w-16 h-1.5 modal-handle rounded-full mx-auto mt-6 mb-2 shrink-0 sm:hidden"></div>
+            {
+                showPayIqubModal && (
+                    <div
+                        onClick={(e) => { if (e.target === e.currentTarget) setShowPayIqubModal(null); }}
+                        className="fixed inset-0 modal-overlay z-[90] flex items-end sm:items-center justify-center"
+                    >
+                        <div className="modal-content w-full max-w-sm rounded-t-[2rem] sm:rounded-3xl animate-slide-up shadow-2xl relative flex flex-col max-h-[85vh] pb-[calc(1rem+env(safe-area-inset-bottom))]">
+                            <div className="w-16 h-1.5 modal-handle rounded-full mx-auto mt-6 mb-2 shrink-0 sm:hidden"></div>
 
-                        <div className="flex-1 overflow-y-auto p-6 pt-2">
-                            <h3 className="text-lg font-bold text-theme-primary mb-2">Pay Iqub Contribution</h3>
-                            <p className="text-xs text-theme-secondary mb-6">Make your payment for this cycle.</p>
+                            <div className="flex-1 overflow-y-auto p-6 pt-2">
+                                <h3 className="text-lg font-bold text-theme-primary mb-2">Pay Iqub Contribution</h3>
+                                <p className="text-xs text-theme-secondary mb-6">Make your payment for this cycle.</p>
 
-                            <div className="space-y-4 mb-6">
-                                <div>
-                                    <label className="text-xs font-bold text-theme-secondary uppercase tracking-wider mb-2 block">From Account</label>
-                                    <select
-                                        className="w-full bg-theme-main border border-theme rounded-2xl p-4 text-theme-primary outline-none focus:border-cyan-500"
-                                    >
-                                        {accounts.map(acc => (
-                                            <option key={acc.id} value={acc.id}>{acc.name} ({acc.balance})</option>
-                                        ))}
-                                    </select>
-                                </div>
+                                <div className="space-y-4 mb-6">
+                                    <div>
+                                        <label className="text-xs font-bold text-theme-secondary uppercase tracking-wider mb-2 block">From Account</label>
+                                        <select
+                                            className="w-full bg-theme-main border border-theme rounded-2xl p-4 text-theme-primary outline-none focus:border-cyan-500"
+                                        >
+                                            {accounts.map(acc => (
+                                                <option key={acc.id} value={acc.id}>{acc.name} ({acc.balance})</option>
+                                            ))}
+                                        </select>
+                                    </div>
 
-                                <div>
-                                    <label className="text-xs font-bold text-theme-secondary uppercase tracking-wider mb-2 block">Amount Due</label>
-                                    <div className="w-full bg-theme-main border border-theme rounded-2xl p-4 text-theme-primary text-2xl font-bold font-mono">
-                                        {showPayIqubModal.amount} ETB
+                                    <div>
+                                        <label className="text-xs font-bold text-theme-secondary uppercase tracking-wider mb-2 block">Amount Due</label>
+                                        <div className="w-full bg-theme-main border border-theme rounded-2xl p-4 text-theme-primary text-2xl font-bold font-mono">
+                                            {showPayIqubModal.amount} ETB
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <div className="p-6 pt-4 mt-auto shrink-0 border-t border-theme/10">
-                            <div className="flex gap-3">
-                                <button onClick={() => setShowPayIqubModal(null)} className="flex-1 py-3 bg-theme-main rounded-xl text-theme-secondary font-bold">Cancel</button>
-                                <button onClick={handlePayIqub} className="flex-1 py-3 bg-cyan-500 rounded-xl text-black font-bold">Confirm Payment</button>
+                            <div className="p-6 pt-4 pb-8 mt-auto shrink-0 border-t border-theme/10">
+                                <div className="flex gap-3">
+                                    <button onClick={() => setShowPayIqubModal(null)} className="flex-1 py-3 bg-theme-main rounded-xl text-theme-secondary font-bold">Cancel</button>
+                                    <button onClick={handlePayIqub} className="flex-1 py-3 bg-cyan-500 rounded-xl text-black font-bold">Confirm Payment</button>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )
+            }
 
             {/* CONTRIBUTION MODAL (PERSONAL) */}
             {
@@ -882,7 +889,7 @@ export const GoalsPage: React.FC = () => {
                         onClick={(e) => { if (e.target === e.currentTarget) setContributionModal(null); }}
                         className="fixed inset-0 modal-overlay z-[90] flex items-end sm:items-center justify-center"
                     >
-                        <div className="modal-content w-full max-w-sm rounded-t-[2rem] sm:rounded-3xl animate-slide-up shadow-2xl relative flex flex-col max-h-[85vh]">
+                        <div className="modal-content w-full max-w-sm rounded-t-[2rem] sm:rounded-3xl animate-slide-up shadow-2xl relative flex flex-col max-h-[85vh] pb-[calc(1rem+env(safe-area-inset-bottom))]">
                             <div className="w-16 h-1.5 modal-handle rounded-full mx-auto mt-6 mb-2 shrink-0 sm:hidden"></div>
 
                             <div className="flex-1 overflow-y-auto p-6 pt-2">
@@ -919,7 +926,7 @@ export const GoalsPage: React.FC = () => {
                                 </div>
                             </div>
 
-                            <div className="p-6 pt-4 mt-auto shrink-0 border-t border-theme/10">
+                            <div className="p-6 pt-4 pb-8 mt-auto shrink-0 border-t border-theme/10">
                                 <div className="flex gap-3">
                                     <button onClick={() => setContributionModal(null)} className="flex-1 py-3 bg-theme-main rounded-xl text-theme-secondary font-bold">Cancel</button>
                                     <button onClick={handleContribute} className="flex-1 py-3 bg-cyan-500 rounded-xl text-black font-bold">Confirm</button>
@@ -937,7 +944,7 @@ export const GoalsPage: React.FC = () => {
                         onClick={(e) => { if (e.target === e.currentTarget) setShowAddIqub(false); }}
                         className="fixed inset-0 modal-overlay z-[90] flex items-end sm:items-center justify-center"
                     >
-                        <div className="modal-content w-full max-w-md rounded-t-[2rem] sm:rounded-3xl animate-slide-up shadow-2xl max-h-[90vh] flex flex-col relative">
+                        <div className="modal-content w-full max-w-md rounded-t-[2rem] sm:rounded-3xl animate-slide-up shadow-2xl max-h-[90vh] flex flex-col relative pb-[calc(1rem+env(safe-area-inset-bottom))]">
                             <div className="w-16 h-1.5 modal-handle rounded-full mx-auto mt-6 mb-2 shrink-0 sm:hidden"></div>
 
                             <div className="flex-1 overflow-y-auto p-6 pt-2 no-scrollbar">
@@ -1014,7 +1021,7 @@ export const GoalsPage: React.FC = () => {
                                 </div>
                             </div>
 
-                            <div className="p-6 pt-4 mt-auto shrink-0 border-t border-theme/10">
+                            <div className="p-6 pt-4 pb-8 mt-auto shrink-0 border-t border-theme/10">
                                 <div className="flex gap-3">
                                     <button onClick={() => setShowAddIqub(false)} className="flex-1 py-3 bg-theme-main rounded-xl text-theme-secondary font-bold">Cancel</button>
                                     <button onClick={handleSaveIqub} className="flex-1 py-3 bg-cyan-500 rounded-xl text-black font-bold hover:bg-cyan-400 shadow-lg shadow-cyan-500/20">{editingIqub ? 'Update' : 'Start Iqub'}</button>
@@ -1032,7 +1039,7 @@ export const GoalsPage: React.FC = () => {
                         onClick={(e) => { if (e.target === e.currentTarget) setShowAddIddir(false); }}
                         className="fixed inset-0 modal-overlay z-[90] flex items-end sm:items-center justify-center"
                     >
-                        <div className="modal-content w-full max-w-sm rounded-t-[2rem] sm:rounded-3xl animate-slide-up shadow-2xl relative flex flex-col max-h-[85vh]">
+                        <div className="modal-content w-full max-w-sm rounded-t-[2rem] sm:rounded-3xl animate-slide-up shadow-2xl relative flex flex-col max-h-[85vh] pb-[calc(1rem+env(safe-area-inset-bottom))]">
                             <div className="w-16 h-1.5 modal-handle rounded-full mx-auto mt-6 mb-2 shrink-0 sm:hidden"></div>
 
                             <div className="flex-1 overflow-y-auto p-6 pt-2 no-scrollbar">
@@ -1104,7 +1111,7 @@ export const GoalsPage: React.FC = () => {
                                 </div>
                             </div>
 
-                            <div className="p-6 pt-4 mt-auto shrink-0 border-t border-theme/10">
+                            <div className="p-6 pt-4 pb-8 mt-auto shrink-0 border-t border-theme/10">
                                 <div className="flex gap-3">
                                     <button onClick={() => setShowAddIddir(false)} className="flex-1 py-3 bg-theme-main rounded-xl text-theme-secondary font-bold">Cancel</button>
                                     <button onClick={handleSaveIddir} className="flex-1 py-3 bg-rose-500 rounded-xl text-white font-bold hover:bg-rose-400 shadow-lg shadow-rose-500/20">{editingIddir ? 'Update' : 'Register'}</button>
@@ -1122,7 +1129,7 @@ export const GoalsPage: React.FC = () => {
                         onClick={(e) => { if (e.target === e.currentTarget) setShowAddGoal(false); }}
                         className="fixed inset-0 modal-overlay z-[90] flex items-end sm:items-center justify-center"
                     >
-                        <div className="modal-content w-full max-w-md rounded-t-[2rem] sm:rounded-3xl animate-slide-up shadow-2xl max-h-[90vh] flex flex-col relative">
+                        <div className="modal-content w-full max-w-md rounded-t-[2rem] sm:rounded-3xl animate-slide-up shadow-2xl max-h-[90vh] flex flex-col relative pb-[calc(1rem+env(safe-area-inset-bottom))]">
                             <div className="w-16 h-1.5 modal-handle rounded-full mx-auto mt-6 mb-2 shrink-0 sm:hidden"></div>
 
                             <div className="flex-1 overflow-y-auto p-6 pt-2 no-scrollbar">
@@ -1209,7 +1216,7 @@ export const GoalsPage: React.FC = () => {
                                 </div>
                             </div>
 
-                            <div className="p-6 pt-4 mt-auto shrink-0 border-t border-theme/10">
+                            <div className="p-6 pt-4 mt-auto shrink-0 border-t border-theme/10 pb-8 sm:pb-6">
                                 <div className="flex gap-3">
                                     <button onClick={() => setShowAddGoal(false)} className="flex-1 py-3 bg-theme-main rounded-xl text-theme-secondary font-bold">Cancel</button>
                                     <button onClick={handleSaveGoal} className="flex-1 py-3 bg-cyan-500 rounded-xl text-black font-bold hover:bg-cyan-400 shadow-lg shadow-cyan-500/20">{editingGoal ? 'Update' : 'Create'}</button>
@@ -1227,7 +1234,7 @@ export const GoalsPage: React.FC = () => {
                         onClick={(e) => { if (e.target === e.currentTarget) setSelectedGoalDetail(null); }}
                         className="fixed inset-0 modal-overlay z-[80] flex items-end sm:items-center justify-center"
                     >
-                        <div className="modal-content w-full max-w-md rounded-t-[2rem] sm:rounded-3xl p-6 animate-hero shadow-2xl h-[85vh] flex flex-col relative">
+                        <div className="modal-content w-full max-w-md rounded-t-[2rem] sm:rounded-3xl p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] animate-hero shadow-2xl h-[85vh] flex flex-col relative">
                             <div className="w-16 h-1.5 modal-handle rounded-full mx-auto mb-6 sm:hidden shrink-0"></div>
 
                             {/* Header */}
@@ -1367,7 +1374,7 @@ export const GoalsPage: React.FC = () => {
                         onClick={(e) => { if (e.target === e.currentTarget) setSelectedIqubDetail(null); }}
                         className="fixed inset-0 modal-overlay z-[80] flex items-end sm:items-center justify-center"
                     >
-                        <div className="modal-content w-full max-w-md rounded-t-[2rem] sm:rounded-3xl p-6 border-t sm:border border-theme animate-slide-up shadow-2xl h-[85vh] flex flex-col relative">
+                        <div className="modal-content w-full max-w-md rounded-t-[2rem] sm:rounded-3xl p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] border-t sm:border border-theme animate-slide-up shadow-2xl h-[85vh] flex flex-col relative">
                             <div className="w-16 h-1.5 modal-handle rounded-full mx-auto mb-6 sm:hidden shrink-0"></div>
 
                             {/* Header */}

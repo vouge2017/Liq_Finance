@@ -174,7 +174,7 @@ export const FinancialProfileModal: React.FC<Props> = ({ onClose }) => {
 
     return (
         <div className="fixed inset-0 modal-overlay z-[110] flex items-center justify-center p-4" onClick={onClose}>
-            <div className="modal-content w-full max-w-md rounded-3xl p-6 animate-scale-up h-[85vh] flex flex-col" onClick={e => e.stopPropagation()}>
+            <div className="modal-content w-full max-w-md rounded-3xl p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] animate-scale-up h-[85vh] flex flex-col" onClick={e => e.stopPropagation()}>
 
                 {/* Drag Handle */}
                 <div className="w-16 h-1.5 modal-handle rounded-full mx-auto mb-6 sm:hidden shrink-0" />

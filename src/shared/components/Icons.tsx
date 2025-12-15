@@ -97,9 +97,11 @@ import {
   Loader2,
   Mail,
   WifiOff,
+  Database,
 } from "lucide-react"
 
 export const Icons = {
+  Database: Database,
   Dashboard: LayoutDashboard,
   Wallet: Wallet,
   Budget: PieChart,

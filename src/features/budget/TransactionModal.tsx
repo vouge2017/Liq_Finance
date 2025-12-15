@@ -2,6 +2,7 @@
 
 import type React from "react"
 import { useState, useEffect, useRef } from "react"
+import { useTranslation } from "react-i18next"
 import { Icons } from "@/shared/components/Icons"
 import { useAppContext } from "@/context/AppContext"
 import type { Transaction } from "@/types"
@@ -14,6 +15,8 @@ import { toEthiopianDateString } from "@/utils/dateUtils"
 import { useAIUsage } from "@/services/ai-usage"
 import { UpgradePrompt } from "@/shared/components/UpgradePrompt"
 import { parseSMS } from "@/utils/smsParser"
+import { SimpleTransactionForm } from "@/features/budget/components/SimpleTransactionForm"
+import { AdvancedTransactionDetails } from "@/features/budget/components/AdvancedTransactionDetails"
 
 // Smart Suggestion Type
 interface SmartSuggestion {
@@ -100,6 +103,7 @@ export const TransactionModal: React.FC = () => {
     scannedImage,
     setScannedImage,
   } = useAppContext()
+  const { t } = useTranslation()
 
   const { canUseFeature, incrementUsage, upgradeToPro } = useAIUsage()
   const [showUpgrade, setShowUpgrade] = useState(false)
@@ -112,6 +116,7 @@ export const TransactionModal: React.FC = () => {
   const [accountId, setAccountId] = useLocalStorage<string>("draft_tx_account", "")
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]) // Date usually resets to today
   const [isRecurring, setIsRecurring] = useState(false)
+  const [showAdvanced, setShowAdvanced] = useState(false)
 
   // UI State
   const [smartSuggestions, setSmartSuggestions] = useState<SmartSuggestion[]>([])
@@ -132,7 +137,7 @@ export const TransactionModal: React.FC = () => {
   const [errors, setErrors] = useState({ amount: false, title: false, account: false })
 
   // Input Ref
-  const amountInputRef = useRef<HTMLInputElement>(null)
+  const amountInputRef = useRef<HTMLInputElement>(null!)
   const cameraInputRef = useRef<HTMLInputElement>(null)
   const galleryInputRef = useRef<HTMLInputElement>(null)
 
@@ -529,7 +534,7 @@ export const TransactionModal: React.FC = () => {
           onClick={() => closeTransactionModal()}
         />
 
-        <div className="modal-content w-full max-w-md rounded-t-[2rem] sm:rounded-3xl p-6 shadow-2xl pointer-events-auto animate-slide-up relative overflow-hidden h-[90vh] sm:h-auto flex flex-col">
+        <div className="modal-content w-full max-w-md rounded-t-[2rem] sm:rounded-3xl p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] shadow-2xl pointer-events-auto animate-slide-up relative overflow-hidden h-[90vh] sm:h-auto flex flex-col">
           <input
             type="file"
             accept="image/*"
@@ -720,241 +725,81 @@ export const TransactionModal: React.FC = () => {
               </div>
             )}
 
-            <div className="bg-black/20 p-6 rounded-3xl border border-white/5 space-y-6">
-              <div className="text-center">
-                <label className="text-xs font-medium text-theme-secondary mb-2 block">Amount</label>
-                <div className="relative inline-block">
-                  <span className="absolute left-0 top-1/2 -translate-y-1/2 text-theme-secondary text-2xl font-medium -ml-8">
-                    ETB
-                  </span>
-                  <input
-                    ref={amountInputRef}
-                    type="text"
-                    inputMode="decimal"
-                    value={amount}
-                    onChange={handleAmountChange}
-                    className={`bg-transparent text-center text-6xl font-bold outline-none placeholder-gray-600 font-mono w-full ${type === "income" ? "text-emerald-400" : "text-white"
-                      }`}
-                    placeholder="0"
-                  />
-                </div>
-                {errors.amount && <p className="text-xs text-rose-500 font-bold mt-1">Amount is required</p>}
-              </div>
+            <SimpleTransactionForm
+              amount={amount}
+              setAmount={setAmount}
+              handleAmountChange={handleAmountChange}
+              title={title}
+              setTitle={setTitle}
+              type={type}
+              setType={setType}
+              category={category}
+              setCategory={setCategory}
+              accountId={accountId}
+              setAccountId={setAccountId}
+              errors={errors}
+              amountInputRef={amountInputRef}
+              smartSuggestions={smartSuggestions}
+              handleSmartClick={handleSmartClick}
+              suggestions={suggestions}
+              isEditing={!!editingTransaction}
+            />
 
-              {/* Smart Suggestions (Quick Chips) */}
-              {!editingTransaction && (
-                <div className="flex justify-center gap-3">
-                  {smartSuggestions.map((s) => (
-                    <button
-                      key={s.id}
-                      onClick={() => handleSmartClick(s)}
-                      className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 rounded-full border border-white/5 transition-all active:scale-95"
-                    >
-                      <s.icon size={14} className="text-cyan-400" />
-                      <span className="text-xs font-medium text-gray-300">{s.label}</span>
-                    </button>
-                  ))}
-                </div>
-              )}
-
-              {/* Type Toggle */}
-              <div className="flex bg-black/40 p-1.5 rounded-2xl border border-white/10">
-                <button
-                  onClick={() => {
-                    setType("expense")
-                    setCategory(state.budgetCategories[0]?.name || "Food")
-                  }}
-                  className={`flex-1 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 ${type === "expense" ? "bg-theme-card text-pink-500 shadow-lg border border-pink-500/20" : "text-gray-500 hover:text-gray-300"}`}
-                >
-                  <Icons.ArrowUp className="rotate-45" size={16} /> Expense
-                </button>
-                <button
-                  onClick={() => {
-                    setType("income")
-                    setCategory("Salary")
-                  }}
-                  className={`flex-1 py-3 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 ${type === "income" ? "bg-theme-card text-emerald-500 shadow-lg border border-emerald-500/20" : "text-gray-500 hover:text-gray-300"}`}
-                >
-                  <Icons.ArrowDown className="rotate-45" size={16} /> Income
-                </button>
-              </div>
-            </div>
-
-            {/* 2. Title & Payee */}
-            <div className="space-y-2">
-              <label className="text-xs font-medium text-theme-secondary ml-1">Title / Payee</label>
-              <div className={`relative rounded-2xl bg-black/20 border border-white/5 focus-within:border-cyan-500/50 focus-within:bg-black/40 transition-all ${errors.title ? "border-rose-500" : ""}`}>
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">
-                  <Icons.Edit size={20} />
-                </div>
-                <input
-                  type="text"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  className="w-full bg-transparent p-4 pl-12 text-lg text-white outline-none placeholder-gray-600 font-medium"
-                  placeholder="What is this for?"
-                />
-              </div>
-              {errors.title && <p className="text-xs text-rose-500 font-bold ml-1">Title is required</p>}
-
-              {/* Suggestions */}
-              {suggestions.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-2 px-1">
-                  {suggestions.map((s, i) => (
-                    <button
-                      key={i}
-                      onClick={() => {
-                        setTitle(s)
-                        setSuggestions([])
-                      }}
-                      className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
-                    >
-                      {s}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* 3. Category Selection - GRID LAYOUT */}
-            <div className="space-y-3">
-              <label className="text-xs font-medium text-theme-secondary ml-1">Category</label>
-              <div className="grid grid-cols-3 gap-2">
-                {type === "expense"
-                  ? categories.map((cat) => (
-                    <button
-                      key={cat.id}
-                      onClick={() => setCategory(cat.name)}
-                      className={`flex flex-col items-center justify-center gap-2 p-3 rounded-2xl border transition-all duration-200 ${category === cat.name
-                        ? "bg-cyan-500/10 border-cyan-500/50 shadow-[0_0_15px_rgba(6,182,212,0.1)]"
-                        : "bg-black/20 border-white/5 hover:bg-black/40 hover:border-white/10"
-                        }`}
-                    >
-                      <div
-                        className={`w-10 h-10 rounded-full flex items-center justify-center text-white bg-gradient-to-br ${getGradientFromColor(cat.color)} shadow-sm`}
-                      >
-                        {(() => {
-                          const IconComponent = (Icons as any)[cat.icon] || Icons.Help
-                          return <IconComponent size={18} />
-                        })()}
-                      </div>
-                      <span
-                        className={`text-[10px] font-bold truncate w-full text-center ${category === cat.name ? "text-cyan-400" : "text-gray-500"}`}
-                      >
-                        {cat.name}
-                      </span>
-                    </button>
-                  ))
-                  : INCOME_CATEGORIES.map((cat) => (
-                    <button
-                      key={cat.id}
-                      onClick={() => setCategory(cat.label)}
-                      className={`flex flex-col items-center justify-center gap-2 p-3 rounded-2xl border transition-all duration-200 ${category === cat.label
-                        ? "bg-emerald-500/10 border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.1)]"
-                        : "bg-black/20 border-white/5 hover:bg-black/40 hover:border-white/10"
-                        }`}
-                    >
-                      <div
-                        className={`w-10 h-10 rounded-full flex items-center justify-center text-white bg-gradient-to-br ${cat.color} shadow-sm`}
-                      >
-                        <cat.icon size={18} />
-                      </div>
-                      <span
-                        className={`text-[10px] font-bold truncate w-full text-center ${category === cat.label ? "text-emerald-400" : "text-gray-500"}`}
-                      >
-                        {cat.label}
-                      </span>
-                    </button>
-                  ))}
-              </div>
-            </div>
-
-            {/* 4. Account & Date */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-theme-secondary uppercase tracking-wider ml-1">Account</label>
-                <div className={`relative rounded-2xl bg-black/20 border border-white/5 focus-within:border-cyan-500/50 transition-colors ${errors.account ? "border-rose-500" : ""}`}>
-                  <select
-                    value={accountId}
-                    onChange={(e) => {
-                      setAccountId(e.target.value)
-                      if (e.target.value) setErrors((prev) => ({ ...prev, account: false }))
-                    }}
-                    className="w-full bg-transparent p-4 text-sm text-white outline-none appearance-none"
-                  >
-                    <option value="" disabled className="bg-gray-900 text-gray-500">
-                      Select Account
-                    </option>
-                    {state.accounts.map((acc) => (
-                      <option key={acc.id} value={acc.id} className="bg-gray-900 text-white">
-                        {acc.name}
-                      </option>
-                    ))}
-                  </select>
-                  <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500">
-                    <Icons.ChevronDown size={16} />
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-theme-secondary uppercase tracking-wider ml-1">Date</label>
-                <div className="relative rounded-2xl bg-black/20 border border-white/5 focus-within:border-cyan-500/50 transition-colors">
-                  <input
-                    type="date"
-                    value={date}
-                    onChange={(e) => setDate(e.target.value)}
-                    className="w-full bg-transparent p-4 text-sm text-white outline-none"
-                    style={{ colorScheme: "dark" }}
-                  />
-                </div>
-                <p className="text-[10px] text-gray-500 text-right pr-1">
-                  {toEthiopianDateString(date)}
-                </p>
-              </div>
-            </div>
-
-            {/* 5. Extras (Recurring & Templates) */}
-            <div className="flex items-center gap-3">
+            {/* Toggle Advanced Details */}
+            <div className="flex justify-center py-2">
               <button
-                onClick={() => setIsRecurring(!isRecurring)}
-                className={`flex-1 py-3 rounded-xl border flex items-center justify-center gap-2 transition-all ${isRecurring ? "bg-purple-500/10 border-purple-500/50 text-purple-400" : "bg-black/20 border-white/5 text-gray-500 hover:text-white"}`}
+                onClick={() => setShowAdvanced(!showAdvanced)}
+                className="text-xs font-bold text-cyan-400 flex items-center gap-1 hover:text-cyan-300 transition-colors bg-cyan-500/10 px-4 py-2 rounded-full"
               >
-                <Icons.Repeat size={16} />
-                <span className="text-xs font-bold">Recurring</span>
+                {showAdvanced ? "Less Details" : "More Details"}
+                <Icons.ChevronDown className={`transition-transform duration-300 ${showAdvanced ? "rotate-180" : ""}`} size={14} />
               </button>
-
-              {!editingTransaction && (
-                <button
-                  onClick={() => setShowQuickTemplates(!showQuickTemplates)}
-                  className={`flex-1 py-3 rounded-xl border flex items-center justify-center gap-2 transition-all ${showQuickTemplates ? "bg-cyan-500/10 border-cyan-500/50 text-cyan-400" : "bg-black/20 border-white/5 text-gray-500 hover:text-white"}`}
-                >
-                  <Zap size={16} />
-                  <span className="text-xs font-bold">Templates</span>
-                </button>
-              )}
             </div>
 
-            {/* Quick Templates Grid */}
-            {showQuickTemplates && (
-              <div className="grid grid-cols-3 gap-3 animate-fade-in bg-black/20 p-4 rounded-2xl border border-white/5">
-                {quickTemplates.map((t, i) => (
-                  <button
-                    key={i}
-                    onClick={() => applyQuickTemplate(t)}
-                    className="flex flex-col items-center gap-1 p-3 bg-gray-800/50 rounded-xl border border-white/5 hover:border-cyan-500/50 hover:bg-cyan-500/10 transition-all"
-                  >
-                    <span className="text-xl">{t.icon}</span>
-                    <span className="text-xs font-medium text-white">{t.label}</span>
-                    <span className="text-[10px] text-gray-500">{t.amount} ETB</span>
-                  </button>
-                ))}
+            {/* Advanced Details & Extras */}
+            {showAdvanced && (
+              <div className="animate-slide-down space-y-6">
+                <AdvancedTransactionDetails
+                  date={date}
+                  setDate={setDate}
+                  isRecurring={isRecurring}
+                  setIsRecurring={setIsRecurring}
+                />
+
+                {/* Templates Toggle (Moved to Advanced) */}
+                {!editingTransaction && (
+                  <div className="space-y-3 pt-4 border-t border-white/5">
+                    <button
+                      onClick={() => setShowQuickTemplates(!showQuickTemplates)}
+                      className={`w-full py-3 rounded-xl border flex items-center justify-center gap-2 transition-all ${showQuickTemplates ? "bg-cyan-500/10 border-cyan-500/50 text-cyan-400" : "bg-black/20 border-white/5 text-gray-500 hover:text-white"}`}
+                    >
+                      <Zap size={16} />
+                      <span className="text-xs font-bold">Quick Templates</span>
+                    </button>
+
+                    {showQuickTemplates && (
+                      <div className="grid grid-cols-3 gap-3 animate-fade-in bg-black/20 p-4 rounded-2xl border border-white/5">
+                        {quickTemplates.map((t, i) => (
+                          <button
+                            key={i}
+                            onClick={() => applyQuickTemplate(t)}
+                            className="flex flex-col items-center gap-1 p-3 bg-gray-800/50 rounded-xl border border-white/5 hover:border-cyan-500/50 hover:bg-cyan-500/10 transition-all"
+                          >
+                            <span className="text-xl">{t.icon}</span>
+                            <span className="text-xs font-medium text-white">{t.label}</span>
+                            <span className="text-[10px] text-gray-500">{t.amount} ETB</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             )}
           </div>
 
           {/* Footer Actions */}
-          <div className="pt-4 mt-auto shrink-0">
+          <div className="pt-4 mt-auto shrink-0 pb-6">
             <button
               onClick={handleSave}
               className="w-full py-4 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-2xl font-bold text-white shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/40 transition-all active:scale-[0.98] flex items-center justify-center gap-2 text-lg"

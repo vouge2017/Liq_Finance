@@ -111,7 +111,7 @@ export const Onboarding: React.FC = () => {
         return // Require at least one name
       }
     }
-    if (step === 3 && selectedGoals.length === 0) return
+    // if (step === 3 && selectedGoals.length === 0) return // Allow skipping goals
 
     if (step < 4) {
       setStep(step + 1)
@@ -362,9 +362,16 @@ export const Onboarding: React.FC = () => {
       <div className="absolute bottom-0 left-0 w-72 h-72 bg-purple-500/5 rounded-full blur-3xl -ml-20 -mb-20 pointer-events-none"></div>
 
       {/* Progress Indicators - Simplified */}
-      <div className="relative z-10 w-full max-w-sm pt-4">
-        {/* Step Dots Only */}
-        <div className="flex justify-center gap-2 mt-2 px-1">
+      <div className="relative z-10 w-full max-w-sm pt-4 flex flex-col items-center">
+        {/* Step Text */}
+        {step > 0 && step <= 4 && (
+          <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-2">
+            Step {step} of 4
+          </p>
+        )}
+
+        {/* Step Dots */}
+        <div className="flex justify-center gap-2 px-1">
           {[1, 2, 3, 4].map((i) => (
             <div
               key={i}
@@ -396,8 +403,8 @@ export const Onboarding: React.FC = () => {
           onClick={handleNext}
           disabled={
             (step === 1 && !isPhoneButtonEnabled()) ||
-            (step === 2 && !name.trim()) ||
-            (step === 3 && selectedGoals.length === 0)
+            (step === 2 && !name.trim())
+            // Removed goal requirement to allow skipping
           }
           className="w-full py-4 rounded-2xl font-bold text-lg text-black bg-gradient-to-r from-cyan-500 to-cyan-400 hover:from-cyan-400 hover:to-cyan-300 transition-all shadow-[0_0_30px_rgba(6,182,212,0.4)] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none flex items-center justify-center gap-2"
         >
@@ -413,7 +420,7 @@ export const Onboarding: React.FC = () => {
             </>
           ) : (
             <>
-              Continue
+              {step === 3 && selectedGoals.length === 0 ? "Skip for Now" : "Continue"}
               <Icons.ChevronRight size={20} />
             </>
           )}
@@ -426,6 +433,13 @@ export const Onboarding: React.FC = () => {
           >
             Go Back
           </button>
+        )}
+
+        {/* Social Proof for Step 0 */}
+        {step === 0 && (
+          <p className="text-[10px] text-gray-500 text-center animate-pulse">
+            Join 10,000+ Ethiopians mastering their money
+          </p>
         )}
       </div>
     </div>

@@ -141,7 +141,7 @@ export const AIAdvisor: React.FC = () => {
 
   // CHAT UI
   return (
-    <div className="flex flex-col h-[calc(100vh-140px)] animate-fade-in relative">
+    <div className="flex flex-col h-full animate-fade-in relative">
       {/* Header / Context Indicator */}
       <div className="absolute top-0 left-0 right-0 bg-black/90 backdrop-blur-sm z-10 px-4 py-2 border-b border-gray-800 flex justify-between items-center">
         <div className="flex items-center gap-2">
@@ -223,21 +223,22 @@ export const AIAdvisor: React.FC = () => {
             </div>
           </div>
         )}
+
+        {/* Suggested Actions - Moved inside scroll area */}
+        {!isLoading && !hasError && (
+          <div className="py-2 flex flex-wrap gap-2 justify-center opacity-80">
+            <QuickPrompt text="Analyze spending" icon={Icons.Budget} />
+            <QuickPrompt text="Subscriptions" icon={Icons.Recurring} />
+            <QuickPrompt text="Iqub Status" icon={Icons.Users} />
+            <QuickPrompt text="Budget check" icon={Icons.Alert} />
+          </div>
+        )}
+
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Suggested Actions - Improved Layout */}
-      {!isLoading && !hasError && (
-        <div className="px-4 py-2 flex flex-wrap gap-2 justify-center">
-          <QuickPrompt text="Analyze spending" icon={Icons.Budget} />
-          <QuickPrompt text="Subscriptions" icon={Icons.Recurring} />
-          <QuickPrompt text="Iqub Status" icon={Icons.Users} />
-          <QuickPrompt text="Budget check" icon={Icons.Alert} />
-        </div>
-      )}
-
       {/* Input Area */}
-      <div className="p-4 bg-black/95 backdrop-blur-md border-t border-gray-800 sticky bottom-0 z-20">
+      <div className="p-4 bg-black/95 backdrop-blur-md border-t border-gray-800 z-20 shrink-0 pb-safe">
         <div className="flex items-end gap-2 bg-gray-900 rounded-3xl p-2 pl-4 border border-gray-800 focus-within:border-cyan-500/50 transition-colors shadow-lg">
           <textarea
             rows={1}

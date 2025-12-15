@@ -10,37 +10,41 @@ export const QuickActions: React.FC = () => {
         {
             label: 'Transfer',
             icon: ArrowLeftRight,
-            color: 'bg-lime-400',
-            textColor: 'text-lime-950',
+            gradient: 'from-emerald-300 to-teal-400',
+            shadowColor: 'shadow-emerald-500/25',
+            textColor: 'text-emerald-900',
             onClick: () => openTransactionModal({ type: 'transfer' })
         },
         {
             label: 'Pay Bill',
             icon: Receipt,
-            color: 'bg-cyan-400',
-            textColor: 'text-cyan-950',
+            gradient: 'from-cyan-300 to-sky-400',
+            shadowColor: 'shadow-cyan-500/25',
+            textColor: 'text-cyan-900',
             onClick: () => openTransactionModal({ category: 'Bills', type: 'expense' })
         },
         {
             label: 'Deposit',
             icon: Wallet,
-            color: 'bg-pink-500',
-            textColor: 'text-white',
+            gradient: 'from-pink-300 to-rose-400',
+            shadowColor: 'shadow-pink-500/25',
+            textColor: 'text-rose-900',
             onClick: () => openTransactionModal({ type: 'income' })
         },
         {
-            label: 'More',
-            icon: MoreHorizontal,
-            color: 'bg-gray-200',
-            textColor: 'text-gray-700',
-            onClick: () => setActiveTab('accounts') // Or open a "More" modal
+            label: 'Accounts',
+            icon: Icons.CreditCard,
+            gradient: 'from-indigo-300 to-purple-400',
+            shadowColor: 'shadow-indigo-500/25',
+            textColor: 'text-indigo-900',
+            onClick: () => setActiveTab('accounts')
         }
     ];
 
     return (
         <div className="mb-8">
-            <h3 className="text-xs font-bold text-theme-secondary uppercase tracking-wider mb-4 px-1 flex items-center gap-2">
-                <div className="w-1.5 h-1.5 rounded-full bg-pink-500"></div>
+            <h3 className="flex items-center gap-2 text-xs font-bold text-theme-secondary uppercase tracking-wider mb-4 px-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-pink-500"></span>
                 Quick Actions
             </h3>
             <div className="grid grid-cols-4 gap-4">
@@ -48,12 +52,12 @@ export const QuickActions: React.FC = () => {
                     <button
                         key={index}
                         onClick={action.onClick}
-                        className="flex flex-col items-center gap-2 group"
+                        className="flex flex-col items-center gap-2.5 group"
                     >
-                        <div className={`w-14 h-14 rounded-2xl ${action.color} ${action.textColor} flex items-center justify-center shadow-lg shadow-black/5 group-hover:scale-105 transition-transform duration-200`}>
-                            <action.icon size={24} strokeWidth={2.5} />
+                        <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${action.gradient} ${action.textColor} flex items-center justify-center shadow-lg ${action.shadowColor} group-hover:scale-110 group-hover:-translate-y-1 group-hover:shadow-xl transition-all duration-300 ease-out`}>
+                            <action.icon size={24} strokeWidth={2} />
                         </div>
-                        <span className="text-xs font-medium text-theme-secondary group-hover:text-theme-primary transition-colors">
+                        <span className="text-xs font-semibold text-theme-secondary group-hover:text-theme-primary transition-colors">
                             {action.label}
                         </span>
                     </button>

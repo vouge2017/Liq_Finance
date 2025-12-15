@@ -21,6 +21,8 @@ import { DataManagementModal } from "@/shared/components/DataManagementModal"
 import { LanguageSwitcher } from "@/shared/components/LanguageSwitcher"
 import { OfflineBanner } from "@/shared/components/OfflineBanner"
 import { QuickActions } from "@/features/dashboard/QuickActions"
+import { DailyBriefing } from "@/features/dashboard/DailyBriefing"
+import { ActionableInsights } from "@/features/dashboard/ActionableInsights"
 
 
 // Global Notification Component
@@ -114,24 +116,30 @@ function MainLayout() {
       <header className="px-6 pt-8 pb-4 sticky top-0 bg-theme-main/80 backdrop-blur-md z-40 border-b border-transparent transition-colors duration-300">
         <div className="flex justify-between items-center mb-2">
           <div className="flex items-center gap-4 cursor-pointer" onClick={() => setShowProfileModal(true)}>
-            <div className="w-10 h-10 rounded-full bg-theme-card flex items-center justify-center border border-theme shadow-sm relative">
-              {activeProfile === "All" ? (
-                <Icons.Users className="text-gray-400" size={20} />
-              ) : (
-                <Icons.User className="text-gray-400" size={20} />
-              )}
-              {/* Status Dot */}
+            {/* Avatar with gradient ring */}
+            <div className="relative">
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-pink-500 via-purple-500 to-indigo-500 p-0.5">
+                <div className="w-full h-full rounded-full bg-theme-card flex items-center justify-center">
+                  {activeProfile === "All" ? (
+                    <Icons.Users className="text-theme-secondary" size={20} />
+                  ) : (
+                    <Icons.User className="text-theme-secondary" size={20} />
+                  )}
+                </div>
+              </div>
+              {/* Status indicator */}
               <div
-                className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-theme-card ${activeProfile === "Personal" ? "bg-cyan-400" : activeProfile === "Family" ? "bg-pink-500" : "bg-yellow-500"}`}
+                className={`absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full border-2 border-theme-main ${activeProfile === "Personal" ? "bg-emerald-500" : activeProfile === "Family" ? "bg-pink-500" : "bg-amber-500"}`}
               ></div>
             </div>
             <div>
-              <h1 className="text-xl font-bold">Hello, {state.userName}!</h1>
+              <p className="text-[10px] uppercase tracking-[0.15em] text-theme-secondary font-semibold mb-0.5">Welcome back</p>
+              <h1 className="text-lg font-bold text-theme-primary">{state.userName}!</h1>
               <div className="flex items-center gap-1 group">
                 <span
-                  className={`text-xs font-bold px-2 py-0.5 rounded-md transition-colors ${activeProfile === "Personal" ? "bg-cyan-500/20 text-cyan-400" : activeProfile === "Family" ? "bg-pink-500/20 text-pink-500" : "bg-yellow-500/20 text-yellow-400"}`}
+                  className={`text-[10px] font-bold px-2 py-0.5 rounded-md transition-colors ${activeProfile === "Personal" ? "bg-cyan-500/20 text-cyan-400" : activeProfile === "Family" ? "bg-pink-500/20 text-pink-500" : "bg-amber-500/20 text-amber-400"}`}
                 >
-                  {activeProfile} View
+                  {activeProfile}
                 </span>
                 <Icons.ChevronRight size={12} className="text-theme-secondary group-hover:text-theme-primary" />
               </div>
@@ -184,8 +192,12 @@ function MainLayout() {
 
       {/* Main Content Area */}
       <main className="px-4 pb-4">
+
+
         {activeTab === "dashboard" && (
-          <div className="animate-fade-in">
+          <div className="animate-fade-in pb-28">
+            <DailyBriefing />
+            <ActionableInsights />
             {visibleWidgets.balance && <BalanceCard />}
             <QuickActions />
             {visibleWidgets.budget && <ExpenseTracking />}
@@ -233,7 +245,7 @@ function MainLayout() {
           }}
           className="fixed inset-0 modal-overlay z-[100] flex items-end sm:items-center justify-center"
         >
-          <div className="modal-content w-full max-w-sm mx-auto sm:rounded-3xl rounded-t-[2rem] p-6 animate-slide-up shadow-2xl h-[85vh] sm:h-auto overflow-y-auto">
+          <div className="modal-content w-full max-w-sm mx-auto sm:rounded-3xl rounded-t-[2rem] p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] animate-slide-up shadow-2xl h-[85vh] sm:h-auto overflow-y-auto">
             <div className="w-16 h-1.5 modal-handle rounded-full mx-auto mb-6 sm:hidden"></div>
 
             <div className="flex items-center gap-4 mb-8">

@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Icons } from '@/shared/components/Icons';
+import { getBankIcon } from '@/shared/components/BankIcons';
 import { useAppContext } from '@/context/AppContext';
 import { Account, Transaction } from '@/types';
 
 export const AccountsPage: React.FC = () => {
+    const { t } = useTranslation();
     const { state, addAccount, deleteAccount, updateAccount, setDefaultAccount, transferFunds, formatDate, activeProfile, isPrivacyMode, togglePrivacyMode, openTransactionModal } = useAppContext();
     const { accounts, transactions } = state;
 
@@ -309,8 +312,8 @@ export const AccountsPage: React.FC = () => {
             {/* Header */}
             <div className="flex justify-between items-center mb-6">
                 <div>
-                    <h2 className="text-theme-primary text-xl font-bold">My Accounts</h2>
-                    <p className="text-theme-secondary text-xs ethiopic">የእኔ ሂሳቦች</p>
+                    <h2 className="text-theme-primary text-xl font-bold">{t('accounts.myAccounts')}</h2>
+                    <p className="text-theme-secondary text-xs ethiopic">{t('accounts.myAccounts')}</p>
                 </div>
                 <div className="flex gap-2">
                     <button
@@ -334,7 +337,7 @@ export const AccountsPage: React.FC = () => {
             {/* Net Worth Bar */}
             <div className="mb-6 flex flex-col gap-2">
                 <div className="flex justify-between items-center text-xs text-theme-secondary mb-1">
-                    <span>Net Worth ({activeProfile})</span>
+                    <span>{t('accounts.netWorth')} ({activeProfile})</span>
                     <div className="flex items-center gap-2">
                         <button onClick={togglePrivacyMode} className="hover:text-cyan-400 transition-colors">
                             {isPrivacyMode ? <Icons.EyeOff size={14} /> : <Icons.Eye size={14} />}
@@ -448,9 +451,13 @@ export const AccountsPage: React.FC = () => {
                                     <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none"></div>
 
                                     <div className="w-20 h-20 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center mx-auto mb-6 border border-white/20 shadow-inner">
-                                        {instType === 'Bank' && <Icons.Bank className="text-white" size={36} />}
-                                        {instType === 'Mobile Money' && <Icons.Phone className="text-white" size={36} />}
-                                        {instType === 'Cash' && <Icons.Cash className="text-white" size={36} />}
+                                        {(() => {
+                                            const BankIcon = getBankIcon(selectedInstitution);
+                                            if (BankIcon) return <BankIcon size={48} />;
+                                            if (instType === 'Bank') return <Icons.Bank className="text-white" size={36} />;
+                                            if (instType === 'Mobile Money') return <Icons.Phone className="text-white" size={36} />;
+                                            return <Icons.Cash className="text-white" size={36} />;
+                                        })()}
                                     </div>
 
                                     <h2 className="text-white text-4xl font-bold mb-2 tracking-tight">
@@ -640,7 +647,7 @@ export const AccountsPage: React.FC = () => {
                     onClick={(e) => { if (e.target === e.currentTarget) setShowAddModal(false); }}
                     className="fixed inset-0 modal-overlay z-[70] flex items-end sm:items-center justify-center"
                 >
-                    <div className="modal-content w-full max-w-md sm:rounded-3xl rounded-t-[2rem] p-6 animate-slide-up mb-0 sm:mb-safe shadow-2xl h-[90vh] sm:h-auto overflow-y-auto flex flex-col">
+                    <div className="modal-content w-full max-w-md sm:rounded-3xl rounded-t-[2rem] p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] animate-slide-up mb-0 sm:mb-safe shadow-2xl h-[90vh] sm:h-auto overflow-y-auto flex flex-col">
                         <div className="w-16 h-1.5 modal-handle rounded-full mx-auto mb-8 sm:hidden shrink-0"></div>
 
                         <h3 className="text-xl font-bold text-theme-primary mb-1 text-center">
@@ -856,7 +863,7 @@ export const AccountsPage: React.FC = () => {
                     onClick={(e) => { if (e.target === e.currentTarget) setShowTransferModal(false); }}
                     className="fixed inset-0 modal-overlay z-[70] flex items-end sm:items-center justify-center"
                 >
-                    <div className="modal-content w-full max-w-md sm:rounded-3xl rounded-t-[2rem] p-6 animate-slide-up mb-0 sm:mb-safe shadow-2xl">
+                    <div className="modal-content w-full max-w-md sm:rounded-3xl rounded-t-[2rem] p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] animate-slide-up mb-0 sm:mb-safe shadow-2xl">
                         <div className="w-16 h-1.5 modal-handle rounded-full mx-auto mb-8 sm:hidden"></div>
 
                         <div className="flex items-center gap-3 mb-6">

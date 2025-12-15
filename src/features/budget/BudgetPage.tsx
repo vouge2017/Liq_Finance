@@ -800,7 +800,7 @@ export const BudgetPage: React.FC = () => {
             {/* Drilldown Category Modal */}
             {detailCatId && (
                 <div className="fixed inset-0 modal-overlay z-[80] flex items-end sm:items-center justify-center" onClick={() => setDetailCatId(null)}>
-                    <div className="modal-content w-full max-w-md rounded-t-[2rem] sm:rounded-3xl p-6 h-[80vh] animate-slide-up flex flex-col relative" onClick={e => e.stopPropagation()}>
+                    <div className="modal-content w-full max-w-md rounded-t-[2rem] sm:rounded-3xl p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] h-[80vh] animate-slide-up flex flex-col relative" onClick={e => e.stopPropagation()}>
                         <div className="w-16 h-1.5 modal-handle rounded-full mx-auto mb-6 shrink-0 sm:hidden"></div>
                         {(() => {
                             const isUncategorized = detailCatId === 'uncategorized';
@@ -922,7 +922,7 @@ export const BudgetPage: React.FC = () => {
             {/* Drilldown Subscription Modal */}
             {detailSubId && (
                 <div className="fixed inset-0 modal-overlay z-[80] flex items-end sm:items-center justify-center" onClick={() => setDetailSubId(null)}>
-                    <div className="modal-content w-full max-w-md rounded-t-[2rem] sm:rounded-3xl p-6 h-[70vh] animate-slide-up flex flex-col relative" onClick={e => e.stopPropagation()}>
+                    <div className="modal-content w-full max-w-md rounded-t-[2rem] sm:rounded-3xl p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] h-[70vh] animate-slide-up flex flex-col relative" onClick={e => e.stopPropagation()}>
                         <div className="w-16 h-1.5 modal-handle rounded-full mx-auto mb-6 shrink-0 sm:hidden"></div>
                         {(() => {
                             const sub = recurringTransactions.find(s => s.id === detailSubId);

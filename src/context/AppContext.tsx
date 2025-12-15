@@ -117,7 +117,6 @@ const emptyState: AppState = {
   accounts: [],
   familyMembers: [],
   invitations: [],
-  invitations: [],
   defaultAccountId: undefined,
   budgetStartDate: 1,
 }
@@ -185,7 +184,6 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children, initialData,
       incomeSources: initialData.incomeSources,
       accounts: initialData.accounts,
       familyMembers: [], // TODO: Load from Supabase
-      invitations: [], // TODO: Load from Supabase
       invitations: [], // TODO: Load from Supabase
       defaultAccountId: initialData.accounts.find((a) => a.name === "Primary")?.id || initialData.accounts[0]?.id,
       budgetStartDate: initialData.profile?.budget_start_date || 1,

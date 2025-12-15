@@ -1,6 +1,8 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
+import { en } from './locales/en';
+import { am } from './locales/am';
 
 i18n
     // detect user language
@@ -17,18 +19,8 @@ i18n
             escapeValue: false, // not needed for react as it escapes by default
         },
         resources: {
-            en: {
-                translation: {
-                    "welcome": "Welcome to Liq",
-                    "description": "Your AI-powered financial planner for Ethiopia."
-                }
-            },
-            am: {
-                translation: {
-                    "welcome": "እንኳን ወደ ሊቅ በደህና መጡ",
-                    "description": "የእርስዎ የፋይናንስ እቅድ አውጪ።"
-                }
-            }
+            en,
+            am
         }
     });
 

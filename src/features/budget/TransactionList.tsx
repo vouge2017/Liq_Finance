@@ -7,10 +7,11 @@ import { SignInPrompt } from '@/shared/components/SignInPrompt';
 
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { PullToRefreshIndicator } from '@/shared/components/PullToRefreshIndicator';
+import { SwipeableItem } from '@/shared/components/SwipeableItem';
 
 export const TransactionList: React.FC = () => {
   const { user, loading, isOffline } = useAuth();
-  const { state, formatDate, activeProfile, isPrivacyMode, setActiveTab, openTransactionModal, setScannedImage, showNotification, refreshTransactions } = useAppContext();
+  const { state, formatDate, activeProfile, isPrivacyMode, setActiveTab, openTransactionModal, setScannedImage, showNotification, refreshTransactions, deleteTransaction } = useAppContext();
   const { transactions } = state;
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -18,7 +19,6 @@ export const TransactionList: React.FC = () => {
     onRefresh: async () => {
       if (refreshTransactions) {
         await refreshTransactions();
-        // Add a small artificial delay so the user sees the spinner
         await new Promise(resolve => setTimeout(resolve, 800));
       }
     }
@@ -59,20 +59,19 @@ export const TransactionList: React.FC = () => {
     const reader = new FileReader();
     reader.onloadend = () => {
       const base64String = reader.result as string;
-      setScannedImage(base64String); // Pass to context
-      openTransactionModal(); // Open modal which will handle analysis
+      setScannedImage(base64String);
+      openTransactionModal();
     };
     reader.onerror = () => {
       showNotification("Error reading file", "error");
     };
     reader.readAsDataURL(file);
 
-    // Reset input
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   return (
-    <div className="mb-24 relative" ref={containerRef}> {/* Extra margin for bottom nav */}
+    <div className="mb-24 relative" ref={containerRef}>
       <PullToRefreshIndicator isRefreshing={isRefreshing} pullProgress={pullProgress} />
 
       <input
@@ -83,46 +82,61 @@ export const TransactionList: React.FC = () => {
         className="hidden"
       />
 
+      {/* Section Header */}
       <div className="flex justify-between items-center mb-4 px-1">
-        <div>
-          <h3 className="text-theme-primary text-lg font-bold">Recent Transactions</h3>
-          <p className="text-theme-secondary text-xs ethiopic">የቅርብ ጊዜ ግብይቶች</p>
+        <div className="flex items-center gap-2">
+          <span className="w-1.5 h-1.5 rounded-full bg-cyan-500"></span>
+          <div>
+            <h3 className="text-theme-primary text-base font-bold">Recent Activity</h3>
+            <p className="text-theme-secondary text-[10px] ethiopic">የቅርብ ጊዜ ግብይቶች</p>
+          </div>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-center">
           <button
             onClick={handleScanClick}
-            className="w-8 h-8 rounded-full bg-cyan-500/10 flex items-center justify-center text-cyan-400 border border-cyan-500/20 hover:bg-cyan-500 hover:text-black transition-colors"
+            className="w-8 h-8 rounded-full bg-cyan-500/10 flex items-center justify-center text-cyan-400 border border-cyan-500/20 hover:bg-cyan-500 hover:text-black transition-all duration-200"
             title="Scan Receipt"
           >
             <Icons.Scan size={16} />
           </button>
           <button
             onClick={() => openTransactionModal()}
-            className="w-8 h-8 rounded-full bg-cyan-500/20 flex items-center justify-center text-cyan-400 border border-cyan-500/30 hover:bg-cyan-500 hover:text-black transition-colors"
+            className="w-8 h-8 rounded-full bg-cyan-500/20 flex items-center justify-center text-cyan-400 border border-cyan-500/30 hover:bg-cyan-500 hover:text-black transition-all duration-200"
             title="Add Transaction"
           >
             <Icons.Plus size={16} />
           </button>
           <button
             onClick={() => setActiveTab('budget')}
-            className="text-cyan-400 text-sm font-medium hover:text-cyan-300 ml-1"
+            className="text-cyan-400 text-xs font-semibold hover:text-cyan-300 ml-1 transition-colors"
           >
             View All
           </button>
         </div>
       </div>
 
-      <div className="space-y-4">
+      {/* Transaction List */}
+      <div className="space-y-3">
         {transactions.slice(0, 5).map((tx) => (
-          <div
+          <SwipeableItem
             key={tx.id}
-            onClick={() => openTransactionModal(tx)}
-            className="bg-white rounded-3xl p-4 flex items-center justify-between shadow-sm border border-gray-100 dark:bg-gray-900 dark:border-gray-800 cursor-pointer hover:scale-[1.02] transition-transform duration-200"
+            onDelete={() => deleteTransaction(tx.id)}
+            onEdit={() => openTransactionModal(tx)}
           >
-            <div className="flex items-center gap-4">
-              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${tx.type === 'income' ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400' :
-                  tx.type === 'transfer' ? 'bg-blue-100 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400' :
-                    'bg-pink-100 text-pink-600 dark:bg-pink-500/20 dark:text-pink-400'
+            <div
+              onClick={() => openTransactionModal(tx)}
+              className="bg-theme-card rounded-2xl p-4 flex items-center gap-4 border border-theme cursor-pointer hover:scale-[1.02] hover:shadow-lg hover:shadow-black/10 transition-all duration-200"
+            >
+              {/* Colored indicator bar */}
+              <div className={`w-1 h-12 rounded-full shrink-0 ${tx.type === 'income' ? 'bg-emerald-500' :
+                tx.type === 'transfer' ? 'bg-blue-500' :
+                  'bg-rose-500'
+                }`}></div>
+
+              {/* Icon circle */}
+              <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${tx.type === 'income' ? 'bg-emerald-500/15 text-emerald-500' :
+                tx.type === 'transfer' ? 'bg-blue-500/15 text-blue-500' :
+                  'bg-rose-500/15 text-rose-500'
                 }`}>
                 {tx.type === 'transfer' ? <Icons.Transfer size={20} /> :
                   tx.icon === 'coffee' ? <Icons.Coffee size={20} /> :
@@ -132,20 +146,25 @@ export const TransactionList: React.FC = () => {
                           <Icons.Shopping size={20} />
                 }
               </div>
-              <div>
-                <h4 className="text-gray-900 dark:text-white font-bold text-sm">{tx.title}</h4>
-                <p className="text-gray-500 text-xs">{formatDate(tx.date)}</p>
+
+              {/* Content */}
+              <div className="flex-1 min-w-0">
+                <h4 className="text-theme-primary font-semibold text-sm truncate">{tx.title}</h4>
+                <p className="text-theme-secondary text-xs">{formatDate(tx.date)}</p>
+              </div>
+
+              {/* Amount */}
+              <div className={`font-bold text-sm shrink-0 ${tx.type === 'income' ? 'text-emerald-500' : 'text-rose-500'}`}>
+                {isPrivacyMode ? '••••' : (
+                  <>
+                    {tx.type === 'income' ? '+' : '-'}${tx.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                  </>
+                )}
               </div>
             </div>
-            <div className={`font-bold text-sm ${tx.type === 'income' ? 'text-emerald-500' : 'text-rose-500'}`}>
-              {isPrivacyMode ? '••••' : (
-                <>
-                  {tx.type === 'income' ? '+' : '-'}{tx.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                </>
-              )}
-            </div>
-          </div>
+          </SwipeableItem>
         ))}
+
         {transactions.length === 0 && (
           <EmptyState
             icon={<Icons.Shopping size={32} />}

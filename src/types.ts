@@ -2,6 +2,26 @@ export type ThemeMode = 'dark' | 'light' | 'dim';
 export type CalendarMode = 'gregorian' | 'ethiopian';
 export type UserProfile = 'Personal' | 'Family' | 'Business' | 'All';
 
+// Gamification Types
+export interface Badge {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  tier: 'bronze' | 'silver' | 'gold' | 'diamond';
+  earnedAt?: string; // ISO date when earned
+  requirement: string; // e.g., "Save 1000 ETB"
+}
+
+export interface UserAchievements {
+  savingsStreak: number; // consecutive weeks of saving
+  totalSaved: number;
+  goalsCompleted: number;
+  iqubsWon: number;
+  badges: Badge[];
+  lastSaveDate?: string; // ISO date
+}
+
 export interface Notification {
   id: number;
   message: string;
@@ -141,6 +161,7 @@ export interface Account {
   balance: number;
   accountNumber?: string;
   color: string; // Tailwind gradient class
+  currency?: string; // Default 'ETB'
   profile: UserProfile;
 }
 
@@ -304,4 +325,5 @@ export interface AppContextType {
   completeOnboarding: () => void;
   logout: () => void;
   restoreData: (data: AppState) => void;
+  refreshTransactions?: () => Promise<void>;
 }
