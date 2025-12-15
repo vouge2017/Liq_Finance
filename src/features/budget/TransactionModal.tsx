@@ -242,7 +242,7 @@ export const TransactionModal: React.FC = () => {
         setType(editingTransaction.type === "transfer" ? "expense" : editingTransaction.type)
         setCategory(editingTransaction.category)
         setAccountId(editingTransaction.accountId || "")
-        setDate(editingTransaction.date.split("T")[0])
+        setDate(editingTransaction.date?.split("T")[0] || new Date().toISOString().split("T")[0])
         setReceiptPreview(null)
         setScanError(null)
         setIsRecurring(false)
