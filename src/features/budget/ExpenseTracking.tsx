@@ -82,7 +82,7 @@ export const ExpenseTracking: React.FC = () => {
 
             {/* Widget 1: Safe To Spend Card */}
             <div
-                className="bg-gradient-to-r from-teal-900 to-emerald-900 rounded-3xl p-6 border border-teal-800/50 shadow-lg relative overflow-hidden group cursor-pointer transition-all active:scale-[0.99]"
+                className="bg-gradient-to-r from-teal-900 to-emerald-900 rounded-3xl p-6 border border-teal-800/50 shadow-lg relative overflow-hidden group cursor-pointer transition-all active:scale-[0.99] card-hover"
                 onClick={() => setActiveTab('budget')}
             >
                 {/* Decorative Blur */}
@@ -115,7 +115,7 @@ export const ExpenseTracking: React.FC = () => {
             </div>
 
             {/* Widget 2: Top Expenses List (Simplified) */}
-            <div className="bg-theme-card rounded-3xl p-5 border border-theme">
+            <div className="bg-theme-card rounded-3xl p-5 border border-theme card-hover">
                 <div className="flex justify-between items-center mb-4">
                     <h3 className="text-theme-primary font-bold text-sm">Top Expenses</h3>
                     <button onClick={() => setActiveTab('budget')} className="text-xs text-cyan-400 font-medium">View Budget</button>

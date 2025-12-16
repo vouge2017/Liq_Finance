@@ -23,6 +23,7 @@ import { OfflineBanner } from "@/shared/components/OfflineBanner"
 import { QuickActions } from "@/features/dashboard/QuickActions"
 import { DailyBriefing } from "@/features/dashboard/DailyBriefing"
 import { ActionableInsights } from "@/features/dashboard/ActionableInsights"
+import { AINotificationStack } from "@/shared/components/AINotificationBanner"
 
 
 // Global Notification Component
@@ -67,6 +68,7 @@ function MainLayout() {
     toggleWidget,
     hasOnboarded,
     logout,
+    dismissAINotification,
   } = useAppContext()
   const [showProfileModal, setShowProfileModal] = useState(false)
   const [showFinancialProfile, setShowFinancialProfile] = useState(false)
@@ -111,6 +113,12 @@ function MainLayout() {
       <FeedbackModal isOpen={showFeedbackModal} onClose={() => setShowFeedbackModal(false)} />
       <DataManagementModal isOpen={showDataManagementModal} onClose={() => setShowDataManagementModal(false)} />
       <NotificationToast />
+      <div className="px-4 pt-4">
+        <AINotificationStack
+          notifications={state.aiNotifications}
+          onDismiss={dismissAINotification}
+        />
+      </div>
 
       {/* Header */}
       <header className="px-6 pt-8 pb-4 sticky top-0 bg-theme-main/80 backdrop-blur-md z-40 border-b border-transparent transition-colors duration-300">

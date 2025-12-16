@@ -7,7 +7,7 @@ export const BalanceCard: React.FC = () => {
   const { totalBalance, totalIncome, totalExpense } = state;
 
   return (
-    <div className="balance-hero-card bg-gradient-to-br from-cyan-600 via-indigo-700 to-purple-800 rounded-[2rem] p-6 mb-8 relative overflow-hidden shadow-2xl shadow-indigo-500/30 group transform hover:scale-[1.02] transition-all duration-300">
+    <div className="balance-hero-card bg-gradient-to-br from-cyan-600 via-indigo-700 to-purple-800 rounded-[2rem] p-6 mb-8 relative overflow-hidden shadow-2xl shadow-indigo-500/30 group transform hover:scale-[1.02] transition-all duration-300 card-hover">
       {/* Enhanced background decoration - animated blur orbs */}
       <div className="absolute top-0 right-0 w-72 h-72 bg-purple-500/30 rounded-full blur-[80px] -mr-24 -mt-24 pointer-events-none animate-pulse-slow"></div>
       <div className="absolute bottom-0 left-0 w-56 h-56 bg-cyan-400/20 rounded-full blur-[60px] -ml-16 -mb-16 pointer-events-none animate-pulse-slower"></div>

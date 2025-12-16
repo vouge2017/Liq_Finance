@@ -186,6 +186,8 @@ export const BudgetPage: React.FC = () => {
         const fixed = catsWithSpent.filter(c => c.type === 'fixed');
 
         // Safe to Spend Logic
+        const month = currentDate.getMonth();
+        const year = currentDate.getFullYear();
         const isCurrentMonth = month === new Date().getMonth() && year === new Date().getFullYear();
         const lastDay = new Date(year, month + 1, 0).getDate();
         const currentDay = isCurrentMonth ? new Date().getDate() : lastDay;

@@ -119,6 +119,14 @@ const emptyState: AppState = {
   invitations: [],
   defaultAccountId: undefined,
   budgetStartDate: 1,
+  achievements: {
+    savingsStreak: 0,
+    totalSaved: 0,
+    goalsCompleted: 0,
+    iqubsWon: 0,
+    badges: [],
+  },
+  aiNotifications: [],
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined)
@@ -399,15 +407,20 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children, initialData,
 
   const addTransaction = useCallback(
     async (transaction: Transaction) => {
-      if (!userId) return
-
       const isIncome = transaction.type === "income"
+      let newTx: Transaction | null = null
 
-      // Create transaction in DB
-      const newTx = await dataService.createTransaction(userId, transaction)
+      // Try to save to DB if user exists
+      if (userId) {
+        newTx = await dataService.createTransaction(userId, transaction)
+      } else {
+        // Generate a local ID if offline/guest
+        newTx = { ...transaction, id: Date.now().toString() }
+      }
+
       if (!newTx) {
-        showNotification("Could not save transaction. Check your connection.", "error")
-        return
+        // Fallback for DB failure
+        newTx = { ...transaction, id: Date.now().toString() }
       }
 
       // Update local state and account balance
@@ -418,8 +431,8 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children, initialData,
           newAccounts = prev.accounts.map((acc) => {
             if (acc.id === transaction.accountId) {
               const newBalance = acc.balance + (isIncome ? transaction.amount : -transaction.amount)
-              // Also update in DB
-              dataService.updateAccount({ ...acc, balance: newBalance })
+              // Also update in DB if user exists
+              if (userId) dataService.updateAccount({ ...acc, balance: newBalance })
               return { ...acc, balance: newBalance }
             }
             return acc
@@ -428,7 +441,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children, initialData,
 
         return {
           ...prev,
-          transactions: [newTx, ...prev.transactions],
+          transactions: [newTx!, ...prev.transactions],
           accounts: newAccounts,
           totalIncome: isIncome ? prev.totalIncome + transaction.amount : prev.totalIncome,
           totalExpense: !isIncome ? prev.totalExpense + transaction.amount : prev.totalExpense,
@@ -793,6 +806,75 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children, initialData,
     [userId, fullState.iqubs, fullState.accounts, activeProfile, showNotification],
   )
 
+  // ============ PROACTIVE AI & GAMIFICATION ============
+
+  const addAINotification = useCallback((notification: any) => {
+    setFullState((prev) => {
+      // Avoid duplicates
+      if (prev.aiNotifications.some((n) => n.id === notification.id)) return prev
+      return { ...prev, aiNotifications: [notification, ...prev.aiNotifications] }
+    })
+  }, [])
+
+  const dismissAINotification = useCallback((id: string) => {
+    setFullState((prev) => ({
+      ...prev,
+      aiNotifications: prev.aiNotifications.filter((n) => n.id !== id),
+    }))
+  }, [])
+
+  const updateAchievements = useCallback((achievements: any) => {
+    setFullState((prev) => ({ ...prev, achievements }))
+    // TODO: Persist to Supabase
+  }, [])
+
+  // Check Streak on Load
+  useEffect(() => {
+    const checkStreak = () => {
+      const lastLogin = localStorage.getItem("lastLoginDate")
+      const today = new Date().toISOString().split("T")[0]
+
+      if (lastLogin !== today) {
+        // It's a new day
+        const yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0]
+
+        setFullState((prev) => {
+          let newStreak = prev.achievements.savingsStreak
+
+          if (lastLogin === yesterday) {
+            // Consecutive day
+            newStreak += 1
+          } else {
+            // Streak broken (or first time)
+            newStreak = 1
+          }
+
+          // Update local storage
+          localStorage.setItem("lastLoginDate", today)
+
+          return {
+            ...prev,
+            achievements: {
+              ...prev.achievements,
+              savingsStreak: newStreak
+            }
+          }
+        })
+      }
+    }
+
+    checkStreak()
+  }, [])
+
+  // Generate Proactive Notifications
+  useEffect(() => {
+    // Lazy load the service to avoid circular dependencies if any
+    import("@/services/proactive-ai").then(({ generateProactiveNotifications }) => {
+      const notifications = generateProactiveNotifications(fullState)
+      notifications.forEach(addAINotification)
+    })
+  }, [fullState.transactions, fullState.savingsGoals, fullState.iqubs, addAINotification])
+
   // ============ IDDIR CRUD ============
 
   const addIddir = useCallback(
@@ -1129,8 +1211,10 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children, initialData,
 
   // ============ TRANSACTION MODAL ============
 
+  const [startVoiceOnOpen, setStartVoiceOnOpen] = useState(false)
+
   const openTransactionModal = useCallback(
-    (tx?: Transaction, prefill?: Partial<Transaction>) => {
+    (tx?: Transaction, prefill?: Partial<Transaction>, options?: { voice?: boolean }) => {
       if (tx) {
         setEditingTransaction(tx)
         setPrefillTx(undefined)
@@ -1139,6 +1223,13 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children, initialData,
         const defaultAccId = fullState.defaultAccountId || mostFrequentAccountId
         setPrefillTx({ accountId: defaultAccId, date: new Date().toISOString(), type: "expense", ...prefill })
       }
+
+      if (options?.voice) {
+        setStartVoiceOnOpen(true)
+      } else {
+        setStartVoiceOnOpen(false)
+      }
+
       setIsTransactionModalOpen(true)
     },
     [fullState.defaultAccountId, mostFrequentAccountId],
@@ -1271,6 +1362,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children, initialData,
       prefillTx,
       openTransactionModal,
       closeTransactionModal,
+      startVoiceOnOpen,
       payeeHistory,
       scannedImage,
       setScannedImage,
@@ -1285,6 +1377,10 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children, initialData,
       removeFamilyMember,
       sendInvitation,
       restoreData,
+      aiNotifications: fullState.aiNotifications,
+      addAINotification,
+      dismissAINotification,
+      updateAchievements,
     }),
     [
       filteredState,

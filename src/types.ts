@@ -209,6 +209,8 @@ export interface AppState {
   familyMembers: FamilyMember[]; // New: Community
   invitations: Invitation[]; // New: Community
   defaultAccountId?: string;
+  achievements: UserAchievements; // New: Gamification
+  aiNotifications: any[]; // New: Proactive AI (using any for now to avoid circular dependency, or define AINotification type)
   budgetStartDate: number; // New: Day of month (1-31) to start budget cycle
 }
 
@@ -294,8 +296,9 @@ export interface AppContextType {
   isTransactionModalOpen: boolean;
   editingTransaction: Transaction | null;
   prefillTx?: Partial<Transaction>;
-  openTransactionModal: (tx?: Transaction, prefill?: Partial<Transaction>) => void;
+  openTransactionModal: (tx?: Transaction, prefill?: Partial<Transaction>, options?: { voice?: boolean }) => void;
   closeTransactionModal: () => void;
+  startVoiceOnOpen: boolean;
   payeeHistory: string[];
 
   // Receipt Scanning
@@ -326,4 +329,12 @@ export interface AppContextType {
   logout: () => void;
   restoreData: (data: AppState) => void;
   refreshTransactions?: () => Promise<void>;
+
+  // Proactive AI
+  aiNotifications: any[];
+  addAINotification: (notification: any) => void;
+  dismissAINotification: (id: string) => void;
+
+  // Gamification
+  updateAchievements: (achievements: UserAchievements) => void;
 }
