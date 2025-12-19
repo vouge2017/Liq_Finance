@@ -99,6 +99,37 @@ const defaultBudgetCategories: BudgetCategory[] = [
   },
 ]
 
+// Standard Ethiopian Account Types
+const defaultAccounts: Account[] = [
+  {
+    id: "cbe",
+    name: "CBE (Commercial Bank)",
+    institution: "CBE",
+    type: "Bank",
+    balance: 0,
+    color: "bg-purple-600",
+    profile: "Personal",
+  },
+  {
+    id: "telebirr",
+    name: "Telebirr",
+    institution: "Telebirr",
+    type: "Mobile Money",
+    balance: 0,
+    color: "bg-blue-500",
+    profile: "Personal",
+  },
+  {
+    id: "cash",
+    name: "Cash in Hand",
+    institution: "Cash",
+    type: "Cash",
+    balance: 0,
+    color: "bg-emerald-500",
+    profile: "Personal",
+  },
+]
+
 // Empty state for new users
 const emptyState: AppState = {
   userName: "",
@@ -114,10 +145,10 @@ const emptyState: AppState = {
   expenseCategories: [],
   budgetCategories: defaultBudgetCategories,
   incomeSources: [],
-  accounts: [],
+  accounts: defaultAccounts,
   familyMembers: [],
   invitations: [],
-  defaultAccountId: undefined,
+  defaultAccountId: "cash",
   budgetStartDate: 1,
   achievements: {
     savingsStreak: 0,
@@ -195,6 +226,14 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children, initialData,
       invitations: [], // TODO: Load from Supabase
       defaultAccountId: initialData.accounts.find((a) => a.name === "Primary")?.id || initialData.accounts[0]?.id,
       budgetStartDate: initialData.profile?.budget_start_date || 1,
+      achievements: {
+        savingsStreak: 0,
+        totalSaved: 0,
+        goalsCompleted: 0,
+        iqubsWon: 0,
+        badges: [],
+      },
+      aiNotifications: [],
     }
   }, [initialData])
 

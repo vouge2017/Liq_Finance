@@ -39,7 +39,7 @@ export const DailyBriefing: React.FC = () => {
                             {getGreeting()}
                         </p>
                         <h2 className="text-theme-primary text-lg font-bold">
-                            {t('common.description')}
+                            Financial Overview
                         </h2>
                     </div>
                     <div className="bg-cyan-500/10 p-2 rounded-full">

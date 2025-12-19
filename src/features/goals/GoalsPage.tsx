@@ -448,7 +448,7 @@ export const GoalsPage: React.FC = () => {
                                 {tab === 'personal' && <Icons.Goals size={14} />}
                                 {tab === 'iqub' && <Icons.Users size={14} />}
                                 {tab === 'iddir' && <Icons.Heart size={14} />}
-                                {tab === 'personal' ? 'My Goals' : tab === 'iqub' ? 'Digital Iqub' : 'Iddir'}
+                                {tab === 'personal' ? 'My Goals' : tab === 'iqub' ? 'Iqub' : 'Iddir'}
                             </span>
                         </button>
                     ))}
@@ -564,7 +564,7 @@ export const GoalsPage: React.FC = () => {
                 )
             }
 
-            {/* --- DIGITAL IQUB VIEW --- */}
+            {/* --- IQUB VIEW --- */}
             {
                 activeTab === 'iqub' && (
                     <div className="space-y-6 animate-fade-in">
@@ -575,7 +575,7 @@ export const GoalsPage: React.FC = () => {
                             <div className="relative z-10">
                                 <div className="flex justify-between items-start mb-6">
                                     <div>
-                                        <h2 className="text-2xl font-bold mb-1">Digital Iqub</h2>
+                                        <h2 className="text-2xl font-bold mb-1">Iqub</h2>
                                         <p className="text-indigo-200 text-xs">Modern rotating savings circles.</p>
                                     </div>
                                     <button
@@ -701,7 +701,7 @@ export const GoalsPage: React.FC = () => {
                             <EmptyState
                                 icon={<Icons.Users size={32} />}
                                 title="No Iqubs Active"
-                                description="Join a digital Iqub to save with friends and colleagues. Track rounds and payouts easily."
+                                description="Join an Iqub to save with friends and colleagues. Track rounds and payouts easily."
                                 action={{
                                     label: "Start New Iqub",
                                     onClick: () => openAddIqubModal(),

@@ -3,7 +3,12 @@ import { Icons } from '@/shared/components/Icons';
 import { useAppContext } from '@/context/AppContext';
 import { ArrowLeftRight, Receipt, Wallet, MoreHorizontal } from 'lucide-react';
 
-export const QuickActions: React.FC = () => {
+interface QuickActionsProps {
+    onOpenSubscription: () => void;
+    onOpenFinancialProfile: () => void;
+}
+
+export const QuickActions: React.FC<QuickActionsProps> = ({ onOpenSubscription, onOpenFinancialProfile }) => {
     const { openTransactionModal, setActiveTab } = useAppContext();
 
     const actions = [
@@ -13,23 +18,23 @@ export const QuickActions: React.FC = () => {
             gradient: 'from-emerald-300 to-teal-400',
             shadowColor: 'shadow-emerald-500/25',
             textColor: 'text-emerald-900',
-            onClick: () => openTransactionModal({ type: 'transfer' })
+            onClick: () => openTransactionModal({ type: 'transfer' } as any)
         },
         {
-            label: 'Pay Bill',
+            label: 'Subscription',
             icon: Receipt,
             gradient: 'from-cyan-300 to-sky-400',
             shadowColor: 'shadow-cyan-500/25',
             textColor: 'text-cyan-900',
-            onClick: () => openTransactionModal({ category: 'Bills', type: 'expense' })
+            onClick: onOpenSubscription
         },
         {
-            label: 'Deposit',
-            icon: Wallet,
+            label: 'Income',
+            icon: Icons.Coins,
             gradient: 'from-pink-300 to-rose-400',
             shadowColor: 'shadow-pink-500/25',
             textColor: 'text-rose-900',
-            onClick: () => openTransactionModal({ type: 'income' })
+            onClick: onOpenFinancialProfile
         },
         {
             label: 'Accounts',

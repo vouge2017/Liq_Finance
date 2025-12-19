@@ -6,6 +6,7 @@ import { Icons } from "@/shared/components/Icons"
 import { Mic, Square, Loader2, Check, X, Edit3 } from "lucide-react"
 import { useAIUsage } from "@/services/ai-usage"
 import { UpgradePrompt } from "@/shared/components/UpgradePrompt"
+import { parseVoiceAudio } from "@/services/gemini"
 
 interface ParsedTransaction {
     type: "income" | "expense"
@@ -34,6 +35,8 @@ export const VoiceRecordingModal: React.FC<VoiceRecordingModalProps> = ({
     const [parsedResult, setParsedResult] = useState<ParsedTransaction | null>(null)
     const [error, setError] = useState<string | null>(null)
     const [recordingTime, setRecordingTime] = useState(0)
+    const [liveTranscript, setLiveTranscript] = useState<string>("")
+    const recognitionRef = useRef<any>(null)
 
     const mediaRecorderRef = useRef<MediaRecorder | null>(null)
     const audioChunksRef = useRef<Blob[]>([])
@@ -49,6 +52,34 @@ export const VoiceRecordingModal: React.FC<VoiceRecordingModalProps> = ({
         }
     }, [isOpen])
 
+    // Initialize Speech Recognition
+    useEffect(() => {
+        const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
+        if (SpeechRecognition) {
+            const recognition = new SpeechRecognition()
+            recognition.continuous = true
+            recognition.interimResults = true
+            recognition.lang = "am-ET" // Default to Amharic
+
+            recognition.onresult = (event: any) => {
+                let interimTranscript = ""
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    if (event.results[i].isFinal) {
+                        setLiveTranscript(prev => prev + event.results[i][0].transcript)
+                    } else {
+                        interimTranscript += event.results[i][0].transcript
+                    }
+                }
+            }
+
+            recognition.onerror = (event: any) => {
+                console.error("Speech recognition error", event.error)
+            }
+
+            recognitionRef.current = recognition
+        }
+    }, [])
+
     const resetState = () => {
         setIsRecording(false)
         setIsProcessing(false)
@@ -57,15 +88,22 @@ export const VoiceRecordingModal: React.FC<VoiceRecordingModalProps> = ({
         setParsedResult(null)
         setError(null)
         setRecordingTime(0)
+        setLiveTranscript("")
         audioChunksRef.current = []
         if (timerRef.current) {
             clearInterval(timerRef.current)
+        }
+        if (recognitionRef.current) {
+            try {
+                recognitionRef.current.stop()
+            } catch (e) { }
         }
     }
 
     const startRecording = async () => {
         try {
             setError(null)
+            setLiveTranscript("")
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
 
             const mediaRecorder = new MediaRecorder(stream, {
@@ -95,6 +133,15 @@ export const VoiceRecordingModal: React.FC<VoiceRecordingModalProps> = ({
                 setRecordingTime(prev => prev + 1)
             }, 1000)
 
+            // Start Speech Recognition
+            if (recognitionRef.current) {
+                try {
+                    recognitionRef.current.start()
+                } catch (e) {
+                    console.error("Failed to start recognition", e)
+                }
+            }
+
         } catch (err) {
             console.error("Microphone error:", err)
             setError("Could not access microphone. Please grant permission.")
@@ -107,6 +154,12 @@ export const VoiceRecordingModal: React.FC<VoiceRecordingModalProps> = ({
             setIsRecording(false)
             if (timerRef.current) {
                 clearInterval(timerRef.current)
+            }
+            // Stop Speech Recognition
+            if (recognitionRef.current) {
+                try {
+                    recognitionRef.current.stop()
+                } catch (e) { }
             }
         }
     }
@@ -138,26 +191,16 @@ export const VoiceRecordingModal: React.FC<VoiceRecordingModalProps> = ({
             reader.readAsDataURL(audioBlob)
             const audioBase64 = await base64Promise
 
-            // Send to API
-            const response = await fetch("/api/parse-voice", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    audio: audioBase64,
-                    mimeType: audioBlob.type,
-                    language: "am-ET"
-                }),
-            })
+            // Send to Gemini Service
+            const result = await parseVoiceAudio(audioBase64, audioBlob.type)
 
-            if (!response.ok) {
-                throw new Error("Failed to process audio")
+            if (!result.success) {
+                throw new Error(result.error || "Failed to process audio")
             }
-
-            const result = await response.json()
 
             if (result.success && result.data) {
                 setParsedResult(result.data)
-                setTranscript(result.transcript || "")
+                setTranscript(result.transcript || liveTranscript || "")
                 incrementUsage('voice') // Increment usage on success
             } else {
                 setError(result.error || "Could not understand the audio. Please try again.")
@@ -198,7 +241,7 @@ export const VoiceRecordingModal: React.FC<VoiceRecordingModalProps> = ({
                 {/* Header */}
                 <div className="flex justify-between items-center mb-6">
                     <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                        <Mic size={20} className="text-cyan-400" />
+                        <Icons.Mic size={20} className="text-cyan-400" />
                         Voice Transaction
                     </h3>
                     <button
@@ -244,6 +287,15 @@ export const VoiceRecordingModal: React.FC<VoiceRecordingModalProps> = ({
                             )}
                         </div>
 
+                        {/* Live Transcript Display */}
+                        {isRecording && (
+                            <div className="mt-4 w-full bg-white/5 border border-white/10 rounded-2xl p-4 min-h-[80px] flex items-center justify-center">
+                                <p className="text-center text-gray-300 italic">
+                                    {liveTranscript || "Speak now..."}
+                                </p>
+                            </div>
+                        )}
+
                         {/* Instructions */}
                         {!isRecording && (
                             <div className="mt-6 space-y-3 text-center w-full">
@@ -266,7 +318,14 @@ export const VoiceRecordingModal: React.FC<VoiceRecordingModalProps> = ({
                             <Check size={48} className="text-emerald-500" />
                         </div>
                         <p className="text-white font-bold text-lg mb-2">Recording Complete!</p>
-                        <p className="text-gray-400 text-sm mb-8">{formatTime(recordingTime)} recorded</p>
+                        <p className="text-gray-400 text-sm mb-4">{formatTime(recordingTime)} recorded</p>
+
+                        {/* Final Transcript Review */}
+                        <div className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 mb-8">
+                            <p className="text-center text-gray-300 italic text-sm">
+                                "{liveTranscript || "No transcript available"}"
+                            </p>
+                        </div>
 
                         <div className="flex gap-3 w-full">
                             <button
@@ -300,18 +359,17 @@ export const VoiceRecordingModal: React.FC<VoiceRecordingModalProps> = ({
                     </div>
                 )}
 
-                {/* Parsed Result - Confirmation */}
                 {/* Parsed Result - Confirmation & Edit */}
                 {parsedResult && (
                     <div className="py-2 animate-fade-in">
                         {/* Transcript Display */}
-                        {transcript && (
+                        {(transcript || liveTranscript) && (
                             <div className="mb-6 bg-gray-800/50 p-4 rounded-xl border border-gray-700 relative">
                                 <div className="absolute -top-3 left-4 bg-gray-900 px-2 text-[10px] text-gray-400 uppercase tracking-wider font-bold flex items-center gap-2">
                                     <Icons.Mic size={10} /> I heard
                                 </div>
                                 <p className="text-white italic text-center text-lg">
-                                    "{transcript}"
+                                    "{transcript || liveTranscript}"
                                 </p>
                             </div>
                         )}

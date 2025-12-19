@@ -24,6 +24,15 @@ import { QuickActions } from "@/features/dashboard/QuickActions"
 import { DailyBriefing } from "@/features/dashboard/DailyBriefing"
 import { ActionableInsights } from "@/features/dashboard/ActionableInsights"
 import { AINotificationStack } from "@/shared/components/AINotificationBanner"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/shared/components/ui/dropdown-menu"
+import { SubscriptionModal } from "@/shared/components/SubscriptionModal"
+import { SubscriptionWidget } from "@/features/dashboard/SubscriptionWidget"
+import { Settings, Globe, Eye, EyeOff, Calendar, Sun, Moon, Cloud, ChevronRight, User, Users } from "lucide-react"
 
 
 // Global Notification Component
@@ -75,6 +84,7 @@ function MainLayout() {
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
   const [showFeedbackModal, setShowFeedbackModal] = useState(false)
   const [showDataManagementModal, setShowDataManagementModal] = useState(false)
+  const [showSubscriptionModal, setShowSubscriptionModal] = useState(false)
 
   // UI State for Profile Modal Collapsibles
   const [isDashboardSettingsOpen, setIsDashboardSettingsOpen] = useState(false)
@@ -122,78 +132,92 @@ function MainLayout() {
 
       {/* Header */}
       <header className="px-6 pt-8 pb-4 sticky top-0 bg-theme-main/80 backdrop-blur-md z-40 border-b border-transparent transition-colors duration-300">
-        <div className="flex justify-between items-center mb-2">
+        <div className="flex justify-between items-center">
           <div className="flex items-center gap-4 cursor-pointer" onClick={() => setShowProfileModal(true)}>
             {/* Avatar with gradient ring */}
             <div className="relative">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-pink-500 via-purple-500 to-indigo-500 p-0.5">
-                <div className="w-full h-full rounded-full bg-theme-card flex items-center justify-center">
-                  {activeProfile === "All" ? (
-                    <Icons.Users className="text-theme-secondary" size={20} />
-                  ) : (
-                    <Icons.User className="text-theme-secondary" size={20} />
-                  )}
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-cyan-500 via-blue-500 to-indigo-500 p-0.5 shadow-lg shadow-cyan-500/20">
+                <div className="w-full h-full rounded-[14px] bg-theme-card flex items-center justify-center overflow-hidden">
+                  <img
+                    src={activeProfile === "Personal" ? "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" : "https://api.dicebear.com/7.x/avataaars/svg?seed=Family"}
+                    alt="Profile"
+                    className="w-10 h-10 object-cover"
+                  />
                 </div>
               </div>
               {/* Status indicator */}
               <div
-                className={`absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full border-2 border-theme-main ${activeProfile === "Personal" ? "bg-emerald-500" : activeProfile === "Family" ? "bg-pink-500" : "bg-amber-500"}`}
+                className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-theme-main ${activeProfile === "Personal" ? "bg-emerald-500" : activeProfile === "Family" ? "bg-pink-500" : "bg-amber-500"}`}
               ></div>
             </div>
             <div>
-              <p className="text-[10px] uppercase tracking-[0.15em] text-theme-secondary font-semibold mb-0.5">Welcome back</p>
-              <h1 className="text-lg font-bold text-theme-primary">{state.userName}!</h1>
-              <div className="flex items-center gap-1 group">
-                <span
-                  className={`text-[10px] font-bold px-2 py-0.5 rounded-md transition-colors ${activeProfile === "Personal" ? "bg-cyan-500/20 text-cyan-400" : activeProfile === "Family" ? "bg-pink-500/20 text-pink-500" : "bg-amber-500/20 text-amber-400"}`}
-                >
-                  {activeProfile}
-                </span>
-                <Icons.ChevronRight size={12} className="text-theme-secondary group-hover:text-theme-primary" />
-              </div>
+              <p className="text-[10px] font-black text-theme-secondary uppercase tracking-[0.2em] mb-0.5 opacity-60">Welcome Back</p>
+              <h1 className="text-xl font-black text-theme-primary tracking-tight">{(state.userName || "").split(' ')[0]}!</h1>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
-            {/* Language Switcher - Moved here */}
-            <div className="scale-90 origin-right">
-              <LanguageSwitcher />
-            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  className="w-12 h-12 rounded-2xl bg-theme-card border border-theme flex items-center justify-center hover:bg-theme-main transition-all active:scale-90 shadow-sm"
+                  title="Quick Settings"
+                >
+                  <Settings size={24} className="text-theme-secondary" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56 bg-theme-card/95 backdrop-blur-xl border-theme p-2 rounded-2xl shadow-2xl z-[100]">
+                {/* Language Setting */}
+                <div className="p-2 mb-1">
+                  <p className="text-[10px] uppercase tracking-wider text-theme-secondary font-bold mb-2 px-2">Language</p>
+                  <LanguageSwitcher />
+                </div>
 
-            {/* Privacy Toggle */}
-            <button
-              onClick={togglePrivacyMode}
-              className="h-10 w-10 rounded-full bg-theme-card flex items-center justify-center border border-theme hover:border-cyan-500/50 transition shadow-sm text-theme-secondary hover:text-cyan-400"
-              title={isPrivacyMode ? "Show Amounts" : "Hide Amounts"}
-            >
-              {isPrivacyMode ? <Icons.EyeOff size={18} /> : <Icons.Eye size={18} />}
-            </button>
+                <div className="h-px bg-white/5 my-1 mx-2" />
 
-            {/* Calendar Toggle */}
-            <button
-              onClick={toggleCalendar}
-              className="h-10 px-3 rounded-full bg-theme-card flex items-center justify-center border border-theme hover:border-cyan-500/50 transition shadow-sm"
-              title="Toggle Calendar"
-            >
-              <span className="text-[10px] font-bold uppercase tracking-wider text-theme-secondary">
-                {calendarMode === "gregorian" ? "GC" : "EC"}
-              </span>
-            </button>
+                {/* Privacy Toggle */}
+                <DropdownMenuItem
+                  onClick={togglePrivacyMode}
+                  className="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 cursor-pointer transition-colors"
+                >
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isPrivacyMode ? "bg-rose-500/20 text-rose-500" : "bg-cyan-500/20 text-cyan-500"}`}>
+                    {isPrivacyMode ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-xs font-bold text-theme-primary">{isPrivacyMode ? "Show Amounts" : "Hide Amounts"}</p>
+                    <p className="text-[10px] text-theme-secondary">Privacy Mode</p>
+                  </div>
+                </DropdownMenuItem>
 
-            {/* Theme Toggle */}
-            <button
-              onClick={toggleTheme}
-              className="w-10 h-10 rounded-full bg-theme-card flex items-center justify-center border border-theme hover:bg-theme-main transition shadow-sm"
-              title={`Current Theme: ${theme}`}
-            >
-              {theme === "light" ? (
-                <Icons.Sun size={20} className="text-orange-400" />
-              ) : theme === "dim" ? (
-                <Icons.Cloud size={20} className="text-blue-400" />
-              ) : (
-                <Icons.Moon className="text-indigo-300" size={20} />
-              )}
-            </button>
+                {/* Calendar Toggle */}
+                <DropdownMenuItem
+                  onClick={toggleCalendar}
+                  className="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 cursor-pointer transition-colors"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-500 flex items-center justify-center">
+                    <Calendar size={16} />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-xs font-bold text-theme-primary">{calendarMode === "gregorian" ? "Ethiopian Calendar" : "Gregorian Calendar"}</p>
+                    <p className="text-[10px] text-theme-secondary">Current: {calendarMode === "gregorian" ? "GC" : "EC"}</p>
+                  </div>
+                </DropdownMenuItem>
+
+                {/* Theme Toggle */}
+                <DropdownMenuItem
+                  onClick={toggleTheme}
+                  className="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 cursor-pointer transition-colors"
+                >
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${theme === "light" ? "bg-orange-500/20 text-orange-500" : theme === "dim" ? "bg-blue-500/20 text-blue-500" : "bg-indigo-500/20 text-indigo-400"}`}>
+                    {theme === "light" ? <Sun size={16} /> : theme === "dim" ? <Cloud size={16} /> : <Moon size={16} />}
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-xs font-bold text-theme-primary">Switch Theme</p>
+                    <p className="text-[10px] text-theme-secondary capitalize">Current: {theme}</p>
+                  </div>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </header>
@@ -205,9 +229,13 @@ function MainLayout() {
         {activeTab === "dashboard" && (
           <div className="animate-fade-in pb-28">
             <DailyBriefing />
-            <ActionableInsights />
             {visibleWidgets.balance && <BalanceCard />}
-            <QuickActions />
+            <ActionableInsights />
+            <QuickActions
+              onOpenSubscription={() => setShowSubscriptionModal(true)}
+              onOpenFinancialProfile={() => setShowFinancialProfile(true)}
+            />
+            <SubscriptionWidget onOpenModal={() => setShowSubscriptionModal(true)} />
             {visibleWidgets.budget && <ExpenseTracking />}
             {visibleWidgets.goals && <SavingsGoals />}
             {visibleWidgets.transactions && <TransactionList />}
@@ -240,10 +268,16 @@ function MainLayout() {
             <AIAdvisor />
           </div>
         )}
+
       </main>
 
       {/* Navigation */}
       <BottomNav />
+
+      <SubscriptionModal
+        isOpen={showSubscriptionModal}
+        onClose={() => setShowSubscriptionModal(false)}
+      />
 
       {/* PROFILE & SETTINGS MODAL */}
       {showProfileModal && (
@@ -388,6 +422,8 @@ function MainLayout() {
                 </div>
                 <Icons.ChevronRight size={18} className="text-theme-secondary" />
               </button>
+
+
 
               {/* --- PRO FEATURE: WIDGET MANAGEMENT (COLLAPSIBLE) --- */}
               <div

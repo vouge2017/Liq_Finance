@@ -143,26 +143,28 @@ export const FinancialProfileModal: React.FC<Props> = ({ onClose }) => {
     if (showSuccess) {
         return (
             <div className="fixed inset-0 modal-overlay z-[110] flex items-center justify-center p-4" onClick={onClose}>
-                <div className="modal-content w-full max-w-sm rounded-3xl p-8 animate-scale-up text-center relative overflow-hidden" onClick={e => e.stopPropagation()}>
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
+                <div className="modal-content w-full max-w-sm rounded-[2.5rem] p-8 animate-scale-up text-center relative overflow-hidden" onClick={e => e.stopPropagation()}>
+                    <div className="absolute top-0 right-0 w-40 h-40 bg-emerald-500/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
+                    <div className="absolute bottom-0 left-0 w-40 h-40 bg-cyan-500/10 rounded-full blur-3xl -ml-10 -mb-10 pointer-events-none"></div>
 
-                    <div className="w-20 h-20 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-6 text-emerald-500 animate-bounce">
-                        <Icons.CheckCircle size={40} />
+                    <div className="w-24 h-24 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-full flex items-center justify-center mx-auto mb-8 text-white shadow-xl shadow-emerald-500/30 relative">
+                        <div className="absolute inset-0 bg-emerald-400 rounded-full animate-ping opacity-20"></div>
+                        <Icons.CheckCircle size={48} strokeWidth={3} />
                     </div>
 
-                    <h3 className="text-2xl font-bold text-white mb-2">Profile Updated!</h3>
-                    <p className="text-theme-secondary text-sm mb-8">Your income source has been saved. We can now plan your budget more accurately.</p>
+                    <h3 className="text-3xl font-black text-white mb-3 tracking-tight">Profile Updated!</h3>
+                    <p className="text-theme-secondary text-sm mb-10 leading-relaxed px-4">Your income source has been saved. We can now plan your budget with <span className="text-emerald-400 font-bold">precision</span>.</p>
 
-                    <div className="space-y-3">
+                    <div className="space-y-4">
                         <button
                             onClick={() => { setShowSuccess(false); onClose(); setActiveTab('budget'); }}
-                            className="w-full py-4 bg-emerald-500 text-white font-bold rounded-2xl shadow-lg shadow-emerald-500/20 hover:scale-[1.02] transition-transform"
+                            className="w-full py-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-black rounded-2xl shadow-xl shadow-emerald-500/20 hover:scale-[1.02] transition-all active:scale-95"
                         >
                             Go to Budget
                         </button>
                         <button
                             onClick={() => { setShowSuccess(false); resetForm(); }}
-                            className="w-full py-4 bg-theme-main text-theme-secondary font-bold rounded-2xl hover:text-white transition-colors"
+                            className="w-full py-4 bg-theme-main/50 text-theme-secondary font-black rounded-2xl hover:text-white transition-all border border-theme hover:border-theme-secondary/30"
                         >
                             Add Another Source
                         </button>
@@ -185,33 +187,57 @@ export const FinancialProfileModal: React.FC<Props> = ({ onClose }) => {
                         <h2 className="text-xl font-bold text-theme-primary">Financial Profile</h2>
                         <p className="text-xs text-theme-secondary">Manage your income sources</p>
                     </div>
-                    <button onClick={onClose} className="p-2 rounded-full bg-theme-main border border-theme text-theme-secondary hover:text-white">
-                        <Icons.Close size={20} />
-                    </button>
+                    <div className="flex items-center gap-2">
+                        {!isAdding && (
+                            <button
+                                onClick={() => setIsAdding(true)}
+                                className="p-2.5 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 hover:bg-cyan-500 hover:text-black transition-all"
+                                title="Add Income Source"
+                            >
+                                <Icons.Plus size={20} strokeWidth={3} />
+                            </button>
+                        )}
+                        <button onClick={onClose} className="p-2.5 rounded-xl bg-theme-main border border-theme text-theme-secondary hover:text-white transition-all">
+                            <Icons.Close size={20} />
+                        </button>
+                    </div>
                 </div>
 
                 {/* SUMMARY CARD */}
                 {!isAdding && (
                     <div className="space-y-4 mb-6 shrink-0">
                         {/* Summary Card */}
-                        <div className="bg-gradient-to-r from-emerald-900 to-teal-900 rounded-2xl p-5 border border-emerald-500/30 flex justify-between items-center shadow-lg">
-                            <div>
-                                <p className="text-xs text-emerald-200/80 uppercase font-bold tracking-wider mb-1">Total Monthly Income</p>
-                                <p className="text-2xl font-bold text-white tracking-tight">{totalMonthlyIncome.toLocaleString()} ETB</p>
-                            </div>
-                            <div className="w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center border border-emerald-500/30">
-                                <Icons.Briefcase className="text-emerald-400" size={24} />
+                        <div className="relative overflow-hidden rounded-3xl p-6 bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-600 shadow-xl shadow-emerald-500/20 group">
+                            {/* Decorative background glow */}
+                            <div className="absolute -top-10 -right-10 w-32 h-32 bg-white/20 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
+
+                            <div className="relative z-10 flex justify-between items-center">
+                                <div>
+                                    <p className="text-[10px] text-emerald-100/80 uppercase font-black tracking-[0.2em] mb-1">Total Monthly Income</p>
+                                    <div className="flex items-baseline gap-1">
+                                        <span className="text-3xl font-black text-white tracking-tight">{totalMonthlyIncome.toLocaleString()}</span>
+                                        <span className="text-sm font-bold text-emerald-100/80">ETB</span>
+                                    </div>
+                                </div>
+                                <div className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30 shadow-inner">
+                                    <Icons.Coins className="text-white" size={28} />
+                                </div>
                             </div>
                         </div>
 
                         {/* Budget Start Date Setting */}
-                        <div className="bg-theme-card p-4 rounded-2xl border border-theme flex items-center justify-between">
-                            <div>
-                                <h4 className="font-bold text-theme-primary text-sm">Budget Start Date</h4>
-                                <p className="text-xs text-theme-secondary">When does your month start?</p>
+                        <div className="bg-theme-card/50 backdrop-blur-md p-4 rounded-2xl border border-theme flex items-center justify-between group hover:border-cyan-500/30 transition-all">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-xl bg-cyan-500/10 flex items-center justify-center text-cyan-400">
+                                    <Icons.Calendar size={20} />
+                                </div>
+                                <div>
+                                    <h4 className="font-bold text-theme-primary text-sm">Budget Start Date</h4>
+                                    <p className="text-[10px] text-theme-secondary uppercase tracking-wider">Monthly Cycle</p>
+                                </div>
                             </div>
-                            <div className="flex items-center gap-2">
-                                <span className="text-xs font-bold text-cyan-400">Day</span>
+                            <div className="flex items-center gap-2 bg-theme-main p-1 rounded-xl border border-theme">
+                                <span className="text-[10px] font-black text-cyan-500 px-2">DAY</span>
                                 <input
                                     type="number"
                                     min="1"
@@ -223,7 +249,7 @@ export const FinancialProfileModal: React.FC<Props> = ({ onClose }) => {
                                             setBudgetStartDate(val);
                                         }
                                     }}
-                                    className="w-12 bg-theme-main p-2 rounded-lg text-center text-sm font-bold border border-theme outline-none focus:border-cyan-500"
+                                    className="w-10 bg-theme-card p-1.5 rounded-lg text-center text-sm font-black text-theme-primary border-none outline-none focus:ring-1 focus:ring-cyan-500/50"
                                 />
                             </div>
                         </div>
@@ -234,19 +260,21 @@ export const FinancialProfileModal: React.FC<Props> = ({ onClose }) => {
                 {!isAdding && (
                     <div className="flex-1 overflow-y-auto space-y-3 mb-6 no-scrollbar">
                         {incomeSources.length === 0 && (
-                            <div className="flex flex-col items-center justify-center py-12 px-6 text-center border-2 border-dashed border-theme-secondary/20 rounded-3xl bg-theme-main/30">
-                                <div className="w-20 h-20 rounded-full bg-theme-card flex items-center justify-center mb-4 shadow-inner border border-theme">
-                                    <Icons.Wallet size={36} className="text-theme-secondary opacity-50" />
+                            <div className="flex flex-col items-center justify-center py-12 px-6 text-center border-2 border-dashed border-theme-secondary/20 rounded-[2.5rem] bg-theme-main/30 relative overflow-hidden group">
+                                <div className="absolute inset-0 bg-gradient-to-b from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                                <div className="w-24 h-24 rounded-full bg-theme-card flex items-center justify-center mb-6 shadow-2xl border border-theme relative z-10">
+                                    <div className="absolute inset-0 bg-emerald-500/10 rounded-full animate-pulse"></div>
+                                    <Icons.Wallet size={40} className="text-theme-secondary opacity-40" />
                                 </div>
-                                <p className="text-theme-primary font-bold text-lg mb-2">Income not set</p>
-                                <p className="text-theme-secondary text-sm mb-6 max-w-[200px] leading-relaxed">
-                                    Add your salary or business income to unlock smart budgeting.
+                                <h3 className="text-theme-primary font-black text-xl mb-2 relative z-10">Income not set</h3>
+                                <p className="text-theme-secondary text-sm mb-8 max-w-[220px] leading-relaxed relative z-10">
+                                    Add your salary or business income to unlock <span className="text-emerald-400 font-bold">smart budgeting</span>.
                                 </p>
                                 <button
                                     onClick={() => setIsAdding(true)}
-                                    className="flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white px-6 py-3 rounded-2xl font-bold transition-all shadow-lg shadow-emerald-500/20 active:scale-95"
+                                    className="relative z-10 flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white px-8 py-4 rounded-2xl font-black transition-all shadow-xl shadow-emerald-500/20 hover:scale-105 active:scale-95"
                                 >
-                                    <Icons.Plus size={18} /> Add Income Source
+                                    <Icons.Plus size={20} strokeWidth={3} /> Add Income Source
                                 </button>
                             </div>
                         )}
@@ -257,46 +285,45 @@ export const FinancialProfileModal: React.FC<Props> = ({ onClose }) => {
                             const isReceivedThisMonth = lastReceived && new Date(lastReceived).getMonth() === new Date().getMonth();
 
                             return (
-                                <div key={source.id} className="bg-theme-main p-4 rounded-2xl border border-theme group hover:border-cyan-500/30 transition-colors">
-                                    <div className="flex justify-between items-start mb-3">
-                                        <div className="flex items-center gap-3">
-                                            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${iconObj.color.replace('bg-', 'bg-').replace('500', '500/10 text-' + iconObj.color.replace('bg-', ''))}`}>
-                                                <iconObj.icon size={18} />
+                                <div key={source.id} className="bg-theme-card/40 backdrop-blur-sm p-4 rounded-[1.5rem] border border-theme group hover:border-cyan-500/40 transition-all duration-300 shadow-sm hover:shadow-md">
+                                    <div className="flex justify-between items-start mb-4">
+                                        <div className="flex items-center gap-4">
+                                            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-inner ${iconObj.color.replace('bg-', 'bg-').replace('500', '500/10 text-' + iconObj.color.replace('bg-', ''))}`}>
+                                                <iconObj.icon size={22} />
                                             </div>
                                             <div>
-                                                <h4 className="font-bold text-theme-primary">{source.name}</h4>
-                                                <p className="text-xs text-theme-secondary flex items-center gap-2">
-                                                    {source.amount.toLocaleString()} ETB / {source.frequency}
-                                                </p>
+                                                <h4 className="font-black text-theme-primary tracking-tight">{source.name}</h4>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-xs font-bold text-cyan-400">{source.amount.toLocaleString()} ETB</span>
+                                                    <span className="w-1 h-1 rounded-full bg-theme-secondary/30"></span>
+                                                    <span className="text-[10px] text-theme-secondary uppercase font-black tracking-wider">{source.frequency}</span>
+                                                </div>
                                             </div>
                                         </div>
-                                        <div className="flex gap-2">
-                                            <button
-                                                onClick={() => openEdit(source)}
-                                                className="p-2 text-theme-secondary hover:text-cyan-400 hover:bg-theme-card rounded-full transition-colors"
-                                            >
-                                                <Icons.Edit size={16} />
-                                            </button>
-                                        </div>
+                                        <button
+                                            onClick={() => openEdit(source)}
+                                            className="flex items-center gap-2 px-3 py-2 text-cyan-400 bg-cyan-500/10 hover:bg-cyan-500 hover:text-black rounded-xl transition-all border border-cyan-500/20 hover:border-cyan-500 shadow-sm"
+                                        >
+                                            <Icons.Edit size={14} />
+                                            <span className="text-[10px] font-black uppercase tracking-wider">Edit</span>
+                                        </button>
                                     </div>
 
                                     {/* Action & Status Row */}
-                                    <div className="flex items-center justify-between pt-3 border-t border-theme/50">
-                                        <div className="flex items-center gap-1.5">
-                                            <div className={`w-2 h-2 rounded-full ${isReceivedThisMonth ? 'bg-emerald-500' : 'bg-theme-secondary/50'}`}></div>
-                                            <span className="text-[10px] text-theme-secondary">
-                                                {lastReceived ? `Last: ${formatDate(lastReceived)}` : 'No history yet'}
+                                    <div className="flex items-center justify-between pt-4 border-t border-theme/30">
+                                        <div className="flex items-center gap-2 bg-theme-main/50 px-3 py-1.5 rounded-full border border-theme/50">
+                                            <div className={`w-2 h-2 rounded-full ${isReceivedThisMonth ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-theme-secondary/30'}`}></div>
+                                            <span className="text-[10px] font-bold text-theme-secondary uppercase tracking-tighter">
+                                                {lastReceived ? `Last: ${formatDate(lastReceived)}` : 'No history'}
                                             </span>
                                         </div>
 
                                         <button
                                             onClick={() => handleReceiveNow(source)}
-                                            className="text-xs font-bold text-cyan-400 flex items-center gap-1 hover:underline"
+                                            className="px-4 py-2 bg-cyan-500/10 hover:bg-cyan-500 text-cyan-400 hover:text-black text-[11px] font-black uppercase tracking-wider rounded-xl transition-all duration-300 flex items-center gap-2 border border-cyan-500/20 hover:border-cyan-500 shadow-sm"
                                         >
-                                            <div className="w-5 h-5 rounded-full bg-cyan-500/20 flex items-center justify-center">
-                                                <Icons.Plus size={12} />
-                                            </div>
-                                            Receive Now
+                                            <Icons.Plus size={14} strokeWidth={3} />
+                                            Receive
                                         </button>
                                     </div>
                                 </div>
@@ -307,67 +334,72 @@ export const FinancialProfileModal: React.FC<Props> = ({ onClose }) => {
 
                 {/* Add/Edit Form */}
                 {isAdding ? (
-                    <div className="bg-theme-main p-5 rounded-2xl border border-theme space-y-4 animate-fade-in flex-1 overflow-y-auto no-scrollbar">
-                        <h3 className="font-bold text-theme-primary text-sm">{editingId ? 'Edit Income Source' : 'New Income Source'}</h3>
+                    <div className="bg-theme-main/50 backdrop-blur-xl p-6 rounded-[2rem] border border-theme space-y-6 animate-fade-in flex-1 overflow-y-auto no-scrollbar shadow-inner">
+                        <div className="flex items-center gap-3 mb-2">
+                            <div className="w-8 h-8 rounded-lg bg-cyan-500/10 flex items-center justify-center text-cyan-400">
+                                <Icons.Plus size={18} />
+                            </div>
+                            <h3 className="font-black text-theme-primary tracking-tight">{editingId ? 'Edit Income Source' : 'New Income Source'}</h3>
+                        </div>
 
                         {/* Name */}
-                        <div>
-                            <label className={`text-xs font-bold uppercase mb-1.5 block ${errors.name ? 'text-rose-500' : 'text-theme-secondary'}`}>Source Name</label>
+                        <div className="space-y-2">
+                            <label className={`text-[10px] font-black uppercase tracking-[0.2em] ml-1 ${errors.name ? 'text-rose-500' : 'text-theme-secondary'}`}>Source Name</label>
                             <input
                                 type="text"
                                 value={name}
                                 onChange={e => { setName(e.target.value); setErrors(p => ({ ...p, name: false })); }}
                                 placeholder="e.g. Primary Job"
-                                className={`w-full bg-theme-card p-3 rounded-xl text-sm outline-none border transition-colors ${errors.name ? 'border-rose-500 bg-rose-500/10' : 'border-theme focus:border-cyan-500'}`}
+                                className={`w-full bg-theme-card/80 p-4 rounded-2xl text-sm font-bold outline-none border transition-all ${errors.name ? 'border-rose-500 bg-rose-500/5 shadow-[0_0_15px_rgba(244,63,94,0.1)]' : 'border-theme focus:border-cyan-500 focus:shadow-[0_0_20px_rgba(6,182,212,0.1)]'}`}
                             />
-                            {errors.name && <p className="text-[10px] text-rose-500 font-bold mt-1">Required</p>}
+                            {errors.name && <p className="text-[10px] text-rose-500 font-bold mt-1 ml-1">Required</p>}
                         </div>
 
                         {/* Income Type Carousel */}
-                        <div>
-                            <label className="text-xs font-bold text-theme-secondary uppercase mb-1.5 block">Income Type</label>
+                        <div className="space-y-3">
+                            <label className="text-[10px] font-black uppercase tracking-[0.2em] ml-1 text-theme-secondary">Income Type</label>
                             <HorizontalScroll className="flex gap-3 pb-2">
                                 {INCOME_TYPES.map(t => (
                                     <button
                                         key={t.id}
                                         onClick={() => setType(t.id as any)}
-                                        className={`flex flex-col items-center justify-center p-3 rounded-xl border min-w-[80px] transition-all ${type === t.id ? `bg-${t.color.replace('bg-', '')}-500/10 border-${t.color.replace('bg-', '')}-500` : 'bg-theme-card border-theme opacity-60 hover:opacity-100'}`}
+                                        className={`flex flex-col items-center justify-center p-4 rounded-2xl border min-w-[90px] transition-all duration-300 ${type === t.id ? `bg-${t.color.replace('bg-', '')}-500/10 border-${t.color.replace('bg-', '')}-500 shadow-lg shadow-${t.color.replace('bg-', '')}-500/10 scale-105` : 'bg-theme-card/50 border-theme opacity-50 hover:opacity-100'}`}
                                     >
-                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-1 ${t.color.replace('bg-', 'text-')}-400 bg-white/5`}>
-                                            <t.icon size={20} />
+                                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-2 ${t.color.replace('bg-', 'text-')}-400 bg-white/5 shadow-inner`}>
+                                            <t.icon size={24} />
                                         </div>
-                                        <span className={`text-[10px] font-bold ${type === t.id ? 'text-white' : 'text-theme-secondary'}`}>{t.label}</span>
+                                        <span className={`text-[10px] font-black uppercase tracking-tighter ${type === t.id ? 'text-white' : 'text-theme-secondary'}`}>{t.label}</span>
                                     </button>
                                 ))}
                             </HorizontalScroll>
                         </div>
 
                         {/* Amount */}
-                        <div>
-                            <label className={`text-xs font-bold uppercase mb-1.5 block ${errors.amount ? 'text-rose-500' : 'text-theme-secondary'}`}>Expected Amount</label>
-                            <div className="relative">
+                        <div className="space-y-2">
+                            <label className={`text-[10px] font-black uppercase tracking-[0.2em] ml-1 ${errors.amount ? 'text-rose-500' : 'text-theme-secondary'}`}>Expected Amount</label>
+                            <div className="relative group">
+                                <div className="absolute left-4 top-1/2 -translate-y-1/2 bg-theme-main px-2 py-1 rounded-lg border border-theme text-theme-secondary font-black text-[10px] tracking-widest group-focus-within:text-cyan-500 group-focus-within:border-cyan-500/50 transition-colors">ETB</div>
                                 <input
                                     type="text"
                                     inputMode="decimal"
                                     value={amount}
                                     onChange={e => { setAmount(formatNumberInput(e.target.value)); setErrors(p => ({ ...p, amount: false })); }}
                                     placeholder="0.00"
-                                    className={`w-full bg-theme-card p-3 pl-14 rounded-xl text-lg font-bold outline-none border transition-colors font-mono ${errors.amount ? 'border-rose-500 bg-rose-500/10' : 'border-theme focus:border-cyan-500'}`}
+                                    className={`w-full bg-theme-card/80 p-4 pl-16 rounded-2xl text-2xl font-black outline-none border transition-all font-mono tracking-tight ${errors.amount ? 'border-rose-500 bg-rose-500/5 shadow-[0_0_15px_rgba(244,63,94,0.1)]' : 'border-theme focus:border-cyan-500 focus:shadow-[0_0_20px_rgba(6,182,212,0.1)]'}`}
                                 />
-                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-theme-secondary font-bold text-sm">ETB</span>
                             </div>
-                            {errors.amount && <p className="text-[10px] text-rose-500 font-bold mt-1">Required</p>}
+                            {errors.amount && <p className="text-[10px] text-rose-500 font-bold mt-1 ml-1">Required</p>}
                         </div>
 
                         {/* Frequency */}
-                        <div>
-                            <label className="text-xs font-bold text-theme-secondary uppercase mb-1.5 block">Frequency</label>
-                            <div className="grid grid-cols-2 gap-2">
+                        <div className="space-y-3">
+                            <label className="text-[10px] font-black uppercase tracking-[0.2em] ml-1 text-theme-secondary">Frequency</label>
+                            <div className="grid grid-cols-2 gap-3">
                                 {FREQUENCIES.map(f => (
                                     <button
                                         key={f}
                                         onClick={() => setFrequency(f as any)}
-                                        className={`py-2 rounded-xl text-xs font-bold border transition-colors ${frequency === f ? 'bg-cyan-500/10 border-cyan-500 text-cyan-400' : 'bg-theme-card border-theme text-theme-secondary'}`}
+                                        className={`py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest border transition-all duration-300 ${frequency === f ? 'bg-cyan-500/10 border-cyan-500 text-cyan-400 shadow-lg shadow-cyan-500/10' : 'bg-theme-card/50 border-theme text-theme-secondary hover:border-theme-secondary/30'}`}
                                     >
                                         {f}
                                     </button>
@@ -377,9 +409,12 @@ export const FinancialProfileModal: React.FC<Props> = ({ onClose }) => {
 
                         {/* Payday Input (Only if not irregular) */}
                         {frequency !== 'Irregular' && (
-                            <div className="bg-theme-card p-3 rounded-xl border border-theme">
-                                <div className="flex justify-between items-center mb-2">
-                                    <label className="text-xs font-bold text-theme-secondary">Payday (Day of Month)</label>
+                            <div className="bg-theme-card/80 p-4 rounded-2xl border border-theme space-y-4">
+                                <div className="flex justify-between items-center">
+                                    <div className="flex items-center gap-2">
+                                        <Icons.Calendar size={16} className="text-theme-secondary" />
+                                        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-theme-secondary">Payday (Day of Month)</label>
+                                    </div>
                                     <input
                                         type="number"
                                         min="1"
@@ -387,56 +422,77 @@ export const FinancialProfileModal: React.FC<Props> = ({ onClose }) => {
                                         value={payday}
                                         onChange={e => setPayday(e.target.value)}
                                         placeholder="25"
-                                        className="w-16 bg-theme-main p-1.5 rounded-lg text-center text-sm font-bold border border-theme outline-none focus:border-cyan-500"
+                                        className="w-14 bg-theme-main p-2 rounded-xl text-center text-sm font-black border border-theme outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/30 transition-all"
                                     />
                                 </div>
-                                <div className="flex items-center justify-between pt-2 border-t border-theme/50">
-                                    <span className="text-xs text-theme-secondary">Get Notification?</span>
+                                <div className="flex items-center justify-between pt-4 border-t border-theme/30">
+                                    <div className="flex items-center gap-2">
+                                        <Icons.Bell size={16} className="text-theme-secondary" />
+                                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-theme-secondary">Reminders</span>
+                                    </div>
                                     <button
                                         onClick={() => setRemind(!remind)}
-                                        className={`w-10 h-6 rounded-full relative transition-colors ${remind ? 'bg-cyan-500' : 'bg-gray-700'}`}
+                                        className={`w-12 h-7 rounded-full relative transition-all duration-300 p-1 ${remind ? 'bg-cyan-500 shadow-lg shadow-cyan-500/20' : 'bg-gray-800'}`}
                                     >
-                                        <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${remind ? 'left-5' : 'left-1'}`}></div>
+                                        <div className={`w-5 h-5 bg-white rounded-full transition-all duration-300 shadow-sm ${remind ? 'translate-x-5' : 'translate-x-0'}`}></div>
                                     </button>
                                 </div>
                             </div>
                         )}
 
-                        {/* LINKED ACCOUNT - NEW */}
-                        <div>
-                            <label className="text-xs font-bold text-theme-secondary uppercase mb-1.5 block">Deposit To (Optional)</label>
-                            <select
-                                value={linkedAccount}
-                                onChange={e => setLinkedAccount(e.target.value)}
-                                className="w-full bg-theme-card p-3 rounded-xl text-sm outline-none border border-theme focus:border-cyan-500 transition-colors"
-                            >
-                                <option value="">Select Account</option>
-                                {accounts.map(acc => (
-                                    <option key={acc.id} value={acc.id}>{acc.name} ({acc.institution})</option>
-                                ))}
-                            </select>
+                        {/* LINKED ACCOUNT */}
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black uppercase tracking-[0.2em] ml-1 text-theme-secondary">Deposit To (Optional)</label>
+                            <div className="relative">
+                                <select
+                                    value={linkedAccount}
+                                    onChange={e => setLinkedAccount(e.target.value)}
+                                    className="w-full bg-theme-card/80 p-4 rounded-2xl text-sm font-bold outline-none border border-theme focus:border-cyan-500 transition-all appearance-none cursor-pointer"
+                                >
+                                    <option value="">Select Account</option>
+                                    {accounts.map(acc => (
+                                        <option key={acc.id} value={acc.id}>{acc.name} ({acc.institution})</option>
+                                    ))}
+                                </select>
+                                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-theme-secondary">
+                                    <Icons.ChevronDown size={18} />
+                                </div>
+                            </div>
                         </div>
 
-                        <div className="flex gap-2 pt-4 mt-auto">
-                            <button onClick={resetForm} className="flex-1 py-3 rounded-xl bg-theme-card text-xs font-bold border border-theme hover:bg-theme-main">Cancel</button>
-                            <button onClick={handleSave} className="flex-1 py-3 rounded-xl bg-cyan-500 text-black text-xs font-bold hover:bg-cyan-400 shadow-lg shadow-cyan-500/20">
-                                {editingId ? 'Update' : 'Save'}
-                            </button>
+                        <div className="flex gap-3 pt-6 mt-auto">
+                            {editingId ? (
+                                <>
+                                    <button
+                                        onClick={() => {
+                                            if (window.confirm('Are you sure you want to delete this income source?')) {
+                                                deleteIncomeSource(editingId);
+                                                resetForm();
+                                            }
+                                        }}
+                                        className="p-4 rounded-2xl bg-rose-500/10 text-rose-500 border border-rose-500/20 hover:bg-rose-500 hover:text-white transition-all active:scale-95"
+                                        title="Delete Source"
+                                    >
+                                        <Icons.Delete size={20} />
+                                    </button>
+                                    <button onClick={resetForm} className="flex-1 py-4 rounded-2xl bg-theme-card text-[11px] font-black uppercase tracking-widest border border-theme hover:bg-theme-main transition-all active:scale-95">Cancel</button>
+                                    <button onClick={handleSave} className="flex-[2] py-4 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-500 text-black text-[11px] font-black uppercase tracking-widest hover:from-cyan-400 hover:to-blue-400 shadow-xl shadow-cyan-500/20 transition-all active:scale-95">
+                                        Update
+                                    </button>
+                                </>
+                            ) : (
+                                <>
+                                    <button onClick={resetForm} className="flex-1 py-4 rounded-2xl bg-theme-card text-[11px] font-black uppercase tracking-widest border border-theme hover:bg-theme-main transition-all active:scale-95">Cancel</button>
+                                    <button onClick={handleSave} className="flex-1 py-4 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-500 text-black text-[11px] font-black uppercase tracking-widest hover:from-cyan-400 hover:to-blue-400 shadow-xl shadow-cyan-500/20 transition-all active:scale-95">
+                                        Save Source
+                                    </button>
+                                </>
+                            )}
                         </div>
                     </div>
-                ) : (
-                    incomeSources.length > 0 && (
-                        <button
-                            onClick={() => setIsAdding(true)}
-                            className="w-full py-4 border-2 border-dashed border-theme rounded-2xl flex items-center justify-center gap-2 text-theme-secondary hover:text-cyan-400 hover:border-cyan-400/50 hover:bg-theme-card transition-all mb-4 shrink-0"
-                        >
-                            <Icons.Plus size={16} /> Add Income Source
-                        </button>
-                    )
-                )}
-
+                ) : null}
                 {!isAdding && (
-                    <button onClick={onClose} className="w-full py-4 bg-cyan-500 rounded-2xl font-bold text-black hover:bg-cyan-400 shadow-lg shadow-cyan-500/20 shrink-0">
+                    <button onClick={onClose} className="w-full py-4 bg-cyan-500 rounded-2xl font-bold text-black hover:bg-cyan-400 shadow-lg shadow-cyan-500/20 shrink-0 mt-auto">
                         Done
                     </button>
                 )}

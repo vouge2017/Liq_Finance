@@ -10,38 +10,36 @@ export const BottomNav: React.FC = () => {
     // Updated Order: Home, Budget, FAB, Goals, Advisor
 
     return (
-        <div className="fixed bottom-0 left-0 right-0 glass-panel border-t border-white/10 pt-2 px-6 pb-4 z-50 transition-colors duration-300" style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom))' }}>
-            <div className="flex justify-between items-end">
+        <div className="fixed bottom-0 left-0 right-0 bg-theme-main/80 backdrop-blur-xl border-t border-white/5 px-6 py-4 z-50 transition-colors duration-300" style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom))' }}>
+            <div className="flex justify-between items-center">
 
                 {/* Left Side */}
-                <button
-                    onClick={() => setActiveTab('dashboard')}
-                    className="flex flex-col items-center gap-1 min-w-[60px]"
-                >
-                    <Icons.Dashboard
-                        size={24}
-                        className={`${activeTab === 'dashboard' ? 'text-cyan-400' : 'text-theme-secondary'} transition-colors duration-200`}
-                    />
-                    <span className={`text-[10px] font-medium ${activeTab === 'dashboard' ? 'text-cyan-400' : 'text-theme-secondary'}`}>Home</span>
-                </button>
+                <div className="flex gap-8">
+                    <button
+                        onClick={() => setActiveTab('dashboard')}
+                        className="flex flex-col items-center gap-1 group"
+                    >
+                        <div className={`p-2 rounded-xl transition-all ${activeTab === 'dashboard' ? 'bg-cyan-500/10 text-cyan-400' : 'text-gray-500 group-hover:text-gray-300'}`}>
+                            <Icons.Dashboard size={24} />
+                        </div>
+                        <span className={`text-[10px] font-black uppercase tracking-widest ${activeTab === 'dashboard' ? 'text-cyan-400' : 'text-gray-500'}`}>Home</span>
+                    </button>
 
-                {/* Budget Tab (Replaces Accounts) */}
-                <button
-                    onClick={() => setActiveTab('budget')}
-                    className="flex flex-col items-center gap-1 min-w-[60px]"
-                >
-                    <Icons.Budget
-                        size={24}
-                        className={`${activeTab === 'budget' ? 'text-cyan-400' : 'text-theme-secondary'} transition-colors duration-200`}
-                    />
-                    <span className={`text-[10px] font-medium ${activeTab === 'budget' ? 'text-cyan-400' : 'text-theme-secondary'}`}>Budget</span>
-                </button>
+                    <button
+                        onClick={() => setActiveTab('budget')}
+                        className="flex flex-col items-center gap-1 group"
+                    >
+                        <div className={`p-2 rounded-xl transition-all ${activeTab === 'budget' ? 'bg-cyan-500/10 text-cyan-400' : 'text-gray-500 group-hover:text-gray-300'}`}>
+                            <Icons.Budget size={24} />
+                        </div>
+                        <span className={`text-[10px] font-black uppercase tracking-widest ${activeTab === 'budget' ? 'text-cyan-400' : 'text-gray-500'}`}>Budget</span>
+                    </button>
+                </div>
 
                 {/* FAB (Center) */}
-                <div className="relative -top-5">
+                <div className="relative -top-8">
                     <button
                         onMouseDown={() => {
-                            // Start Long Press Timer
                             const timer = setTimeout(() => {
                                 triggerHaptic('heavy');
                                 openTransactionModal(undefined, undefined, { voice: true });
@@ -54,20 +52,6 @@ export const BottomNav: React.FC = () => {
                                 (window as any).longPressTimer = null;
                             }
                         }}
-                        onClick={(e) => {
-                            // If long press triggered, don't open normal modal
-                            // But here we rely on the fact that openTransactionModal is called in timeout
-                            // We need to prevent default if long press happened? 
-                            // Actually, simpler: just use onClick for tap, and separate for long press.
-                            // But standard onClick fires after mouseUp.
-                            // Let's keep it simple: Tap = Normal, Long Press = Voice.
-                            // If long press fires, we should prevent onClick.
-
-                            // For now, let's just use a simple approach:
-                            // If timer cleared before execution -> Tap.
-                            // If timer executed -> Long Press.
-                        }}
-                        // Mobile Touch Events
                         onTouchStart={() => {
                             const timer = setTimeout(() => {
                                 triggerHaptic('heavy');
@@ -84,38 +68,37 @@ export const BottomNav: React.FC = () => {
                             if (!(window as any).longPressTriggered) {
                                 openTransactionModal();
                             }
-                            e.preventDefault(); // Prevent ghost click
+                            e.preventDefault();
                         }}
-                        className="w-14 h-14 rounded-full bg-gradient-to-tr from-cyan-600 to-cyan-400 flex items-center justify-center text-white shadow-lg shadow-cyan-500/40 hover:scale-110 active:scale-95 transition-all duration-300 group fab-glow"
+                        className="w-16 h-16 rounded-full bg-cyan-500 flex items-center justify-center shadow-[0_0_20px_rgba(6,182,212,0.5)] border-4 border-theme-main active:scale-90 transition-transform group relative overflow-hidden"
                     >
-                        <Icons.Plus size={32} strokeWidth={3} />
-                        {/* Pulse Effect */}
-                        <div className="absolute inset-0 rounded-full bg-cyan-400 opacity-20 animate-ping pointer-events-none group-hover:opacity-40"></div>
+                        <Icons.Plus size={32} className="text-white relative z-10" />
+                        <div className="absolute inset-0 bg-gradient-to-tr from-cyan-600 to-blue-400 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                     </button>
                 </div>
 
                 {/* Right Side */}
-                <button
-                    onClick={() => setActiveTab('goals')}
-                    className="flex flex-col items-center gap-1 min-w-[60px]"
-                >
-                    <Icons.Goals
-                        size={24}
-                        className={`${activeTab === 'goals' ? 'text-cyan-400' : 'text-theme-secondary'} transition-colors duration-200`}
-                    />
-                    <span className={`text-[10px] font-medium ${activeTab === 'goals' ? 'text-cyan-400' : 'text-theme-secondary'}`}>Goals</span>
-                </button>
+                <div className="flex gap-8">
+                    <button
+                        onClick={() => setActiveTab('goals')}
+                        className="flex flex-col items-center gap-1 group"
+                    >
+                        <div className={`p-2 rounded-xl transition-all ${activeTab === 'goals' ? 'bg-cyan-500/10 text-cyan-400' : 'text-gray-500 group-hover:text-gray-300'}`}>
+                            <Icons.Goals size={24} />
+                        </div>
+                        <span className={`text-[10px] font-black uppercase tracking-widest ${activeTab === 'goals' ? 'text-cyan-400' : 'text-gray-500'}`}>Goals</span>
+                    </button>
 
-                <button
-                    onClick={() => setActiveTab('accounts')}
-                    className="flex flex-col items-center gap-1 min-w-[60px]"
-                >
-                    <Icons.Wallet
-                        size={24}
-                        className={`${activeTab === 'accounts' ? 'text-cyan-400' : 'text-theme-secondary'} transition-colors duration-200`}
-                    />
-                    <span className={`text-[10px] font-medium ${activeTab === 'accounts' ? 'text-cyan-400' : 'text-theme-secondary'}`}>Accounts</span>
-                </button>
+                    <button
+                        onClick={() => setActiveTab('ai')}
+                        className="flex flex-col items-center gap-1 group"
+                    >
+                        <div className={`p-2 rounded-xl transition-all ${activeTab === 'ai' ? 'bg-cyan-500/10 text-cyan-400' : 'text-gray-500 group-hover:text-gray-300'}`}>
+                            <Icons.AI size={24} />
+                        </div>
+                        <span className={`text-[10px] font-black uppercase tracking-widest ${activeTab === 'ai' ? 'text-cyan-400' : 'text-gray-500'}`}>Advisor</span>
+                    </button>
+                </div>
 
             </div>
         </div>

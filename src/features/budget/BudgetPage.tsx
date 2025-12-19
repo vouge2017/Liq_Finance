@@ -30,17 +30,7 @@ const CATEGORY_COLORS = [
     'bg-orange-400', 'bg-teal-400'
 ];
 
-const SUBSCRIPTION_ICONS = [
-    { id: 'Wifi', icon: Icons.Wifi, color: 'from-emerald-600 to-green-700', label: 'Ethio Tel', shadow: 'shadow-emerald-500/30' },
-    { id: 'Water', icon: Icons.Water, color: 'from-cyan-500 to-blue-600', label: 'Water Bill', shadow: 'shadow-blue-500/30' },
-    { id: 'Electricity', icon: Icons.Electricity, color: 'from-amber-500 to-orange-600', label: 'Electric', shadow: 'shadow-orange-500/30' },
-    { id: 'Tv', icon: Icons.Tv, color: 'from-sky-600 to-blue-800', label: 'DSTV', shadow: 'shadow-blue-500/30' },
-    { id: 'Music', icon: Icons.Music, color: 'from-pink-500 to-rose-600', label: 'Canal+', shadow: 'shadow-pink-500/30' },
-    { id: 'Phone', icon: Icons.Phone, color: 'from-lime-500 to-green-600', label: 'Airtime', shadow: 'shadow-lime-500/30' },
-    { id: 'Home', icon: Icons.Home, color: 'from-indigo-600 to-violet-700', label: 'Rent', shadow: 'shadow-indigo-500/30' },
-    { id: 'Education', icon: Icons.Education, color: 'from-cyan-600 to-blue-700', label: 'School Fee', shadow: 'shadow-cyan-500/30' },
-    { id: 'Zap', icon: Icons.Zap, color: 'from-slate-700 to-slate-900', label: 'Other', shadow: 'shadow-slate-500/30' }
-];
+import { SUBSCRIPTION_ICONS } from '@/shared/constants';
 
 export const BudgetPage: React.FC = () => {
     const {
@@ -400,74 +390,76 @@ export const BudgetPage: React.FC = () => {
 
             {/* 1. Safe to Spend / Recovery Dashboard */}
             {/* 1. Safe to Spend / Recovery Dashboard (UNIFIED HERO) */}
-            <div className="bg-hero-gradient rounded-3xl p-6 shadow-lg relative overflow-hidden text-white">
+            <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-blue-600 to-purple-700 p-8 shadow-2xl shadow-blue-500/20 text-white">
                 {/* Background Effects */}
                 <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none"></div>
                 <div className="absolute bottom-0 left-0 w-40 h-40 bg-cyan-500/10 rounded-full blur-3xl -ml-10 -mb-10 pointer-events-none"></div>
 
                 <div className="relative z-10">
-                    <div className="flex justify-between items-start mb-6">
+                    <div className="flex justify-between items-start mb-8">
                         <div>
-                            <div className="flex items-center gap-2 mb-1">
+                            <div className="flex items-center gap-2 mb-2">
                                 {calculatedBudget.isDeficit ? (
-                                    <div className="flex items-center gap-2 px-2 py-1 rounded-full bg-rose-500/20 border border-rose-500/30">
-                                        <Icons.Alert size={12} className="text-rose-300" />
-                                        <span className="text-[10px] font-bold text-rose-200 uppercase tracking-wider">Over Budget</span>
+                                    <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-rose-500/20 backdrop-blur-md border border-rose-500/30">
+                                        <Icons.Alert size={14} className="text-rose-300" />
+                                        <span className="text-[10px] font-black text-rose-200 uppercase tracking-widest">🚨 Over Budget</span>
                                     </div>
                                 ) : (
-                                    <div className="flex items-center gap-2 px-2 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30">
-                                        <Icons.Check size={12} className="text-emerald-300" />
-                                        <span className="text-[10px] font-bold text-emerald-200 uppercase tracking-wider">Safe to Spend</span>
+                                    <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 backdrop-blur-md border border-emerald-500/30">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                        <span className="text-[10px] font-black text-emerald-200 uppercase tracking-widest">✅ Safe to Spend</span>
                                     </div>
                                 )}
                             </div>
-                            <p className="text-xs text-indigo-200/80 mt-2 font-medium">{calculatedBudget.daysRemaining} days remaining</p>
+                            <p className="text-xs text-blue-100/70 font-bold uppercase tracking-widest">{calculatedBudget.daysRemaining} days remaining</p>
                         </div>
 
                         {/* AI Action */}
                         <button
                             onClick={() => setActiveTab('ai')}
-                            className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors border border-white/10"
+                            className="w-10 h-10 rounded-2xl bg-white/10 flex items-center justify-center hover:bg-white/20 transition-all border border-white/10 active:scale-90"
                         >
-                            <Icons.AI size={16} className="text-indigo-100" />
+                            <Icons.AI size={20} className="text-white" />
                         </button>
                     </div>
 
-                    <div className="flex flex-col gap-1 mb-6">
-                        <span className="text-sm text-indigo-200 font-medium">Daily Limit</span>
+                    <div className="flex flex-col items-center gap-1 mb-8">
                         <div className="flex items-baseline gap-2">
-                            <span className="text-5xl font-bold tracking-tight">
+                            <span className="text-6xl font-black tracking-tighter">
                                 {isPrivacyMode ? '••••' : Math.abs(Math.round(calculatedBudget.safeDaily)).toLocaleString()}
                             </span>
-                            <span className="text-lg font-medium text-indigo-200/60">ETB</span>
+                            <span className="text-xl font-bold text-blue-100/70 uppercase tracking-widest">ETB</span>
                         </div>
+                        <p className="text-xs text-blue-100/50 uppercase tracking-[0.3em] font-black">Daily Limit</p>
                     </div>
 
                     {/* Progress / Status Bar */}
-                    <div className="space-y-2">
-                        <div className="flex justify-between text-xs text-indigo-200/70">
+                    <div className="space-y-3">
+                        <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-blue-100/60">
                             <span>{calculatedBudget.isDeficit ? 'Deficit' : 'Remaining'}</span>
                             <span>{isPrivacyMode ? '••••' : Math.abs(calculatedBudget.remainingVar).toLocaleString()} ETB</span>
                         </div>
-                        <div className="w-full bg-black/20 rounded-full h-2 overflow-hidden flex">
+                        <div className="w-full bg-black/20 rounded-full h-3 overflow-hidden flex border border-white/5">
                             <div
-                                className={`h-full rounded-full transition-all duration-500 ${calculatedBudget.isDeficit ? 'bg-rose-500' : 'bg-emerald-400'}`}
+                                className={`h-full rounded-full transition-all duration-1000 ease-out ${calculatedBudget.isDeficit ? 'bg-rose-500' : 'bg-emerald-400'}`}
                                 style={{ width: `${Math.min(100, (Math.abs(calculatedBudget.remainingVar) / (calculatedBudget.variable.reduce((s, c) => s + c.allocated, 0) || 1)) * 100)}%` }}
                             ></div>
                         </div>
                         {calculatedBudget.isDeficit && (
-                            <p className="text-[10px] text-rose-300 mt-2 text-center bg-rose-500/10 py-1 rounded-lg border border-rose-500/20">
-                                Tip: Save {Math.round(Math.abs(calculatedBudget.safeDaily)).toLocaleString()} ETB/day to recover.
-                            </p>
+                            <div className="mt-4 bg-black/20 backdrop-blur-sm rounded-2xl p-4 border border-white/5">
+                                <p className="text-[10px] text-rose-200 leading-relaxed text-center font-medium">
+                                    Supportive Tip: Try to save <span className="font-black text-white">{Math.round(Math.abs(calculatedBudget.safeDaily)).toLocaleString()} ETB</span> per day to recover your budget.
+                                </p>
+                            </div>
                         )}
                     </div>
 
                     {calculatedBudget.isDeficit && (
                         <button
                             onClick={() => setShowFixModal(true)}
-                            className="w-full mt-4 py-3 bg-white/10 hover:bg-white/20 border border-white/10 rounded-xl text-sm font-bold text-white transition-colors flex items-center justify-center gap-2"
+                            className="w-full mt-6 py-4 bg-white/10 hover:bg-white/20 border border-white/10 rounded-2xl text-sm font-black text-white transition-all flex items-center justify-center gap-3 active:scale-[0.98]"
                         >
-                            <Icons.Repeat size={14} /> Fix Budget
+                            <Icons.Repeat size={18} /> FIX BUDGET
                         </button>
                     )}
                 </div>
@@ -485,60 +477,62 @@ export const BudgetPage: React.FC = () => {
                     </h3>
                     <button
                         onClick={(e) => { e.stopPropagation(); openAddCat(undefined, 'variable'); }}
-                        className="text-xs text-cyan-400 font-medium bg-cyan-500/10 px-3 py-1.5 rounded-full hover:bg-cyan-500/20 flex items-center gap-1"
+                        className="text-xs text-white font-black bg-gradient-to-r from-cyan-500 to-blue-500 px-4 py-2 rounded-full hover:from-cyan-400 hover:to-blue-400 shadow-lg shadow-cyan-500/20 flex items-center gap-2 transition-all active:scale-95"
                     >
-                        <Icons.Plus size={12} /> Add Category
+                        <Icons.Plus size={14} strokeWidth={3} /> Add Category
                     </button>
                 </div>
 
                 {expandedSections.variable && (
-                    <div className="space-y-3 animate-fade-in">
+                    <HorizontalScroll className="flex gap-4 pb-4 px-1">
                         {calculatedBudget.variable.map(cat => {
                             const isUncategorized = cat.id === 'uncategorized';
-                            // For Uncategorized, there's no limit, so just show spent
                             const percent = isUncategorized ? 100 : Math.min((cat.spent / (cat.allocated || 1)) * 100, 100);
                             const isOver = !isUncategorized && cat.spent > cat.allocated;
-                            const statusColor = isUncategorized ? 'bg-slate-500' : (percent > 95 ? 'bg-rose-500' : percent > 75 ? 'bg-yellow-400' : 'bg-emerald-500');
+                            const statusColor = isUncategorized ? 'bg-slate-500' : (percent > 95 ? 'bg-rose-500' : percent > 75 ? 'bg-amber-500' : 'bg-emerald-500');
                             const Icon = BUDGET_ICONS.find(i => i.id === cat.icon)?.icon || Icons.Shopping;
 
                             return (
                                 <div
                                     key={cat.id}
                                     onClick={() => setDetailCatId(cat.id)}
-                                    className="soft-card p-5 rounded-3xl cursor-pointer relative overflow-hidden group hover:shadow-md transition-all active:scale-[0.98] flex flex-col justify-between min-h-[170px]"
+                                    className="shrink-0 w-[200px] bg-theme-card border border-theme rounded-[2rem] p-5 hover:bg-theme-card/80 transition-all active:scale-[0.98] cursor-pointer group shadow-sm flex flex-col justify-between h-[180px]"
                                 >
-                                    {/* Top Row: Icon + Quick Add */}
-                                    <div className="flex justify-between items-start relative z-10">
-                                        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${cat.color.replace('bg-', 'text-')} bg-theme-main/50 group-hover:scale-110 transition-transform duration-300`}>
+                                    <div className="flex items-start justify-between mb-3">
+                                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${cat.color.replace('bg-', 'text-')} bg-theme-main/50 group-hover:scale-110 transition-transform duration-300 shadow-inner`}>
                                             <Icon size={24} />
                                         </div>
-
-                                        <button
-                                            onClick={(e) => openQuickAdd(e, cat.name, 'expense')}
-                                            className="w-10 h-10 flex items-center justify-center rounded-full bg-theme-main border border-theme text-theme-secondary hover:text-cyan-400 hover:border-cyan-500 transition-colors shadow-sm"
-                                            title="Quick Add Expense"
-                                        >
-                                            <Icons.Plus size={18} />
-                                        </button>
+                                        {isOver ? (
+                                            <div className="bg-rose-500 px-1.5 py-0.5 rounded-md">
+                                                <span className="text-[7px] font-black text-white uppercase tracking-tighter">OVER</span>
+                                            </div>
+                                        ) : percent > 75 ? (
+                                            <span className="text-[8px] font-bold text-amber-500 uppercase tracking-widest">Caution</span>
+                                        ) : (
+                                            <span className="text-[8px] font-bold text-emerald-500 uppercase tracking-widest">On track</span>
+                                        )}
                                     </div>
 
-                                    <div className="relative z-10 mt-4">
-                                        <h4 className="font-bold text-theme-primary text-xl leading-tight mb-1">{cat.name}</h4>
-                                        <div className="flex justify-between items-end">
-                                            <p className="text-xs text-theme-secondary font-medium">
-                                                {isPrivacyMode ? '••••' : (cat.allocated - cat.spent).toLocaleString()} left
-                                            </p>
-                                            <span className="text-[10px] font-bold text-theme-secondary/50">{Math.round(percent)}%</span>
+                                    <div>
+                                        <h4 className="font-black text-theme-primary text-sm mb-1 truncate group-hover:text-cyan-400 transition-colors">{cat.name}</h4>
+                                        <p className="text-[9px] text-theme-secondary font-bold uppercase tracking-widest opacity-60 mb-3">
+                                            {isUncategorized ? 'Unplanned' : `${Math.round(cat.spent / (new Date().getDate() || 1))} / day`}
+                                        </p>
+
+                                        <div className="w-full h-1.5 bg-theme-main rounded-full overflow-hidden mb-2 border border-theme/50">
+                                            <div className={`h-full rounded-full transition-all duration-700 ${statusColor}`} style={{ width: `${percent}%` }}></div>
                                         </div>
 
-                                        <div className="w-full h-1.5 bg-theme-main rounded-full overflow-hidden mt-3">
-                                            <div className={`h-full rounded-full ${statusColor}`} style={{ width: `${percent}%` }}></div>
+                                        <div className="flex justify-between items-center">
+                                            <p className="text-[9px] text-theme-secondary font-black uppercase tracking-widest">
+                                                {isPrivacyMode ? '••••' : cat.spent.toLocaleString()} / {isUncategorized ? '∞' : cat.allocated.toLocaleString()}
+                                            </p>
                                         </div>
                                     </div>
                                 </div>
                             );
                         })}
-                    </div>
+                    </HorizontalScroll>
                 )}
             </div>
 
@@ -554,58 +548,50 @@ export const BudgetPage: React.FC = () => {
                     </h3>
                     <button
                         onClick={(e) => { e.stopPropagation(); openAddCat(undefined, 'fixed'); }}
-                        className="text-xs text-cyan-400 font-medium bg-cyan-500/10 px-3 py-1.5 rounded-full hover:bg-cyan-500/20 flex items-center gap-1"
+                        className="text-xs text-white font-black bg-gradient-to-r from-cyan-500 to-blue-500 px-4 py-2 rounded-full hover:from-cyan-400 hover:to-blue-400 shadow-lg shadow-cyan-500/20 flex items-center gap-2 transition-all active:scale-95"
                     >
-                        <Icons.Plus size={12} /> Add Category
+                        <Icons.Plus size={14} strokeWidth={3} /> Add Category
                     </button>
                 </div>
 
                 {expandedSections.fixed && (
-                    <div className="grid grid-cols-2 gap-4 animate-fade-in">
+                    <HorizontalScroll className="flex gap-4 pb-4 px-1">
                         {calculatedBudget.fixed.map(cat => {
                             const percent = Math.min((cat.spent / (cat.allocated || 1)) * 100, 100);
+                            const isPaid = percent >= 100;
                             const Icon = BUDGET_ICONS.find(i => i.id === cat.icon)?.icon || Icons.Home;
 
                             return (
                                 <div
                                     key={cat.id}
                                     onClick={() => setDetailCatId(cat.id)}
-                                    className="soft-card p-5 rounded-3xl cursor-pointer relative overflow-hidden group hover:shadow-md transition-all active:scale-[0.98] flex flex-col justify-between min-h-[170px]"
+                                    className="shrink-0 w-[140px] bg-theme-card border border-theme rounded-[2rem] p-5 flex flex-col items-center text-center hover:bg-theme-card/80 transition-all active:scale-[0.98] cursor-pointer group shadow-sm h-[180px] justify-between"
                                 >
-                                    {/* Envelope Flap Effect - Subtle */}
-                                    <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-white/5 to-transparent pointer-events-none rounded-t-3xl"></div>
-
-                                    {/* Top Row: Icon + Quick Add */}
-                                    <div className="flex justify-between items-start relative z-10">
-                                        {/* Hyper-Realistic Icon Container */}
-                                        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${cat.color.replace('bg-', 'text-')} bg-theme-main/50 group-hover:scale-110 transition-transform duration-300`}>
-                                            <Icon size={24} />
-                                        </div>
-
-                                        {/* Quick Add Button */}
-                                        <button
-                                            onClick={(e) => openQuickAdd(e, cat.name, 'expense')}
-                                            className="w-10 h-10 flex items-center justify-center rounded-full bg-theme-main border border-theme text-theme-secondary hover:text-cyan-400 hover:border-cyan-500 transition-colors shadow-sm"
-                                            title="Quick Add Expense"
-                                        >
-                                            <Icons.Plus size={18} />
-                                        </button>
+                                    <div className={`w-12 h-12 rounded-full flex items-center justify-center ${cat.color.replace('bg-', 'text-')} bg-theme-main/50 group-hover:scale-110 transition-transform duration-300 shadow-inner`}>
+                                        <Icon size={20} />
                                     </div>
 
-                                    <div className="relative z-10 mt-4">
-                                        <h4 className="font-bold text-theme-primary text-xl leading-tight mb-1">{cat.name}</h4>
-                                        <p className="text-xs text-theme-secondary font-medium">
-                                            {isPrivacyMode ? '••••' : (cat.allocated - cat.spent).toLocaleString()} left
+                                    <div>
+                                        <h4 className="font-black text-theme-primary text-xs mb-1 truncate w-full group-hover:text-cyan-400 transition-colors">{cat.name}</h4>
+                                        <p className="text-sm font-black text-theme-primary mb-3">
+                                            {isPrivacyMode ? '••••' : cat.allocated.toLocaleString()}
                                         </p>
 
-                                        <div className="w-full h-1.5 bg-theme-main rounded-full overflow-hidden mt-3">
-                                            <div className={`h-full rounded-full ${cat.color}`} style={{ width: `${percent}%` }}></div>
-                                        </div>
+                                        {isPaid ? (
+                                            <div className="bg-emerald-500/20 border border-emerald-500/30 px-3 py-1 rounded-full flex items-center justify-center gap-1">
+                                                <Icons.Check size={10} className="text-emerald-400" />
+                                                <span className="text-[8px] font-black text-emerald-400 uppercase tracking-widest">PAID</span>
+                                            </div>
+                                        ) : (
+                                            <div className="bg-white/5 border border-white/10 px-3 py-1 rounded-full">
+                                                <span className="text-[8px] font-black text-theme-secondary uppercase tracking-widest">Upcoming</span>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             );
                         })}
-                    </div>
+                    </HorizontalScroll>
                 )}
             </div>
 
@@ -628,8 +614,8 @@ export const BudgetPage: React.FC = () => {
                         <button onClick={(e) => { e.stopPropagation(); scanForSubscriptions(); }} className="text-xs text-theme-secondary hover:text-cyan-400 flex items-center gap-1 border border-theme px-3 py-1.5 rounded-full transition-colors">
                             <Icons.Search size={12} /> Scan
                         </button>
-                        <button onClick={(e) => { e.stopPropagation(); openAddSub(); }} className="text-xs text-white font-bold bg-cyan-500 px-3 py-1.5 rounded-full hover:bg-cyan-400 shadow-lg shadow-cyan-500/20 transition-all">
-                            + Add
+                        <button onClick={(e) => { e.stopPropagation(); openAddSub(); }} className="text-xs text-white font-black bg-gradient-to-r from-cyan-500 to-blue-500 px-5 py-2.5 rounded-full hover:from-cyan-400 hover:to-blue-400 shadow-xl shadow-cyan-500/25 transition-all active:scale-95 flex items-center gap-2">
+                            <Icons.Plus size={14} strokeWidth={3} /> Add Bill
                         </button>
                     </div>
                 </div>
@@ -723,8 +709,8 @@ export const BudgetPage: React.FC = () => {
 
             {/* Add Category Modal */}
             {showCategoryModal && (
-                <div className="fixed inset-0 modal-overlay z-[90] flex items-center justify-center p-4" onClick={() => setShowCategoryModal(false)}>
-                    <div className="modal-content w-full max-w-sm rounded-3xl p-6 animate-scale-up relative" onClick={e => e.stopPropagation()}>
+                <div className="fixed inset-0 modal-overlay z-[90] flex items-end sm:items-center justify-center" onClick={() => setShowCategoryModal(false)}>
+                    <div className="modal-content w-full max-w-md rounded-t-[2rem] sm:rounded-3xl p-6 pb-[calc(2rem+env(safe-area-inset-bottom))] animate-slide-up relative" onClick={e => e.stopPropagation()}>
                         <div className="w-16 h-1.5 modal-handle rounded-full mx-auto mb-6 shrink-0 sm:hidden"></div>
                         <h3 className="text-lg font-bold text-theme-primary mb-4">{editingCategory ? 'Edit Budget' : 'New Budget Category'}</h3>
                         <div className="space-y-4">
@@ -802,7 +788,7 @@ export const BudgetPage: React.FC = () => {
             {/* Drilldown Category Modal */}
             {detailCatId && (
                 <div className="fixed inset-0 modal-overlay z-[80] flex items-end sm:items-center justify-center" onClick={() => setDetailCatId(null)}>
-                    <div className="modal-content w-full max-w-md rounded-t-[2rem] sm:rounded-3xl p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] h-[80vh] animate-slide-up flex flex-col relative" onClick={e => e.stopPropagation()}>
+                    <div className="modal-content w-full max-w-md rounded-t-[2rem] sm:rounded-3xl p-6 pb-[calc(2rem+env(safe-area-inset-bottom))] h-[80vh] animate-slide-up flex flex-col relative" onClick={e => e.stopPropagation()}>
                         <div className="w-16 h-1.5 modal-handle rounded-full mx-auto mb-6 shrink-0 sm:hidden"></div>
                         {(() => {
                             const isUncategorized = detailCatId === 'uncategorized';
@@ -853,8 +839,8 @@ export const BudgetPage: React.FC = () => {
 
             {/* Add Subscription Modal */}
             {showSubModal && (
-                <div className="fixed inset-0 modal-overlay z-[90] flex items-center justify-center p-4" onClick={() => setShowSubModal(false)}>
-                    <div className="modal-content w-full max-w-sm rounded-3xl p-6 animate-scale-up relative" onClick={e => e.stopPropagation()}>
+                <div className="fixed inset-0 modal-overlay z-[90] flex items-end sm:items-center justify-center" onClick={() => setShowSubModal(false)}>
+                    <div className="modal-content w-full max-w-md rounded-t-[2rem] sm:rounded-3xl p-6 pb-[calc(2rem+env(safe-area-inset-bottom))] animate-slide-up relative" onClick={e => e.stopPropagation()}>
                         <div className="w-16 h-1.5 modal-handle rounded-full mx-auto mb-6 shrink-0 sm:hidden"></div>
                         <h3 className="text-lg font-bold text-theme-primary mb-4">{editingSub ? 'Edit Subscription' : 'New Subscription'}</h3>
                         <div className="space-y-4">
@@ -924,7 +910,7 @@ export const BudgetPage: React.FC = () => {
             {/* Drilldown Subscription Modal */}
             {detailSubId && (
                 <div className="fixed inset-0 modal-overlay z-[80] flex items-end sm:items-center justify-center" onClick={() => setDetailSubId(null)}>
-                    <div className="modal-content w-full max-w-md rounded-t-[2rem] sm:rounded-3xl p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] h-[70vh] animate-slide-up flex flex-col relative" onClick={e => e.stopPropagation()}>
+                    <div className="modal-content w-full max-w-md rounded-t-[2rem] sm:rounded-3xl p-6 pb-[calc(2rem+env(safe-area-inset-bottom))] h-[70vh] animate-slide-up flex flex-col relative" onClick={e => e.stopPropagation()}>
                         <div className="w-16 h-1.5 modal-handle rounded-full mx-auto mb-6 shrink-0 sm:hidden"></div>
                         {(() => {
                             const sub = recurringTransactions.find(s => s.id === detailSubId);

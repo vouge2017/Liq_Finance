@@ -863,19 +863,93 @@ export async function getRecurringTransactions(userId: string): Promise<Recurrin
 }
 
 // <<< Add these stubs here >>>
-export async function createRecurringTransaction() {
-  console.warn("createRecurringTransaction is not implemented yet");
-  return null;
+export async function createRecurringTransaction(userId: string, tx: Omit<RecurringTransaction, "id">): Promise<RecurringTransaction | null> {
+  const supabase = getSupabase()
+  if (!supabase) return null
+  const { data, error } = await supabase
+    .from("recurring_transactions")
+    .insert({
+      user_id: userId,
+      name: tx.name,
+      amount: tx.amount,
+      currency: tx.currency,
+      category: tx.category,
+      recurrence: tx.recurrence,
+      next_due_date: tx.next_due_date,
+      last_paid_date: tx.last_paid_date,
+      payment_method: tx.payment_method,
+      is_active: tx.is_active,
+      profile: tx.profile,
+      icon: tx.icon,
+      notes: tx.notes,
+      reminder_days: tx.reminderDays,
+    })
+    .select()
+    .single()
+
+  if (error) {
+    console.error("[DataService] Error creating recurring transaction:", error)
+    return null
+  }
+
+  return {
+    id: data.id,
+    name: data.name,
+    amount: Number(data.amount),
+    currency: data.currency,
+    category: data.category,
+    recurrence: data.recurrence,
+    next_due_date: data.next_due_date,
+    last_paid_date: data.last_paid_date,
+    payment_method: data.payment_method,
+    is_active: data.is_active,
+    profile: data.profile,
+    icon: data.icon,
+    notes: data.notes,
+    reminderDays: data.reminder_days,
+  }
 }
 
-export async function updateRecurringTransaction() {
-  console.warn("updateRecurringTransaction is not implemented yet");
-  return null;
+export async function updateRecurringTransaction(tx: RecurringTransaction): Promise<boolean> {
+  const supabase = getSupabase()
+  if (!supabase) return false
+  const { error } = await supabase
+    .from("recurring_transactions")
+    .update({
+      name: tx.name,
+      amount: tx.amount,
+      currency: tx.currency,
+      category: tx.category,
+      recurrence: tx.recurrence,
+      next_due_date: tx.next_due_date,
+      last_paid_date: tx.last_paid_date,
+      payment_method: tx.payment_method,
+      is_active: tx.is_active,
+      profile: tx.profile,
+      icon: tx.icon,
+      notes: tx.notes,
+      reminder_days: tx.reminderDays,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", tx.id)
+
+  if (error) {
+    console.error("[DataService] Error updating recurring transaction:", error)
+    return false
+  }
+  return true
 }
 
-export async function deleteRecurringTransaction() {
-  console.warn("deleteRecurringTransaction is not implemented yet");
-  return null;
+export async function deleteRecurringTransaction(id: string): Promise<boolean> {
+  const supabase = getSupabase()
+  if (!supabase) return false
+  const { error } = await supabase.from("recurring_transactions").delete().eq("id", id)
+
+  if (error) {
+    console.error("[DataService] Error deleting recurring transaction:", error)
+    return false
+  }
+  return true
 }
 
 // ============ AI CONVERSATIONS ============

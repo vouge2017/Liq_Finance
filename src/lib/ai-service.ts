@@ -1,4 +1,5 @@
 import type { AppState } from "@/types"
+import { analyzeReceiptImage } from "@/services/gemini"
 
 export function buildFinancialContext(state: AppState, activeProfile: string): string {
   const today = new Date()
@@ -149,12 +150,11 @@ REMAINING: ${budgetRemaining.toLocaleString()} ETB
 DAILY BUDGET REMAINING: ${dailyBudget.toLocaleString()} ETB/day for ${daysRemaining} days
 ${hasIncomeData ? `SAVINGS RATE: ${savingsRate}%` : ""}
 
-${
-  atRiskCategories.length > 0
-    ? `⚠️ CATEGORIES AT RISK (>80% spent):
+${atRiskCategories.length > 0
+      ? `⚠️ CATEGORIES AT RISK (>80% spent):
 ${atRiskCategories.map((c) => `  • ${c.name}: ${c.spent.toLocaleString()}/${c.allocated.toLocaleString()} ETB (${Math.round((c.spent / c.allocated) * 100)}%)`).join("\n")}`
-    : ""
-}
+      : ""
+    }
 
 BUDGET BY CATEGORY:
 Fixed Expenses:
@@ -174,87 +174,81 @@ ${topSpendingCategories.map((c, i) => `  ${i + 1}. ${c.name}: ${c.spent.toLocale
 ====== COMMUNITY FINANCE ======
 
 ACTIVE IQUBS (${activeIqubs.length}):
-${
-  activeIqubs.length > 0
-    ? activeIqubs
+${activeIqubs.length > 0
+      ? activeIqubs
         .map(
           (i) =>
             `  • ${i.title}: ${i.amount.toLocaleString()} ETB/${i.cycle}, Round ${i.currentRound}/${i.members}${i.hasWon ? " (Already Won!)" : ""}, Next: ${i.nextPaymentDate}`,
         )
         .join("\n")
-    : "  None - Consider joining one for lump sum savings!"
-}
+      : "  None - Consider joining one for lump sum savings!"
+    }
 
 IDDIR MEMBERSHIPS (${activeIddirs.length}):
-${
-  activeIddirs.length > 0
-    ? upcomingIddirPayments
+${activeIddirs.length > 0
+      ? upcomingIddirPayments
         .map((i) => `  • ${i.name}: ${i.amount.toLocaleString()} ETB/month, Due in ${i.daysUntilDue} days`)
         .join("\n")
-    : "  None"
-}
+      : "  None"
+    }
 
 ====== UPCOMING OBLIGATIONS (Next 14 days) ======
 
-${
-  upcomingBills.length > 0
-    ? upcomingBills
+${upcomingBills.length > 0
+      ? upcomingBills
         .map((b) => `  • ${b.name}: ${b.amount.toLocaleString()} ETB due in ${b.daysUntilDue} days`)
         .join("\n")
-    : "  No upcoming bills"
-}
+      : "  No upcoming bills"
+    }
 
 ====== SAVINGS GOALS ======
 
-${
-  goalProgress.length > 0
-    ? goalProgress
+${goalProgress.length > 0
+      ? goalProgress
         .map(
           (g) =>
             `  • ${g.name}: ${g.current.toLocaleString()}/${g.target.toLocaleString()} ETB (${g.percentage}%)
     ${g.remaining.toLocaleString()} ETB remaining${g.monthsToGoal ? `, need ${g.monthsToGoal.monthlyNeeded.toLocaleString()} ETB/month to hit deadline` : ""}`,
         )
         .join("\n")
-    : "  No savings goals set - This is concerning. Suggest setting at least an Emergency Fund goal."
-}
+      : "  No savings goals set - This is concerning. Suggest setting at least an Emergency Fund goal."
+    }
 
 ====== RECENT TRANSACTIONS (Last 10) ======
 
 ${state.transactions
-  .slice(0, 10)
-  .map(
-    (t) =>
-      `  ${t.type === "income" ? "+" : "-"}${t.amount.toLocaleString()} ETB: ${t.title} (${t.category}) - ${new Date(t.date).toLocaleDateString()}`,
-  )
-  .join("\n")}
+      .slice(0, 10)
+      .map(
+        (t) =>
+          `  ${t.type === "income" ? "+" : "-"}${t.amount.toLocaleString()} ETB: ${t.title} (${t.category}) - ${new Date(t.date).toLocaleDateString()}`,
+      )
+      .join("\n")}
 
 ====== RECURRING SUBSCRIPTIONS ======
 
-${
-  state.recurringTransactions.filter((r) => r.is_active).length > 0
-    ? `Active subscriptions: ${state.recurringTransactions
+${state.recurringTransactions.filter((r) => r.is_active).length > 0
+      ? `Active subscriptions: ${state.recurringTransactions
         .filter((r) => r.is_active)
         .reduce((sum, r) => sum + r.amount, 0)
         .toLocaleString()} ETB/month
 ${state.recurringTransactions
-  .filter((r) => r.is_active)
-  .map((r) => `  • ${r.name}: ${r.amount.toLocaleString()} ETB/${r.recurrence}`)
-  .join("\n")}`
-    : "  No recurring subscriptions tracked"
-}
+        .filter((r) => r.is_active)
+        .map((r) => `  • ${r.name}: ${r.amount.toLocaleString()} ETB/${r.recurrence}`)
+        .join("\n")}`
+      : "  No recurring subscriptions tracked"
+    }
 
 ====== INCOME SOURCES ======
 
-${
-  state.incomeSources.length > 0
-    ? state.incomeSources
+${state.incomeSources.length > 0
+      ? state.incomeSources
         .map(
           (s) =>
             `  • ${s.name} (${s.type}): ${s.amount.toLocaleString()} ETB/${s.frequency}${s.payday ? `, payday: ${s.payday}th` : ""}`,
         )
         .join("\n")
-    : "  No income sources set - Ask about their income to provide better advice!"
-}
+      : "  No income sources set - Ask about their income to provide better advice!"
+    }
 `.trim()
 }
 
@@ -270,17 +264,7 @@ export async function analyzeReceipt(
   type: "expense"
 } | null> {
   try {
-    const response = await fetch("/api/analyze-receipt", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ imageBase64, mimeType }),
-    })
-
-    if (!response.ok) {
-      throw new Error("Failed to analyze receipt")
-    }
-
-    const result = await response.json()
+    const result = await analyzeReceiptImage(imageBase64)
     if (result.success) {
       return result.data
     }

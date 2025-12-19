@@ -149,7 +149,7 @@ export const Onboarding: React.FC = () => {
             <h1 className="text-4xl font-black text-white mb-3 tracking-tight">Liq</h1>
             <p className="text-cyan-400 font-bold text-sm mb-2">Your Personal Financial Expert</p>
             <p className="text-gray-400 text-sm max-w-xs leading-relaxed mb-8">
-              Ethiopia's intelligent financial partner. Master your money with local insight.
+              Your AI-powered financial planner for Ethiopia. Master your money with local insight.
             </p>
 
             {/* Features Preview */}

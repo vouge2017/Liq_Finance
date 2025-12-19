@@ -7,7 +7,7 @@ import { DefaultChatTransport } from "ai"
 import { Icons } from "@/shared/components/Icons"
 import { useAppContext } from "@/context/AppContext"
 import { buildFinancialContext } from "@/lib/ai-service"
-import { Lock, Sparkles, Send } from "lucide-react"
+import { Lock, Sparkles, Send, RefreshCw } from "lucide-react"
 
 export const AIAdvisor: React.FC = () => {
   const { state, aiConsent, setAiConsent, activeProfile } = useAppContext()
@@ -50,10 +50,9 @@ export const AIAdvisor: React.FC = () => {
         id: "greeting",
         role: "assistant",
         content: getInitialGreeting(),
-        parts: [{ type: "text", text: getInitialGreeting() }],
       } as any,
     ],
-  })
+  } as any)
 
   const [input, setInput] = useState("")
   const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -141,39 +140,46 @@ export const AIAdvisor: React.FC = () => {
 
   // CHAT UI
   return (
-    <div className="flex flex-col h-full animate-fade-in relative">
-      {/* Header / Context Indicator */}
-      <div className="absolute top-0 left-0 right-0 bg-black/90 backdrop-blur-sm z-10 px-4 py-2 border-b border-gray-800 flex justify-between items-center">
-        <div className="flex items-center gap-2">
-          <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
-            Analyzing {activeProfile} Data
-          </span>
+    <div className="fixed inset-0 z-[60] bg-black flex flex-col animate-fade-in">
+      {/* Immersive Header */}
+      <div className="px-6 pt-12 pb-4 bg-gradient-to-b from-black via-black/80 to-transparent flex justify-between items-center z-10">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
+            <Icons.AI size={20} className="text-white" />
+          </div>
+          <div>
+            <h2 className="text-sm font-bold text-white leading-none mb-1">AI Advisor</h2>
+            <div className="flex items-center gap-1.5">
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                Analyzing {activeProfile}
+              </span>
+            </div>
+          </div>
         </div>
-        <button onClick={() => setAiConsent(false)} className="text-[10px] text-gray-500 hover:text-rose-500">
-          Reset Access
+        <button
+          onClick={() => setAiConsent(false)}
+          className="p-2 rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-rose-500 transition-colors"
+          title="Reset Access"
+        >
+          <RefreshCw size={16} />
         </button>
       </div>
 
-      <div className="flex-1 overflow-y-auto no-scrollbar p-4 pt-10 space-y-6">
-        {/* Messages */}
+      {/* Messages Area */}
+      <div className="flex-1 overflow-y-auto no-scrollbar px-6 py-4 space-y-6">
         {messages.map((msg) => (
           <div
             key={msg.id}
             className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"} animate-slide-up`}
           >
-            {msg.role === "assistant" && (
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shrink-0 mr-2 mt-2 shadow-lg shadow-cyan-500/20">
-                <Icons.AI size={16} className="text-white" />
-              </div>
-            )}
             <div
-              className={`max-w-[85%] rounded-2xl p-4 shadow-sm ${msg.role === "user"
-                ? "bg-gray-800 border border-gray-700 text-white rounded-tr-none"
-                : "bg-gray-900 text-gray-100 border border-gray-800 rounded-tl-none"
+              className={`max-w-[85%] rounded-3xl p-4 shadow-xl ${msg.role === "user"
+                ? "bg-cyan-600 text-white rounded-tr-none shadow-cyan-900/20"
+                : "bg-gray-900/80 backdrop-blur-md text-gray-100 border border-white/5 rounded-tl-none shadow-black/40"
                 }`}
             >
-              <div className="text-sm leading-relaxed whitespace-pre-wrap font-medium">
+              <div className="text-[15px] leading-relaxed whitespace-pre-wrap font-medium">
                 {(msg as any).parts?.map((part: any, i: number) => {
                   if (part.type === "text") {
                     return part.text.split("\n").map((line: string, j: number) => (
@@ -196,16 +202,12 @@ export const AIAdvisor: React.FC = () => {
 
         {/* Error State */}
         {hasError && (
-          <div className="w-full flex justify-center animate-bounce mt-4">
-            <div
-              className="flex items-center gap-3 bg-rose-500 text-white px-6 py-4 rounded-2xl shadow-xl shadow-rose-500/30 border-2 border-rose-400"
-            >
-              <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
-                <Icons.Alert size={18} />
-              </div>
+          <div className="w-full flex justify-center mt-4">
+            <div className="bg-rose-500/10 border border-rose-500/30 text-rose-400 px-6 py-4 rounded-3xl flex items-center gap-3 backdrop-blur-md">
+              <Icons.Alert size={18} />
               <div className="text-left">
                 <p className="text-sm font-bold">Connection Failed</p>
-                <p className="text-[10px] opacity-90 font-medium">Please try again later</p>
+                <p className="text-[10px] opacity-80">Please try again later</p>
               </div>
             </div>
           </div>
@@ -213,20 +215,17 @@ export const AIAdvisor: React.FC = () => {
 
         {isLoading && (
           <div className="flex justify-start items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-gray-800 border border-gray-700 flex items-center justify-center">
-              <Icons.AI size={16} className="text-gray-400" />
-            </div>
-            <div className="flex space-x-1 bg-gray-900 px-4 py-3 rounded-2xl rounded-tl-none border border-gray-800">
-              <div className="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-bounce"></div>
-              <div className="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-bounce delay-75"></div>
-              <div className="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-bounce delay-150"></div>
+            <div className="flex space-x-1.5 bg-gray-900/80 backdrop-blur-md px-5 py-4 rounded-3xl rounded-tl-none border border-white/5">
+              <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce"></div>
+              <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce delay-75"></div>
+              <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce delay-150"></div>
             </div>
           </div>
         )}
 
-        {/* Suggested Actions - Moved inside scroll area */}
+        {/* Suggested Actions */}
         {!isLoading && !hasError && (
-          <div className="py-2 flex flex-wrap gap-2 justify-center opacity-80">
+          <div className="pt-4 flex flex-wrap gap-2 justify-center opacity-90">
             <QuickPrompt text="Analyze spending" icon={Icons.Budget} />
             <QuickPrompt text="Subscriptions" icon={Icons.Recurring} />
             <QuickPrompt text="Iqub Status" icon={Icons.Users} />
@@ -234,12 +233,12 @@ export const AIAdvisor: React.FC = () => {
           </div>
         )}
 
-        <div ref={messagesEndRef} />
+        <div ref={messagesEndRef} className="h-20" />
       </div>
 
-      {/* Input Area */}
-      <div className="p-4 bg-black/95 backdrop-blur-md border-t border-gray-800 z-20 shrink-0 pb-safe">
-        <div className="flex items-end gap-2 bg-gray-900 rounded-3xl p-2 pl-4 border border-gray-800 focus-within:border-cyan-500/50 transition-colors shadow-lg">
+      {/* Immersive Input Area */}
+      <div className="p-6 bg-gradient-to-t from-black via-black to-transparent z-20">
+        <div className="flex items-end gap-3 bg-gray-900/90 backdrop-blur-xl rounded-[32px] p-2 pl-5 border border-white/10 focus-within:border-cyan-500/50 transition-all shadow-2xl">
           <textarea
             rows={1}
             value={input}
@@ -251,14 +250,14 @@ export const AIAdvisor: React.FC = () => {
               }
             }}
             placeholder="Ask your advisor..."
-            className="flex-1 bg-transparent text-white text-sm outline-none placeholder-gray-500 resize-none py-3 max-h-32"
+            className="flex-1 bg-transparent text-white text-[15px] outline-none placeholder-gray-500 resize-none py-4 max-h-32"
           />
           <button
             onClick={() => handleSend()}
             disabled={isLoading || !input.trim()}
-            className="w-10 h-10 rounded-full bg-cyan-500 flex items-center justify-center text-black font-bold disabled:opacity-50 disabled:cursor-not-allowed hover:bg-cyan-400 transition transform active:scale-95 shadow-lg shadow-cyan-500/20"
+            className="w-12 h-12 rounded-full bg-cyan-500 flex items-center justify-center text-black font-bold disabled:opacity-50 disabled:cursor-not-allowed hover:bg-cyan-400 transition transform active:scale-90 shadow-lg shadow-cyan-500/20"
           >
-            <Send size={18} />
+            <Send size={20} />
           </button>
         </div>
       </div>

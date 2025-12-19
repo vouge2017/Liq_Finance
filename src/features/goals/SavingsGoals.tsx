@@ -38,9 +38,17 @@ export const SavingsGoals: React.FC = () => {
           <h3 className="text-theme-primary text-lg font-bold group-hover:text-cyan-400 transition-colors">Savings Goals</h3>
           <p className="text-theme-secondary text-xs ethiopic">የቁጠባ ግቦች</p>
         </div>
-        <button className="text-cyan-400 text-sm font-medium flex items-center gap-1 hover:text-cyan-300">
-          See All <Icons.ChevronRight size={14} />
-        </button>
+        <div className="flex gap-2 items-center">
+          <button
+            onClick={() => setActiveTab('goals')}
+            className="text-xs text-white font-black bg-gradient-to-r from-cyan-500 to-blue-500 px-4 py-2 rounded-full hover:from-cyan-400 hover:to-blue-400 shadow-lg shadow-cyan-500/20 flex items-center gap-2 transition-all active:scale-95"
+          >
+            <Icons.Plus size={14} strokeWidth={3} /> Add Goal
+          </button>
+          <button onClick={() => setActiveTab('goals')} className="text-cyan-400 text-sm font-medium flex items-center gap-1 hover:text-cyan-300 ml-1">
+            See All <Icons.ChevronRight size={14} />
+          </button>
+        </div>
       </div>
 
       {/* Carousel Container */}

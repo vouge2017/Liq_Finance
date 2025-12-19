@@ -17,8 +17,8 @@ import { UpgradePrompt } from "@/shared/components/UpgradePrompt"
 import { parseSMS } from "@/utils/smsParser"
 import { SimpleTransactionForm } from "@/features/budget/components/SimpleTransactionForm"
 import { AdvancedTransactionDetails } from "@/features/budget/components/AdvancedTransactionDetails"
-
 import { getSmartSuggestions, SmartSuggestion } from "@/utils/smartSuggestions"
+import { analyzeReceiptImage } from "@/services/gemini"
 
 // Ethiopian Income Types for Contextual Selection
 const INCOME_CATEGORIES = [
@@ -26,7 +26,6 @@ const INCOME_CATEGORIES = [
   { id: "Business", icon: Icons.Store, label: "Business", color: "from-amber-400 to-orange-500" },
   { id: "Iqub", icon: Icons.Users, label: "Iqub Win", color: "from-pink-500 to-rose-500" },
   { id: "Remittance", icon: Icons.Globe, label: "Remittance", color: "from-blue-400 to-indigo-500" },
-  { id: "Rent", icon: Icons.Home, label: "Rent", color: "from-indigo-500 to-purple-600" },
   { id: "Freelance", icon: Icons.Laptop, label: "Freelance", color: "from-purple-400 to-fuchsia-500" },
   { id: "Gift", icon: Icons.Heart, label: "Gift", color: "from-rose-300 to-pink-400" },
   { id: "Other", icon: Icons.More, label: "Other", color: "from-slate-500 to-gray-600" },
@@ -110,18 +109,8 @@ export const TransactionModal: React.FC = () => {
     category?: string
   } | null> => {
     try {
-      const response = await fetch("/api/analyze-receipt", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ imageBase64: base64Image }),
-      })
-
-      if (!response.ok) {
-        throw new Error("Failed to analyze receipt")
-      }
-
-      const data = await response.json()
-      return data.data || null
+      const result = await analyzeReceiptImage(base64Image)
+      return result.success ? result.data : null
     } catch (error) {
       console.error("Receipt analysis error:", error)
       return null
@@ -346,9 +335,9 @@ export const TransactionModal: React.FC = () => {
     if (!file) return
 
     // Rate Limit Check
-    const { allowed, reason } = canUseFeature('receipt')
+    const { allowed, reason } = canUseFeature("receipt")
     if (!allowed) {
-      if (reason === 'upgrade_required' || reason === 'daily_limit') {
+      if (reason === "upgrade_required" || reason === "daily_limit") {
         setShowUpgrade(true)
         if (cameraInputRef.current) cameraInputRef.current.value = ""
         if (galleryInputRef.current) galleryInputRef.current.value = ""
@@ -367,7 +356,7 @@ export const TransactionModal: React.FC = () => {
         const result = await analyzeReceiptViaAPI(rawBase64)
 
         if (result) {
-          incrementUsage('receipt') // Increment usage on success
+          incrementUsage("receipt") // Increment usage on success
 
           if (result.amount) setAmount(result.amount.toLocaleString())
           if (result.title) setTitle(result.title)
@@ -396,8 +385,9 @@ export const TransactionModal: React.FC = () => {
   }
 
   const handleSave = () => {
+    const rawAmount = getRawAmount()
     const newErrors = {
-      amount: !amount || Number.parseFloat(amount.replace(/,/g, "")) === 0,
+      amount: !amount || isNaN(rawAmount) || rawAmount <= 0,
       title: !title.trim(),
       account: !accountId,
     }
@@ -413,7 +403,7 @@ export const TransactionModal: React.FC = () => {
     const txData: Transaction = {
       id: editingTransaction ? editingTransaction.id : Date.now().toString(),
       title: isRecurring ? `${title} (Recurring)` : title,
-      amount: getRawAmount(),
+      amount: rawAmount,
       type,
       category,
       date: new Date(date).toISOString(),
@@ -433,7 +423,6 @@ export const TransactionModal: React.FC = () => {
       setAmount("")
       setTitle("")
       setAccountId("")
-      // Keep category and type as they might be useful defaults for next time
 
       setTimeout(() => {
         setIsSuccess(false)
@@ -453,22 +442,6 @@ export const TransactionModal: React.FC = () => {
     setReceiptPreview(null)
     setScanError(null)
   }
-
-  const getGradientFromColor = (colorClass: string) => {
-    if (colorClass.includes("cyan")) return "from-cyan-400 to-blue-500"
-    if (colorClass.includes("yellow")) return "from-yellow-400 to-orange-500"
-    if (colorClass.includes("pink")) return "from-pink-500 to-rose-500"
-    if (colorClass.includes("purple")) return "from-purple-400 to-indigo-500"
-    if (colorClass.includes("emerald")) return "from-emerald-400 to-green-600"
-    if (colorClass.includes("indigo")) return "from-indigo-400 to-blue-600"
-    if (colorClass.includes("rose")) return "from-rose-400 to-red-600"
-    if (colorClass.includes("blue")) return "from-blue-400 to-indigo-600"
-    if (colorClass.includes("orange")) return "from-orange-400 to-red-500"
-    if (colorClass.includes("teal")) return "from-teal-400 to-emerald-600"
-    return "from-slate-700 to-slate-900"
-  }
-
-  const categories = state.budgetCategories
 
   if (!isTransactionModalOpen) return null
 
@@ -602,7 +575,9 @@ export const TransactionModal: React.FC = () => {
                     <Icons.Close size={24} />
                   </button>
                 </div>
-                <p className="text-sm text-theme-secondary mb-4">Paste the transaction SMS from your bank (CBE, Telebirr, etc.)</p>
+                <p className="text-sm text-theme-secondary mb-4">
+                  Paste the transaction SMS from your bank (CBE, Telebirr, etc.)
+                </p>
                 <textarea
                   value={pastedSMS}
                   onChange={(e) => setPastedSMS(e.target.value)}
@@ -689,6 +664,7 @@ export const TransactionModal: React.FC = () => {
               handleSmartClick={handleSmartClick}
               suggestions={suggestions}
               isEditing={!!editingTransaction}
+              INCOME_CATEGORIES={INCOME_CATEGORIES}
             />
 
             {/* Toggle Advanced Details */}
@@ -698,7 +674,10 @@ export const TransactionModal: React.FC = () => {
                 className="text-xs font-bold text-cyan-400 flex items-center gap-1 hover:text-cyan-300 transition-colors bg-cyan-500/10 px-4 py-2 rounded-full"
               >
                 {showAdvanced ? "Less Details" : "More Details"}
-                <Icons.ChevronDown className={`transition-transform duration-300 ${showAdvanced ? "rotate-180" : ""}`} size={14} />
+                <Icons.ChevronDown
+                  className={`transition-transform duration-300 ${showAdvanced ? "rotate-180" : ""}`}
+                  size={14}
+                />
               </button>
             </div>
 
@@ -754,17 +733,17 @@ export const TransactionModal: React.FC = () => {
             </button>
           </div>
         </div>
-      </div >
+      </div>
 
       {/* Voice Modal */}
-      < VoiceRecordingModal
+      <VoiceRecordingModal
         isOpen={showVoiceModal}
         onClose={() => setShowVoiceModal(false)}
         onTransactionParsed={handleVoiceTransaction}
       />
 
       {/* Upgrade Prompt */}
-      < UpgradePrompt
+      <UpgradePrompt
         isOpen={showUpgrade}
         onClose={() => setShowUpgrade(false)}
         onUpgrade={() => {

@@ -98,6 +98,12 @@ import {
   Mail,
   WifiOff,
   Database,
+  Cpu,
+  Mic,
+  Dumbbell,
+  Code,
+  Newspaper,
+  Play,
 } from "lucide-react"
 
 export const Icons = {
@@ -204,4 +210,10 @@ export const Icons = {
   ChevronDown: ChevronDown,
   FileText: FileText,
   Mail: Mail,
+  Cpu: Cpu,
+  Mic: Mic,
+  Dumbbell: Dumbbell,
+  Code: Code,
+  Newspaper: Newspaper,
+  Play: Play,
 }
