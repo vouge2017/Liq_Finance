@@ -1,0 +1,166 @@
+﻿node.exe : npm info using 
+npm@10.9.2
+At D:\Program 
+Files\nodejs\npx.ps1:29 char:3
++   & $NODE_EXE $NPX_CLI_JS 
+$args
++   
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : 
+    NotSpecified: (npm info   
+  using npm@10.9.2:String)    
+ [], RemoteException
+    + FullyQualifiedErrorId : 
+    NativeCommandError
+ 
+npm info using node@v22.17.0
+src/features/budget/TransactionList.tsx(13,26): error TS2339: Property 'isOffline' does not exist on type 'AuthContextType'.
+src/features/dashboard/reminders-widget.tsx(4,23): error TS2307: Cannot find module './Icons' or its corresponding type declarations.
+src/features/goals/GoalsPage.tsx(877,54): error TS2304: Cannot find name 'handlePayIqub'.
+src/features/social/ShareableGoalCard.tsx(49,62): error TS2339: Property 'Target' does not exist on type '{ Database: ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>; ... 107 more ...; Play: ForwardRefExoticComponent<...>; }'.
+src/features/voice/VoiceRecordingModal.tsx(236,21): error TS2353: Object literal may only specify known properties, and 'paymentMethod' does not exist in type 'ParsedTransaction'.
+src/features/voice/VoiceRecordingModal.tsx(436,47): error TS2339: Property 'merchant' does not exist on type 'ParsedTransaction'.
+src/features/voice/VoiceRecordingModal.tsx(437,67): error TS2339: Property 'merchant' does not exist on type 'ParsedTransaction'.
+src/lib/supabase/proxy.ts(1,36): error TS2307: Cannot find module '@supabase/ssr' or its corresponding type declarations.
+src/lib/supabase/proxy.ts(2,48): error TS2307: Cannot find module 'next/server' or its corresponding type declarations.
+src/lib/supabase/proxy.ts(17,16): error TS7006: Parameter 'cookiesToSet' implicitly has an 'any' type.
+src/lib/supabase/proxy.ts(18,35): error TS7031: Binding element 'name' implicitly has an 'any' type.
+src/lib/supabase/proxy.ts(18,41): error TS7031: Binding element 'value' implicitly has an 'any' type.
+src/lib/supabase/proxy.ts(22,35): error TS7031: Binding element 'name' implicitly has an 'any' type.
+src/lib/supabase/proxy.ts(22,41): error TS7031: Binding element 'value' implicitly has an 'any' type.
+src/lib/supabase/proxy.ts(22,48): error TS7031: Binding element 'options' implicitly has an 'any' type.
+src/lib/supabase/server.ts(1,36): error TS2307: Cannot find module '@supabase/ssr' or its corresponding type declarations.
+src/lib/supabase/server.ts(2,25): error TS2307: Cannot find module 'next/headers' or its corresponding type declarations.
+src/lib/supabase/server.ts(12,14): error TS7006: Parameter 'cookiesToSet' implicitly has an 'any' type.
+src/lib/supabase/server.ts(14,35): error TS7031: Binding element 'name' implicitly has an 'any' type.
+src/lib/supabase/server.ts(14,41): error TS7031: Binding element 'value' implicitly has an 'any' type.
+src/lib/supabase/server.ts(14,48): error TS7031: Binding element 'options' implicitly has an 'any' type.
+src/services/__tests__/enhanced-voice-processor.test.ts(9,1): error TS2582: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+src/services/__tests__/enhanced-voice-processor.test.ts(14,5): error TS2304: Cannot find name 'beforeEach'.
+src/services/__tests__/enhanced-voice-processor.test.ts(20,5): error TS2582: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+src/services/__tests__/enhanced-voice-processor.test.ts(21,9): error TS2582: Cannot find name 'test'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+src/services/__tests__/enhanced-voice-processor.test.ts(25,13): error TS2304: Cannot find name 'expect'.
+src/services/__tests__/enhanced-voice-processor.test.ts(26,13): error TS2304: Cannot find name 'expect'.
+src/services/__tests__/enhanced-voice-processor.test.ts(27,13): error TS2304: Cannot find name 'expect'.
+src/services/__tests__/enhanced-voice-processor.test.ts(28,13): error TS2304: Cannot find name 'expect'.
+src/services/__tests__/enhanced-voice-processor.test.ts(31,9): error TS2582: Cannot find name 'test'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+src/services/__tests__/enhanced-voice-processor.test.ts(35,13): error TS2304: Cannot find name 'expect'.
+src/services/__tests__/enhanced-voice-processor.test.ts(36,13): error TS2304: Cannot find name 'expect'.
+src/services/__tests__/enhanced-voice-processor.test.ts(37,13): error TS2304: Cannot find name 'expect'.
+src/services/__tests__/enhanced-voice-processor.test.ts(40,9): error TS2582: Cannot find name 'test'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+src/services/__tests__/enhanced-voice-processor.test.ts(44,13): error TS2304: Cannot find name 'expect'.
+src/services/__tests__/enhanced-voice-processor.test.ts(45,13): error TS2304: Cannot find name 'expect'.
+src/services/__tests__/enhanced-voice-processor.test.ts(48,9): error TS2582: Cannot find name 'test'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+src/services/__tests__/enhanced-voice-processor.test.ts(52,13): error TS2304: Cannot find name 'expect'.
+src/services/__tests__/enhanced-voice-processor.test.ts(55,9): error TS2582: Cannot find name 'test'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+src/services/__tests__/enhanced-voice-processor.test.ts(59,13): error TS2304: Cannot find name 'expect'.
+src/services/__tests__/enhanced-voice-processor.test.ts(60,13): error TS2304: Cannot find name 'expect'.
+src/services/__tests__/enhanced-voice-processor.test.ts(61,13): error TS2304: Cannot find name 'expect'.
+src/services/__tests__/enhanced-voice-processor.test.ts(65,5): error TS2582: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+src/services/__tests__/enhanced-voice-processor.test.ts(66,9): error TS2582: Cannot find name 'test'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+src/services/__tests__/enhanced-voice-processor.test.ts(69,13): error TS2304: Cannot find name 'expect'.
+src/services/__tests__/enhanced-voice-processor.test.ts(70,13): error TS2304: Cannot find name 'expect'.
+src/services/__tests__/enhanced-voice-processor.test.ts(73,9): error TS2582: Cannot find name 'test'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+src/services/__tests__/enhanced-voice-processor.test.ts(76,13): error TS2304: Cannot find name 'expect'.
+src/services/__tests__/enhanced-voice-processor.test.ts(77,13): error TS2304: Cannot find name 'expect'.
+src/services/__tests__/enhanced-voice-processor.test.ts(80,9): error TS2582: Cannot find name 'test'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+src/services/__tests__/enhanced-voice-processor.test.ts(83,13): error TS2304: Cannot find name 'expect'.
+src/services/__tests__/enhanced-voice-processor.test.ts(84,13): error TS2304: Cannot find name 'expect'.
+src/services/__tests__/enhanced-voice-processor.test.ts(85,13): error TS2304: Cannot find name 'expect'.
+src/services/__tests__/enhanced-voice-processor.test.ts(89,5): error TS2582: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+src/services/__tests__/enhanced-voice-processor.test.ts(90,9): error TS2582: Cannot find name 'test'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+src/services/__tests__/enhanced-voice-processor.test.ts(103,13): error TS2304: Cannot find name 'expect'.
+src/services/__tests__/enhanced-voice-processor.test.ts(104,13): error TS2304: Cannot find name 'expect'.
+src/services/__tests__/enhanced-voice-processor.test.ts(105,13): error TS2304: Cannot find name 'expect'.
+src/services/__tests__/enhanced-voice-processor.test.ts(108,9): error TS2582: Cannot find name 'test'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+src/services/__tests__/enhanced-voice-processor.test.ts(121,13): error TS2304: Cannot find name 'expect'.
+src/services/__tests__/enhanced-voice-processor.test.ts(122,13): error TS2304: Cannot find name 'expect'.
+src/services/__tests__/enhanced-voice-processor.test.ts(123,13): error TS2304: Cannot find name 'expect'.
+src/services/__tests__/enhanced-voice-processor.test.ts(127,5): error TS2582: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+src/services/__tests__/enhanced-voice-processor.test.ts(128,9): error TS2582: Cannot find name 'test'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+src/services/__tests__/enhanced-voice-processor.test.ts(141,13): error TS2304: Cannot find name 'expect'.
+src/services/__tests__/enhanced-voice-processor.test.ts(142,13): error TS2304: Cannot find name 'expect'.
+src/services/__tests__/enhanced-voice-processor.test.ts(143,13): error TS2304: Cannot find name 'expect'.
+src/services/__tests__/enhanced-voice-processor.test.ts(144,13): error TS2304: Cannot find name 'expect'.
+src/services/__tests__/enhanced-voice-processor.test.ts(145,13): error TS2304: Cannot find name 'expect'.
+src/services/__tests__/local-voice-service.test.ts(7,1): error TS2582: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+src/services/__tests__/local-voice-service.test.ts(8,5): error TS2582: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+src/services/__tests__/local-voice-service.test.ts(9,9): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+src/services/__tests__/local-voice-service.test.ts(12,13): error TS2304: Cannot find name 'expect'.
+src/services/__tests__/local-voice-service.test.ts(13,13): error TS2304: Cannot find name 'expect'.
+src/services/__tests__/local-voice-service.test.ts(14,13): error TS2304: Cannot find name 'expect'.
+src/services/__tests__/local-voice-service.test.ts(15,13): error TS2304: Cannot find name 'expect'.
+src/services/__tests__/local-voice-service.test.ts(16,13): error TS2304: Cannot find name 'expect'.
+src/services/__tests__/local-voice-service.test.ts(19,9): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+src/services/__tests__/local-voice-service.test.ts(22,13): error TS2304: Cannot find name 'expect'.
+src/services/__tests__/local-voice-service.test.ts(23,13): error TS2304: Cannot find name 'expect'.
+src/services/__tests__/local-voice-service.test.ts(24,13): error TS2304: Cannot find name 'expect'.
+src/services/__tests__/local-voice-service.test.ts(25,13): error TS2304: Cannot find name 'expect'.
+src/services/__tests__/local-voice-service.test.ts(28,9): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+src/services/__tests__/local-voice-service.test.ts(31,13): error TS2304: Cannot find name 'expect'.
+src/services/__tests__/local-voice-service.test.ts(32,13): error TS2304: Cannot find name 'expect'.
+src/services/__tests__/local-voice-service.test.ts(33,13): error TS2304: Cannot find name 'expect'.
+src/services/__tests__/local-voice-service.test.ts(34,13): error TS2304: Cannot find name 'expect'.
+src/services/__tests__/local-voice-service.test.ts(37,9): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+src/services/__tests__/local-voice-service.test.ts(40,13): error TS2304: Cannot find name 'expect'.
+src/services/__tests__/local-voice-service.test.ts(41,13): error TS2304: Cannot find name 'expect'.
+src/services/__tests__/local-voice-service.test.ts(42,13): error TS2304: Cannot find name 'expect'.
+src/services/__tests__/local-voice-service.test.ts(43,13): error TS2304: Cannot find name 'expect'.
+src/services/__tests__/local-voice-service.test.ts(46,9): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+src/services/__tests__/local-voice-service.test.ts(49,13): error TS2304: Cannot find name 'expect'.
+src/services/__tests__/local-voice-service.test.ts(50,13): error TS2304: Cannot find name 'expect'.
+src/services/__tests__/local-voice-service.test.ts(51,13): error TS2304: Cannot find name 'expect'.
+src/services/__tests__/local-voice-service.test.ts(52,13): error TS2304: Cannot find name 'expect'.
+src/services/__tests__/local-voice-service.test.ts(55,9): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+src/services/__tests__/local-voice-service.test.ts(59,13): error TS2304: Cannot find name 'expect'.
+src/services/__tests__/local-voice-service.test.ts(62,9): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+src/services/__tests__/local-voice-service.test.ts(69,13): error TS2304: Cannot find name 'expect'.
+src/services/__tests__/local-voice-service.test.ts(72,9): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+src/services/__tests__/local-voice-service.test.ts(75,13): error TS2304: Cannot find name 'expect'.
+src/services/__tests__/local-voice-service.test.ts(76,13): error TS2304: Cannot find name 'expect'.
+src/services/__tests__/local-voice-service.test.ts(79,9): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+src/services/__tests__/local-voice-service.test.ts(82,13): error TS2304: Cannot find name 'expect'.
+src/services/__tests__/local-voice-service.test.ts(83,13): error TS2304: Cannot find name 'expect'.
+src/services/__tests__/local-voice-service.test.ts(86,9): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+src/services/__tests__/local-voice-service.test.ts(89,13): error TS2304: Cannot find name 'expect'.
+src/services/__tests__/local-voice-service.test.ts(90,13): error TS2304: Cannot find name 'expect'.
+src/services/__tests__/local-voice-service.test.ts(93,9): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+src/services/__tests__/local-voice-service.test.ts(96,13): error TS2304: Cannot find name 'expect'.
+src/services/__tests__/local-voice-service.test.ts(97,13): error TS2304: Cannot find name 'expect'.
+src/services/__tests__/local-voice-service.test.ts(100,9): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+src/services/__tests__/local-voice-service.test.ts(103,13): error TS2304: Cannot find name 'expect'.
+src/services/__tests__/local-voice-service.test.ts(104,13): error TS2304: Cannot find name 'expect'.
+src/services/__tests__/local-voice-service.test.ts(107,9): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+src/services/__tests__/local-voice-service.test.ts(110,13): error TS2304: Cannot find name 'expect'.
+src/services/__tests__/local-voice-service.test.ts(113,9): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+src/services/__tests__/local-voice-service.test.ts(116,13): error TS2304: Cannot find name 'expect'.
+src/services/__tests__/local-voice-service.test.ts(117,13): error TS2304: Cannot find name 'expect'.
+src/services/smart-api-fallback.ts(8,10): error TS2395: Individual declarations in merged declaration 'NetworkDetectionService' must be all exported or all local.
+src/services/smart-api-fallback.ts(8,10): error TS2440: Import declaration conflicts with local declaration of 'NetworkDetectionService'.
+src/services/smart-api-fallback.ts(9,10): error TS2395: Individual declarations in merged declaration 'ResilientGeminiService' must be all exported or all local.
+src/services/smart-api-fallback.ts(9,10): error TS2440: Import declaration conflicts with local declaration of 'ResilientGeminiService'.
+src/services/smart-api-fallback.ts(101,14): error TS2395: Individual declarations in merged declaration 'NetworkDetectionService' must be all exported or all local.
+src/services/smart-api-fallback.ts(132,14): error TS2395: Individual declarations in merged declaration 'ResilientGeminiService' must be all exported or all local.
+src/shared/components/DataManagementModal.tsx(42,21): error TS2783: 'accounts' is specified more than once, so this usage will be overwritten.
+src/shared/components/DataManagementModal.tsx(43,21): error TS2783: 'transactions' is specified more than once, so this usage will be overwritten.
+src/shared/components/DataManagementModal.tsx(44,21): error TS2783: 'budgetCategories' is specified more than once, so this usage will be overwritten.
+src/shared/components/DataManagementModal.tsx(45,21): error TS2783: 'savingsGoals' is specified more than once, so this usage will be overwritten.
+src/shared/components/DataManagementModal.tsx(46,21): error TS2783: 'iqubs' is specified more than once, so this usage will be overwritten.
+src/shared/components/DataManagementModal.tsx(47,21): error TS2783: 'iddirs' is specified more than once, so this usage will be overwritten.
+src/shared/components/DataManagementModal.tsx(48,21): error TS2783: 'recurringTransactions' is specified more than once, so this usage will be overwritten.
+src/shared/components/DataManagementModal.tsx(49,21): error TS2783: 'incomeSources' is specified more than once, so this usage will be overwritten.
+src/shared/components/DataManagementModal.tsx(229,36): error TS2339: Property 'Upload' does not exist on type '{ Database: ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>; ... 107 more ...; Play: ForwardRefExoticComponent<...>; }'.
+src/shared/components/DataManagementModal.tsx(291,44): error TS2339: Property 'Refresh' does not exist on type '{ Database: ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>; ... 107 more ...; Play: ForwardRefExoticComponent<...>; }'.
+src/shared/components/theme-provider.tsx(7,8): error TS2307: Cannot find module 'next-themes' or its corresponding type declarations.
+src/shared/components/ui/chart.tsx(109,3): error TS2339: Property 'payload' does not exist on type 'Omit<Props<ValueType, NameType>, PropertiesReadFromContext> & { active?: boolean | undefined; allowEscapeViewBox?: AllowInDimension | undefined; ... 17 more ...; wrapperStyle?: CSSProperties | undefined; } & ClassAttributes<...> & HTMLAttributes<...> & { ...; }'.
+src/shared/components/ui/chart.tsx(114,3): error TS2339: Property 'label' does not exist on type 'Omit<Props<ValueType, NameType>, PropertiesReadFromContext> & { active?: boolean | undefined; allowEscapeViewBox?: AllowInDimension | undefined; ... 17 more ...; wrapperStyle?: CSSProperties | undefined; } & ClassAttributes<...> & HTMLAttributes<...> & { ...; }'.
+src/shared/components/ui/chart.tsx(260,39): error TS2344: Type '"payload" | "verticalAlign"' does not satisfy the constraint '"string" | "filter" | "fill" | "values" | "style" | "clipPath" | "mask" | "path" | "type" | "children" | "className" | "suppressHydrationWarning" | "color" | "height" | "id" | ... 431 more ... | "onBBoxUpdate"'.
+  Type '"payload"' is not assignable to type '"string" | "filter" | "fill" | "values" | "style" | "clipPath" | "mask" | "path" | "type" | "children" | "className" | "suppressHydrationWarning" | "color" | "height" | "id" | ... 431 more ... | "onBBoxUpdate"'.
+src/shared/components/ui/sonner.tsx(3,26): error TS2307: Cannot find module 'next-themes' or its corresponding type declarations.
+src/shared/components/WeeklySummary.tsx(35,36): error TS2339: Property 'Minus' does not exist on type '{ Database: ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>; ... 107 more ...; Play: ForwardRefExoticComponent<...>; }'.
+src/shared/components/WeeklySummary.tsx(60,32): error TS2339: Property 'PieChart' does not exist on type '{ Database: ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>; ... 107 more ...; Play: ForwardRefExoticComponent<...>; }'.
+src/shared/components/WeeklySummary.tsx(83,28): error TS2339: Property 'AlertTriangle' does not exist on type '{ Database: ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>; ... 107 more ...; Play: ForwardRefExoticComponent<...>; }'.
+supabase/functions/gemini-proxy/index.ts(1,23): error TS2307: Cannot find module 'https://deno.land/std@0.168.0/http/server.ts' or its corresponding type declarations.
+supabase/functions/gemini-proxy/index.ts(3,24): error TS2304: Cannot find name 'Deno'.
+supabase/functions/gemini-proxy/index.ts(5,14): error TS7006: Parameter 'req' implicitly has an 'any' type.
+supabase/functions/gemini-proxy/index.ts(80,53): error TS18046: 'error' is of type 'unknown'.

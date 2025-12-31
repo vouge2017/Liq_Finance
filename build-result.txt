@@ -1,0 +1,79 @@
+﻿
+> finethio-planner@0.0.0 build D:\Liq_Finance
+> vite build
+
+[36mvite v5.4.21 [32mbuilding for production...[36m[39m
+transforming...
+[32mΓ£ô[39m 1985 modules transformed.
+rendering chunks...
+node.exe : [1m[33m[plugin:vi
+te:reporter][39m[22m 
+[33m[plugin vite:reporter] 
+At C:\Users\25191\AppData\Roam
+ing\npm\pnpm.ps1:24 char:5
++     & "node$exe"  "$basedir/
+node_modules/pnpm/bin/pnpm.cjs
+" $args
++     ~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~
+    + CategoryInfo          : 
+    NotSpecified: ([1m[33m  
+  [plugi...vite:reporter] :   
+ String) [], RemoteExcepti    
+on
+    + FullyQualifiedErrorId : 
+    NativeCommandError
+ 
+(!) D:/Liq_Finance/src/lib/sup
+abase/client.ts is 
+dynamically imported by D:/Liq
+_Finance/src/context/AppContex
+t.tsx but also statically 
+imported by D:/Liq_Finance/src
+/context/AuthContext.tsx, D:/L
+iq_Finance/src/lib/supabase/da
+ta-service.ts, D:/Liq_Finance/
+src/services/gemini.ts, D:/Liq
+_Finance/src/shared/components
+/FeedbackModal.tsx, dynamic 
+import will not move module 
+into another chunk.
+[39m
+[1m[33m[plugin:vite:reporter
+][39m[22m [33m[plugin 
+vite:reporter] 
+(!) D:/Liq_Finance/src/lib/sup
+abase/data-service.ts is 
+dynamically imported by D:/Liq
+_Finance/src/lib/offline-sync.
+ts but also statically 
+imported by D:/Liq_Finance/src
+/context/AppContext.tsx, D:/Li
+q_Finance/src/context/AuthCont
+ext.tsx, dynamic import will 
+not move module into another 
+chunk.
+[39m
+computing gzip size...
+[2mdist/[22m[32mindex.html                       [39m[1m[2m    8.61 kB[22m[1m[22m[2m Γöé gzip:   2.73 kB[22m
+[2mdist/[22m[35massets/index-CehL-Ogk.css        [39m[1m[2m  190.96 kB[22m[1m[22m[2m Γöé gzip:  26.06 kB[22m
+[2mdist/[22m[36massets/proactive-ai-CWZtcBkV.js  [39m[1m[2m    2.67 kB[22m[1m[22m[2m Γöé gzip:   1.04 kB[22m
+[2mdist/[22m[36massets/react-vendor-DLPlVEt0.js  [39m[1m[2m   12.64 kB[22m[1m[22m[2m Γöé gzip:   4.46 kB[22m
+[2mdist/[22m[36massets/ui-vendor-BAvZEqiU.js     [39m[1m[2m   47.19 kB[22m[1m[22m[2m Γöé gzip:   9.55 kB[22m
+[2mdist/[22m[36massets/index-svtQv9b6.js         [39m[1m[33m1,032.04 kB[39m[22m[2m Γöé gzip: 285.80 kB[22m
+[33m
+(!) Some chunks are larger 
+than 500 kB after 
+minification. Consider:
+- Using dynamic import() to 
+code-split the application
+- Use build.rollupOptions.outp
+ut.manualChunks to improve 
+chunking: https://rollupjs.org
+/configuration-options/#output
+-manualchunks
+- Adjust chunk size limit for 
+this warning via build.chunkSi
+zeWarningLimit.[39m
+[32mΓ£ô built in 9.03s[39m

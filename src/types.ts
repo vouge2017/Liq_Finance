@@ -337,4 +337,9 @@ export interface AppContextType {
 
   // Gamification
   updateAchievements: (achievements: UserAchievements) => void;
+
+  // GDPR Consent Management
+  getUserConsents: () => Promise<any[]>;
+  updateConsent: (consentType: string, granted: boolean) => Promise<boolean>;
+  validateConsent: (consentType: string) => Promise<boolean>;
 }

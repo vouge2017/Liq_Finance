@@ -9,9 +9,20 @@ import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { PullToRefreshIndicator } from '@/shared/components/PullToRefreshIndicator';
 import { SwipeableItem } from '@/shared/components/SwipeableItem';
 
+// Category icon and color mapping
+const CATEGORY_STYLES: Record<string, { icon: React.ElementType; bgColor: string; textColor: string }> = {
+  transport: { icon: Icons.Car, bgColor: 'bg-slate-100 dark:bg-slate-800', textColor: 'text-slate-600 dark:text-slate-400' },
+  food: { icon: Icons.Coffee, bgColor: 'bg-orange-50 dark:bg-orange-900/20', textColor: 'text-orange-600 dark:text-orange-400' },
+  shopping: { icon: Icons.Shopping, bgColor: 'bg-pink-50 dark:bg-pink-900/20', textColor: 'text-pink-600 dark:text-pink-400' },
+  utilities: { icon: Icons.Zap, bgColor: 'bg-blue-50 dark:bg-blue-900/20', textColor: 'text-blue-600 dark:text-blue-400' },
+  income: { icon: Icons.Wallet, bgColor: 'bg-emerald-50 dark:bg-emerald-900/20', textColor: 'text-emerald-600 dark:text-emerald-400' },
+  transfer: { icon: Icons.Transfer, bgColor: 'bg-cyan-50 dark:bg-cyan-900/20', textColor: 'text-cyan-600 dark:text-cyan-400' },
+  default: { icon: Icons.CreditCard, bgColor: 'bg-gray-100 dark:bg-gray-800', textColor: 'text-gray-600 dark:text-gray-400' },
+};
+
 export const TransactionList: React.FC = () => {
-  const { user, loading, isOffline } = useAuth();
-  const { state, formatDate, activeProfile, isPrivacyMode, setActiveTab, openTransactionModal, setScannedImage, showNotification, refreshTransactions, deleteTransaction } = useAppContext();
+  const { user, loading } = useAuth();
+  const { state, formatDate, isPrivacyMode, setActiveTab, openTransactionModal, setScannedImage, showNotification, refreshTransactions, deleteTransaction } = useAppContext();
   const { transactions } = state;
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -24,28 +35,26 @@ export const TransactionList: React.FC = () => {
     }
   });
 
+  const getCategoryStyle = (tx: typeof transactions[0]) => {
+    if (tx.type === 'transfer') return CATEGORY_STYLES.transfer;
+    if (tx.type === 'income') return CATEGORY_STYLES.income;
+    if (tx.category?.toLowerCase().includes('transport') || tx.title?.toLowerCase().includes('uber')) return CATEGORY_STYLES.transport;
+    if (tx.category?.toLowerCase().includes('food') || tx.title?.toLowerCase().includes('coffee')) return CATEGORY_STYLES.food;
+    if (tx.category?.toLowerCase().includes('shopping')) return CATEGORY_STYLES.shopping;
+    if (tx.category?.toLowerCase().includes('utilities') || tx.title?.toLowerCase().includes('telecom')) return CATEGORY_STYLES.utilities;
+    return CATEGORY_STYLES.default;
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center py-12">
-        <Icons.Loader className="animate-spin text-cyan-500" size={32} />
-      </div>
-    );
-  }
-
-  if (isOffline) {
-    return (
-      <div className="mb-24">
-        <EmptyState
-          icon={<Icons.Alert size={32} />}
-          title="Offline Mode"
-          description="Transactions are unavailable in demo/offline mode. Please check your connection or sign in."
-        />
+        <Icons.Loader className="animate-spin text-primary" size={32} />
       </div>
     );
   }
 
   if (!user) {
-    return <div className="mb-24"><SignInPrompt /></div>;
+    return <div className="mb-24 text-center py-8 text-gray-400 text-sm">Sign in to view transactions</div>;
   }
 
   const handleScanClick = () => {
@@ -71,7 +80,7 @@ export const TransactionList: React.FC = () => {
   };
 
   return (
-    <div className="mb-24 relative" ref={containerRef}>
+    <div className="w-full mb-24 relative" ref={containerRef}>
       <PullToRefreshIndicator isRefreshing={isRefreshing} pullProgress={pullProgress} />
 
       <input
@@ -83,93 +92,79 @@ export const TransactionList: React.FC = () => {
       />
 
       {/* Section Header */}
-      <div className="flex justify-between items-center mb-4 px-1">
-        <div className="flex items-center gap-2">
-          <span className="w-1.5 h-1.5 rounded-full bg-cyan-500"></span>
-          <div>
-            <h3 className="text-theme-primary text-base font-bold">Recent Activity</h3>
-            <p className="text-theme-secondary text-[10px] ethiopic">የቅርብ ጊዜ ግብይቶች</p>
-          </div>
-        </div>
-        <div className="flex gap-2 items-center">
-          <button
-            onClick={handleScanClick}
-            className="w-8 h-8 rounded-full bg-cyan-500/10 flex items-center justify-center text-cyan-400 border border-cyan-500/20 hover:bg-cyan-500 hover:text-black transition-all duration-200"
-            title="Scan Receipt"
-          >
-            <Icons.Scan size={16} />
-          </button>
-          <button
-            onClick={() => openTransactionModal()}
-            className="w-8 h-8 rounded-full bg-cyan-500/20 flex items-center justify-center text-cyan-400 border border-cyan-500/30 hover:bg-cyan-500 hover:text-black transition-all duration-200"
-            title="Add Transaction"
-          >
-            <Icons.Plus size={16} />
-          </button>
-          <button
-            onClick={() => setActiveTab('budget')}
-            className="text-cyan-400 text-xs font-semibold hover:text-cyan-300 ml-1 transition-colors"
-          >
-            View All
-          </button>
-        </div>
-      </div>
+      <h3 className="text-lg font-bold text-[#111318] dark:text-white mb-4">Recent Transactions</h3>
 
       {/* Transaction List */}
-      <div className="space-y-3">
-        {transactions.slice(0, 5).map((tx) => (
-          <SwipeableItem
-            key={tx.id}
-            onDelete={() => deleteTransaction(tx.id)}
-            onEdit={() => openTransactionModal(tx)}
-          >
-            <div
-              onClick={() => openTransactionModal(tx)}
-              className="bg-theme-card rounded-2xl p-4 flex items-center gap-4 border border-theme cursor-pointer hover:scale-[1.02] hover:shadow-lg hover:shadow-black/10 transition-all duration-200"
-            >
-              {/* Colored indicator bar */}
-              <div className={`w-1 h-12 rounded-full shrink-0 ${tx.type === 'income' ? 'bg-emerald-500' :
-                tx.type === 'transfer' ? 'bg-blue-500' :
-                  'bg-rose-500'
-                }`}></div>
-
-              {/* Icon circle */}
-              <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${tx.type === 'income' ? 'bg-emerald-500/15 text-emerald-500' :
-                tx.type === 'transfer' ? 'bg-blue-500/15 text-blue-500' :
-                  'bg-rose-500/15 text-rose-500'
-                }`}>
-                {tx.type === 'transfer' ? <Icons.Transfer size={20} /> :
-                  tx.icon === 'coffee' ? <Icons.Coffee size={20} /> :
-                    tx.icon === 'shopping' ? <Icons.Shopping size={20} /> :
-                      tx.icon === 'card' ? <Icons.CreditCard size={20} /> :
-                        tx.type === 'income' ? <Icons.Wallet size={20} /> :
-                          <Icons.Shopping size={20} />
-                }
+      <div className="flex flex-col gap-3">
+        {loading ? (
+          Array.from({ length: 3 }, (_, index) => (
+            <div key={index} className="bg-surface-light dark:bg-surface-dark p-4 rounded-2xl shadow-sm flex items-center justify-between border border-gray-100 dark:border-gray-800">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-full bg-gray-100 animate-pulse"></div>
+                <div className="space-y-2">
+                  <div className="h-4 w-24 bg-gray-100 rounded animate-pulse"></div>
+                  <div className="h-3 w-16 bg-gray-100 rounded animate-pulse"></div>
+                </div>
               </div>
-
-              {/* Content */}
-              <div className="flex-1 min-w-0">
-                <h4 className="text-theme-primary font-semibold text-sm truncate">{tx.title}</h4>
-                <p className="text-theme-secondary text-xs">{formatDate(tx.date)}</p>
-              </div>
-
-              {/* Amount */}
-              <div className={`font-bold text-sm shrink-0 ${tx.type === 'income' ? 'text-emerald-500' : 'text-rose-500'}`}>
-                {isPrivacyMode ? '••••' : (
-                  <>
-                    {tx.type === 'income' ? '+' : '-'}${tx.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                  </>
-                )}
-              </div>
+              <div className="h-4 w-20 bg-gray-100 rounded animate-pulse"></div>
             </div>
-          </SwipeableItem>
-        ))}
+          ))
+        ) : transactions.slice(0, 5).map((tx) => {
+          const style = getCategoryStyle(tx);
+          const IconComponent = style.icon;
+
+          return (
+            <SwipeableItem
+              key={tx.id}
+              onDelete={() => deleteTransaction(tx.id)}
+              onEdit={() => openTransactionModal(tx)}
+            >
+              <div
+                onClick={() => openTransactionModal(tx)}
+                className="bg-surface-light dark:bg-surface-dark p-4 rounded-2xl shadow-sm flex items-center justify-between border border-gray-100 dark:border-gray-800 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+              >
+                <div className="flex items-center gap-4">
+                  {/* Colored Icon Circle */}
+                  <div className={`w-12 h-12 rounded-full ${style.bgColor} flex items-center justify-center ${style.textColor}`}>
+                    <IconComponent size={20} />
+                  </div>
+                  <div>
+                    <p className="font-bold text-[#111318] dark:text-white text-sm">{tx.title}</p>
+                    <p className="text-xs text-gray-500">
+                      {(() => {
+                        const d = new Date(tx.date);
+                        const now = new Date();
+                        const isToday = d.toDateString() === now.toDateString();
+                        const yesterday = new Date(now);
+                        yesterday.setDate(now.getDate() - 1);
+                        const isYesterday = d.toDateString() === yesterday.toDateString();
+
+                        const time = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                        if (isToday) return `Today, ${time}`;
+                        if (isYesterday) return `Yesterday`;
+                        return formatDate(tx.date);
+                      })()}
+                    </p>
+                  </div>
+                </div>
+                {/* Amount */}
+                <p className="font-bold text-[#111318] dark:text-white">
+                  {isPrivacyMode ? '••••' : (
+                    <>
+                      {tx.type === 'income' ? '+ ' : '- '}ETB {tx.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                    </>
+                  )}
+                </p>
+              </div>
+            </SwipeableItem>
+          );
+        })}
 
         {transactions.length === 0 && (
           <EmptyState
             icon={<Icons.Shopping size={32} />}
-            title="It's quiet here..."
-            description="Add your first expense or scan a receipt to start tracking your financial health."
+            title="No transactions yet"
+            description="Start tracking your expenses by adding your first transaction."
             action={{
               label: "Add Transaction",
               onClick: () => openTransactionModal(),

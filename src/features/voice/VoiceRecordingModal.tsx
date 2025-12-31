@@ -3,18 +3,25 @@
 import type React from "react"
 import { useState, useRef, useEffect } from "react"
 import { Icons } from "@/shared/components/Icons"
-import { Mic, Square, Loader2, Check, X, Edit3 } from "lucide-react"
+import { Mic, Square, Loader2, Check, X, Edit3, Shield, AlertTriangle } from "lucide-react"
 import { useAIUsage } from "@/services/ai-usage"
+import { useConsent } from "@/hooks/useConsent"
 import { UpgradePrompt } from "@/shared/components/UpgradePrompt"
-import { parseVoiceAudio } from "@/services/gemini"
+import { parseVoiceAudio, processVoiceWithEnhancedFallback, getVoiceCompatibilityInfo } from "@/services/local-voice-service"
+import { VoiceProcessingOrchestrator } from "@/services/voice-processing-orchestrator"
+import { EnhancedVoiceResult, ProcessingContext, MerchantInfo } from "@/types/voice"
 
-interface ParsedTransaction {
-    type: "income" | "expense"
+export interface ParsedTransaction {
+    type: "income" | "expense" | "transfer" | "bill_payment" | "recurring"
     amount: number
     category: string
     title: string
     date: string
     confidence: number
+    paymentMethod?: string
+    fromAccount?: string
+    toAccount?: string
+    merchant?: MerchantInfo
 }
 
 interface VoiceRecordingModalProps {
@@ -36,6 +43,7 @@ export const VoiceRecordingModal: React.FC<VoiceRecordingModalProps> = ({
     const [error, setError] = useState<string | null>(null)
     const [recordingTime, setRecordingTime] = useState(0)
     const [liveTranscript, setLiveTranscript] = useState<string>("")
+    const [compatibilityInfo, setCompatibilityInfo] = useState<any>(null)
     const recognitionRef = useRef<any>(null)
 
     const mediaRecorderRef = useRef<MediaRecorder | null>(null)
@@ -43,12 +51,21 @@ export const VoiceRecordingModal: React.FC<VoiceRecordingModalProps> = ({
     const timerRef = useRef<NodeJS.Timeout | null>(null)
 
     const { canUseFeature, incrementUsage, upgradeToPro } = useAIUsage()
+    const { hasConsent, loading: consentLoading } = useConsent()
     const [showUpgrade, setShowUpgrade] = useState(false)
+    const [showConsentPrompt, setShowConsentPrompt] = useState(false)
+
+    // Enhanced voice processing orchestrator
+    const [voiceOrchestrator] = useState(() => new VoiceProcessingOrchestrator())
+    const [processingSource, setProcessingSource] = useState<string>('local')
 
     // Reset state when modal opens/closes
     useEffect(() => {
         if (!isOpen) {
             resetState()
+        } else {
+            // Check compatibility when modal opens
+            setCompatibilityInfo(getVoiceCompatibilityInfo())
         }
     }, [isOpen])
 
@@ -167,6 +184,13 @@ export const VoiceRecordingModal: React.FC<VoiceRecordingModalProps> = ({
     const processAudio = async () => {
         if (!audioBlob) return
 
+        // Check voice processing consent first
+        const hasVoiceConsent = hasConsent('voice_processing')
+        if (!hasVoiceConsent) {
+            setShowConsentPrompt(true)
+            return
+        }
+
         // Rate Limit Check
         const { allowed, reason } = canUseFeature('voice')
         if (!allowed) {
@@ -191,15 +215,44 @@ export const VoiceRecordingModal: React.FC<VoiceRecordingModalProps> = ({
             reader.readAsDataURL(audioBlob)
             const audioBase64 = await base64Promise
 
-            // Send to Gemini Service
-            const result = await parseVoiceAudio(audioBase64, audioBlob.type)
+            // Create processing context
+            const processingContext: ProcessingContext = {
+                userPlan: 'free', // This would come from user context
+                networkAvailable: await voiceOrchestrator.checkAPIHealth().then(h => h.network),
+                audioQuality: 'high', // This would be determined from audio analysis
+                languageDetected: 'mixed', // This would be detected from speech recognition
+                processingTime: 0,
+                confidenceThreshold: 0.7
+            }
+
+            // Use enhanced voice processing orchestrator
+            const result = await voiceOrchestrator.processVoiceWithHybridFallback(
+                audioBlob,
+                processingContext
+            )
+
+            // Update processing source for display
+            setProcessingSource(result.source)
 
             if (!result.success) {
                 throw new Error(result.error || "Failed to process audio")
             }
 
             if (result.success && result.data) {
-                setParsedResult(result.data)
+                // Convert EnhancedTransaction to ParsedTransaction for compatibility
+                const compatibleResult: ParsedTransaction = {
+                    type: result.data.type as any,
+                    amount: result.data.amount,
+                    category: result.data.category,
+                    title: result.data.title,
+                    date: result.data.date,
+                    confidence: result.data.confidence,
+                    paymentMethod: result.data.paymentMethod as any,
+                    fromAccount: result.data.fromAccount,
+                    toAccount: result.data.toAccount,
+                    merchant: result.data.merchant as any
+                }
+                setParsedResult(compatibleResult)
                 setTranscript(result.transcript || liveTranscript || "")
                 incrementUsage('voice') // Increment usage on success
             } else {
@@ -251,6 +304,56 @@ export const VoiceRecordingModal: React.FC<VoiceRecordingModalProps> = ({
                         <X size={20} />
                     </button>
                 </div>
+
+                {/* Compatibility Info */}
+                {compatibilityInfo && (
+                    <div className="mb-4 p-3 bg-gray-800/50 border border-gray-700/50 rounded-xl">
+                        <div className="flex items-center justify-between text-xs text-gray-400 mb-2">
+                            <span>Browser Compatibility</span>
+                            <span className="text-gray-500">Voice features may vary</span>
+                        </div>
+                        <div className="flex gap-4 text-xs">
+                            <span className={`px-2 py-1 rounded ${compatibilityInfo.speechRecognition ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
+                                Speech Recognition: {compatibilityInfo.speechRecognition ? 'Supported' : 'Not Supported'}
+                            </span>
+                            <span className={`px-2 py-1 rounded ${compatibilityInfo.microphone ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
+                                Microphone: {compatibilityInfo.microphone ? 'Available' : 'Not Available'}
+                            </span>
+                        </div>
+                    </div>
+                )}
+
+                {/* Consent Prompt */}
+                {showConsentPrompt && (
+                    <div className="mb-6 p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl">
+                        <div className="flex items-start gap-3">
+                            <Shield className="text-amber-500 mt-0.5" size={20} />
+                            <div className="flex-1">
+                                <h4 className="font-bold text-amber-400 mb-2">Voice Processing Consent Required</h4>
+                                <p className="text-sm text-amber-200 mb-3">
+                                    To process your voice recordings, we need your consent to analyze audio data for transaction parsing.
+                                </p>
+                                <div className="flex gap-2">
+                                    <button
+                                        onClick={() => {
+                                            setShowConsentPrompt(false)
+                                            window.location.hash = '#consent-settings'
+                                        }}
+                                        className="px-4 py-2 bg-amber-500 text-white rounded-lg text-sm font-bold hover:bg-amber-600 transition-colors"
+                                    >
+                                        Manage Consent
+                                    </button>
+                                    <button
+                                        onClick={() => setShowConsentPrompt(false)}
+                                        className="px-4 py-2 bg-gray-700 text-gray-300 rounded-lg text-sm font-bold hover:bg-gray-600 transition-colors"
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
 
                 {/* Recording State */}
                 {!audioBlob && !parsedResult && (
@@ -305,6 +408,24 @@ export const VoiceRecordingModal: React.FC<VoiceRecordingModalProps> = ({
                                 </div>
                                 <div className="bg-gray-800/50 p-3 rounded-xl border border-gray-700/50">
                                     <p className="text-sm text-cyan-400 italic">"Taxi to Bole 120"</p>
+                                </div>
+
+                                {/* Consent Status Indicator */}
+                                <div className={`mt-4 p-3 rounded-xl border ${hasConsent('voice_processing')
+                                        ? 'bg-emerald-500/10 border-emerald-500/30'
+                                        : 'bg-amber-500/10 border-amber-500/30'
+                                    }`}>
+                                    <div className="flex items-center gap-2 justify-center">
+                                        {hasConsent('voice_processing') ? (
+                                            <Check size={16} className="text-emerald-400" />
+                                        ) : (
+                                            <AlertTriangle size={16} className="text-amber-400" />
+                                        )}
+                                        <span className={`text-xs font-bold ${hasConsent('voice_processing') ? 'text-emerald-400' : 'text-amber-400'
+                                            }`}>
+                                            {hasConsent('voice_processing') ? 'Voice processing enabled' : 'Voice consent required'}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                         )}
@@ -362,6 +483,26 @@ export const VoiceRecordingModal: React.FC<VoiceRecordingModalProps> = ({
                 {/* Parsed Result - Confirmation & Edit */}
                 {parsedResult && (
                     <div className="py-2 animate-fade-in">
+                        {/* Processing Source Indicator */}
+                        <div className="mb-4 p-3 bg-gray-800/50 border border-gray-700/50 rounded-xl">
+                            <div className="flex items-center justify-between text-xs text-gray-400 mb-2">
+                                <span>Processing Source</span>
+                                <span className={`px-2 py-1 rounded text-xs ${processingSource === 'local' ? 'bg-green-500/20 text-green-400' :
+                                    processingSource === 'gemini' ? 'bg-blue-500/20 text-blue-400' :
+                                        processingSource === 'hasab_ai' ? 'bg-purple-500/20 text-purple-400' :
+                                            'bg-yellow-500/20 text-yellow-400'
+                                    }`}>
+                                    {processingSource.toUpperCase()}
+                                </span>
+                            </div>
+                            <div className="flex gap-2 text-xs text-gray-500">
+                                <span>Confidence: {Math.round(parsedResult.confidence * 100)}%</span>
+                                {parsedResult.merchant?.normalized && (
+                                    <span>Merchant: {parsedResult.merchant.normalized}</span>
+                                )}
+                            </div>
+                        </div>
+
                         {/* Transcript Display */}
                         {(transcript || liveTranscript) && (
                             <div className="mb-6 bg-gray-800/50 p-4 rounded-xl border border-gray-700 relative">
@@ -379,7 +520,11 @@ export const VoiceRecordingModal: React.FC<VoiceRecordingModalProps> = ({
                             ? "bg-yellow-500/10 border-yellow-500/30"
                             : parsedResult.type === "income"
                                 ? "bg-cyan-500/10 border-cyan-500/30"
-                                : "bg-pink-500/10 border-pink-500/30"
+                                : (parsedResult.type as string) === "transfer"
+                                    ? "bg-indigo-500/10 border-indigo-500/30"
+                                    : (parsedResult.type as string) === "bill_payment"
+                                        ? "bg-orange-500/10 border-orange-500/30"
+                                        : "bg-pink-500/10 border-pink-500/30"
                             }`}>
 
                             <div className="space-y-4">

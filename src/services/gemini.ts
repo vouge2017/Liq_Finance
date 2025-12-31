@@ -1,7 +1,20 @@
 import { getSupabaseClient } from "@/lib/supabase/client"
+import { validateAIProcessingConsent, validateVoiceProcessingConsent, validateReceiptAnalysisConsent } from "@/lib/supabase/data-service"
 
-export async function parseVoiceAudio(audioBase64: string, mimeType: string) {
+export async function parseVoiceAudio(audioBase64: string, mimeType: string, userId?: string) {
     try {
+        // Check consent for voice processing if userId is provided
+        if (userId) {
+            const hasConsent = await validateVoiceProcessingConsent(userId)
+            if (!hasConsent) {
+                return {
+                    success: false,
+                    error: "Voice processing consent not granted",
+                    consentRequired: true
+                }
+            }
+        }
+
         const supabase = getSupabaseClient()
         if (!supabase) {
             throw new Error("Supabase client not initialized")
@@ -51,8 +64,20 @@ export async function parseVoiceAudio(audioBase64: string, mimeType: string) {
     }
 }
 
-export async function analyzeReceiptImage(imageBase64: string) {
+export async function analyzeReceiptImage(imageBase64: string, userId?: string) {
     try {
+        // Check consent for receipt analysis if userId is provided
+        if (userId) {
+            const hasConsent = await validateReceiptAnalysisConsent(userId)
+            if (!hasConsent) {
+                return {
+                    success: false,
+                    error: "Receipt analysis consent not granted",
+                    consentRequired: true
+                }
+            }
+        }
+
         const supabase = getSupabaseClient()
         if (!supabase) {
             throw new Error("Supabase client not initialized")

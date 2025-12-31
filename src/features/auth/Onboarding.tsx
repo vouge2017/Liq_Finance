@@ -4,6 +4,7 @@ import type React from "react"
 import { useState } from "react"
 import { Icons } from "@/shared/components/Icons"
 import { useAppContext } from "@/context/AppContext"
+import { ConsentBanner } from "@/components/ConsentBanner"
 
 export const Onboarding: React.FC = () => {
   const { completeOnboarding, setUserName, setUserPhone, setUserGoal } = useAppContext()
@@ -13,86 +14,37 @@ export const Onboarding: React.FC = () => {
   const [phone, setPhone] = useState("")
   const [name, setNameInput] = useState("")
   const [selectedGoals, setSelectedGoals] = useState<string[]>([])
+  const [otherGoal, setOtherGoal] = useState("")
   const [phoneError, setPhoneError] = useState("")
 
   const goals = [
-    {
-      id: "save",
-      label: "Build Savings",
-      icon: <Icons.PiggyBank size={24} />,
-      color: "cyan",
-      desc: "Emergency fund & future",
-    },
-    {
-      id: "debt",
-      label: "Pay Off Debt",
-      icon: <Icons.ArrowUp size={24} className="rotate-45" />,
-      color: "rose",
-      desc: "Become debt-free",
-    },
-    {
-      id: "budget",
-      label: "Track Spending",
-      icon: <Icons.Budget size={24} />,
-      color: "purple",
-      desc: "Know where money goes",
-    },
-    {
-      id: "iqub",
-      label: "Join/Track Iqub",
-      icon: <Icons.Users size={24} />,
-      color: "yellow",
-      desc: "Community savings",
-    },
-    {
-      id: "invest",
-      label: "Start Investing",
-      icon: <Icons.TrendingUp size={24} />,
-      color: "emerald",
-      desc: "Grow your wealth",
-    },
-    { id: "family", label: "Family Budget", icon: <Icons.Home size={24} />, color: "blue", desc: "Household planning" },
+    { id: "save", label: "Build Savings", icon: <Icons.PiggyBank size={28} />, color: "cyan" },
+    { id: "debt", label: "Pay Off Debt", icon: <Icons.CreditCard size={28} />, color: "cyan" },
+    { id: "budget", label: "Track Spending", icon: <Icons.TrendingUp size={28} />, color: "cyan" },
+    { id: "advisor", label: "AI Finance Advisory", icon: <Icons.AI size={28} />, color: "cyan" },
   ]
 
   const toggleGoal = (id: string) => {
     setSelectedGoals((prev) => (prev.includes(id) ? prev.filter((g) => g !== id) : [...prev, id]))
   }
 
-  // Normalize phone to exactly 9 digits (strips leading 0, keeps only last 9 digits)
   const normalizePhoneInput = (p: string): string => {
-    // Remove all non-digit characters
     let clean = p.replace(/\D/g, "")
-    // Remove leading 0 if present
-    if (clean.startsWith("0")) {
-      clean = clean.substring(1)
-    }
-    // Only keep last 9 digits if more are entered
-    if (clean.length > 9) {
-      clean = clean.slice(-9)
-    }
+    if (clean.startsWith("0")) clean = clean.substring(1)
+    if (clean.length > 9) clean = clean.slice(-9)
     return clean
-  }
-
-  // Check if phone is valid: permissive but safe
-  const isPhoneValid = (p: string): boolean => {
-    const clean = normalizePhoneInput(p)
-    // Must be 9 digits and start with 7 or 9
-    return clean.length === 9 && ['7', '9'].includes(clean[0])
-  }
-
-  // Check if the button should be enabled for step 1
-  const isPhoneButtonEnabled = (): boolean => {
-    return isPhoneValid(phone)
   }
 
   const validatePhone = (p: string) => {
     const clean = normalizePhoneInput(p)
-    // Must be exactly 9 digits, starting with 7 or 9
     return /^[79]\d{8}$/.test(clean)
   }
 
   const handleNext = () => {
     if (step === 1) {
+      // Goal step - no validation needed
+    }
+    if (step === 2) {
       if (!phone.trim()) {
         setPhoneError("Phone number is required")
         return
@@ -104,344 +56,302 @@ export const Onboarding: React.FC = () => {
       }
       setPhoneError("")
     }
-
-    if (step === 2) {
+    if (step === 3) {
       const nameParts = name.trim().split(/\s+/)
-      if (nameParts.length < 1) {
-        return // Require at least one name
+      if (nameParts.length < 1) { // Relaxed to just one name based on "Display Name" label
+        setPhoneError("Please enter your name")
+        return
       }
+      setPhoneError("")
     }
-    // if (step === 3 && selectedGoals.length === 0) return // Allow skipping goals
 
     if (step < 4) {
       setStep(step + 1)
     } else {
       let normalizedPhone = phone.replace(/[\s-]/g, "")
-      // Remove leading 0 if present to get base 9 digits
-      if (normalizedPhone.startsWith("0")) {
-        normalizedPhone = normalizedPhone.substring(1)
-      }
-
-      // Ensure we have the standard 0-prefix format for storage if that's what backend expects
-      // Or just keep it as 0 + 9 digits
+      if (normalizedPhone.startsWith("0")) normalizedPhone = normalizedPhone.substring(1)
       normalizedPhone = "0" + normalizedPhone
 
       setUserPhone(normalizedPhone)
       setUserName(name)
-      const goalLabels = selectedGoals.map((id) => goals.find((g) => g.id === id)?.label).join(", ")
-      setUserGoal(goalLabels)
+
+      let finalGoals = selectedGoals.map((id) => goals.find((g) => g.id === id)?.label).join(", ")
+      if (otherGoal.trim()) {
+        finalGoals = finalGoals ? `${finalGoals}, ${otherGoal}` : otherGoal
+      }
+      setUserGoal(finalGoals)
+
       completeOnboarding()
     }
   }
 
+  // --- RENDER HELPERS ---
+
+  const renderStepIndicator = () => (
+    <div className="flex items-center justify-center gap-1 mb-8">
+      {[1, 2, 3, 4].map((i) => (
+        <div key={i} className="flex items-center">
+          <div
+            className={`h-4 rounded-full transition-all duration-500 flex items-center justify-center ${i <= step
+                ? "w-4 bg-gradient-to-r from-cyan-400 to-blue-500 shadow-[0_0_10px_rgba(6,182,212,0.4)]"
+                : "w-4 bg-gray-200"
+              }`}
+          >
+            {/* Inner glow dot */}
+            {i <= step && <div className="w-1.5 h-1.5 bg-white rounded-full" />}
+          </div>
+          {i < 4 && (
+            <div
+              className={`h-1.5 w-8 rounded-full mx-[-2px] transition-colors duration-500 ${i < step ? "bg-gradient-to-r from-cyan-400 to-blue-500" : "bg-gray-200"
+                }`}
+            />
+          )}
+        </div>
+      ))}
+      <span className="ml-4 text-sm font-bold text-gray-400">{step}/4</span>
+    </div>
+  )
+
   const renderContent = () => {
     switch (step) {
-      case 0:
+      case 0: // WELCOME
         return (
-          <div className="flex flex-col items-center text-center animate-fade-in px-4">
-            <div className="w-32 h-32 rounded-full bg-gradient-to-br from-cyan-500/20 to-blue-600/20 flex items-center justify-center mb-8 border border-cyan-500/30 shadow-[0_0_60px_rgba(6,182,212,0.2)] relative">
-              <Icons.Wallet size={56} className="text-cyan-400" />
-              <div className="absolute -top-2 -right-2 w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center animate-bounce">
-                <Icons.Sparkles size={16} className="text-white" />
-              </div>
+          <div className="flex flex-col items-center text-center animate-fade-in w-full max-w-md">
+            {/* Hero Illustration Placeholder */}
+            <div className="w-40 h-40 rounded-full bg-gradient-to-tr from-cyan-200 to-purple-200 flex items-center justify-center mb-8 shadow-[0_0_60px_rgba(168,85,247,0.3)] relative animate-float">
+              <div className="absolute inset-0 bg-white/30 rounded-full blur-xl"></div>
+              <Icons.Wallet size={64} className="text-gray-800 relative z-10" />
             </div>
 
-            <h1 className="text-4xl font-black text-white mb-3 tracking-tight">Liq</h1>
-            <p className="text-cyan-400 font-bold text-sm mb-2">Your Personal Financial Expert</p>
-            <p className="text-gray-400 text-sm max-w-xs leading-relaxed mb-8">
-              Your AI-powered financial planner for Ethiopia. Master your money with local insight.
+            <h1 className="text-5xl font-black text-gray-900 mb-4 tracking-tighter">
+              Liq<span className="text-cyan-600">.</span>
+            </h1>
+            <p className="text-xl font-bold text-gray-800 mb-2">Master Your Money</p>
+            <p className="text-gray-500 text-sm max-w-xs leading-relaxed mb-10">
+              Your AI-powered financial expert. Plan, track, and grow with confidence.
             </p>
 
-            {/* Features Preview */}
-            <div className="grid grid-cols-3 gap-3 w-full max-w-xs mb-8">
-              <div className="bg-gray-900/50 border border-gray-800 rounded-2xl p-3 text-center">
-                <Icons.AI size={20} className="text-cyan-400 mx-auto mb-1" />
-                <p className="text-[10px] text-gray-400">AI Advisor</p>
-              </div>
-              <div className="bg-gray-900/50 border border-gray-800 rounded-2xl p-3 text-center">
-                <Icons.Camera size={20} className="text-purple-400 mx-auto mb-1" />
-                <p className="text-[10px] text-gray-400">Scan Receipts</p>
-              </div>
-              <div className="bg-gray-900/50 border border-gray-800 rounded-2xl p-3 text-center">
-                <Icons.TrendingUp size={20} className="text-emerald-400 mx-auto mb-1" />
-                <p className="text-[10px] text-gray-400">Track Goals</p>
-              </div>
-            </div>
-
-            <div className="bg-emerald-500/10 border border-emerald-500/30 p-4 rounded-2xl flex items-start gap-3 max-w-xs text-left">
-              <Icons.Shield className="text-emerald-500 shrink-0 mt-0.5" size={20} />
-              <div>
-                <p className="text-xs text-emerald-400 font-bold mb-1">Secure & Private</p>
-                <p className="text-[10px] text-gray-400 leading-snug">
-                  Your financial data stays on your device. Bank-level security.
-                </p>
-              </div>
-            </div>
+            <button
+              onClick={() => setStep(1)}
+              className="w-full py-4 rounded-[2rem] font-bold text-lg text-white bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 transition-all shadow-xl shadow-cyan-500/20 active:scale-[0.98]"
+            >
+              Get Started
+            </button>
+            <p className="mt-6 text-xs text-gray-400 font-medium">Already have an account? <span className="text-cyan-600 font-bold">Log in</span></p>
           </div>
         )
-      case 1:
-        return (
-          <div className="w-full max-w-xs text-center animate-slide-up">
-            <div className="w-20 h-20 rounded-full bg-cyan-500/10 flex items-center justify-center mx-auto mb-6 border border-cyan-500/20">
-              <Icons.Phone size={32} className="text-cyan-400" />
-            </div>
-            <h2 className="text-2xl font-bold text-white mb-2">Your Mobile Number</h2>
-            <p className="text-gray-400 text-sm mb-8">We use this to personalize your experience.</p>
 
-            <div className="relative group text-left">
-              <label className="text-xs font-bold text-gray-500 ml-1 mb-2 block uppercase tracking-wider">
-                Ethiopian Mobile
-              </label>
-              <div
-                className={`flex items-center bg-gray-900 border-2 rounded-2xl p-1 transition-all ${phoneError ? "border-rose-500 shadow-[0_0_20px_rgba(244,63,94,0.2)]" : "border-gray-700 focus-within:border-cyan-500 focus-within:shadow-[0_0_20px_rgba(6,182,212,0.2)]"}`}
-              >
-                <div className="flex items-center gap-2 pl-4 pr-3 border-r border-gray-700 bg-gray-800/50 rounded-l-xl py-3">
-                  <span className="text-2xl leading-none">🇪🇹</span>
-                  <span className="text-gray-300 font-bold text-sm">+251</span>
+      case 1: // GOALS
+        return (
+          <>
+            <h2 className="text-3xl font-black text-gray-900 mb-8 text-center px-4 leading-tight">
+              What's your main<br />purpose?
+            </h2>
+
+            <div className="bg-white/60 backdrop-blur-xl border border-white/60 rounded-[2.5rem] p-6 w-full max-w-sm shadow-2xl shadow-purple-500/5 animate-slide-up">
+              {renderStepIndicator()}
+
+              <div className="grid grid-cols-2 gap-3 mb-4">
+                {goals.map((g) => {
+                  const isSelected = selectedGoals.includes(g.id)
+                  return (
+                    <button
+                      key={g.id}
+                      onClick={() => toggleGoal(g.id)}
+                      className={`p-4 rounded-[1.5rem] flex flex-col items-center justify-center gap-3 text-center transition-all duration-200 aspect-square ${isSelected
+                          ? "bg-gradient-to-br from-cyan-50 to-blue-50 border-2 border-cyan-400 shadow-lg shadow-cyan-500/10"
+                          : "bg-white/80 border-2 border-transparent hover:border-gray-200 shadow-sm"
+                        }`}
+                    >
+                      <div className={isSelected ? "text-cyan-600" : "text-gray-400"}>{g.icon}</div>
+                      <span className={`text-xs font-bold leading-tight ${isSelected ? "text-gray-900" : "text-gray-500"}`}>
+                        {g.label}
+                      </span>
+                    </button>
+                  )
+                })}
+              </div>
+
+              {/* Other Goal Input */}
+              <div className="relative mb-8">
+                <input
+                  type="text"
+                  value={otherGoal}
+                  onChange={(e) => setOtherGoal(e.target.value)}
+                  placeholder="Other goals (e.g., Invest, Save for a car)"
+                  className="w-full bg-gray-50/50 border border-gray-200 rounded-2xl p-4 text-sm font-medium text-gray-900 focus:border-cyan-500 focus:bg-white outline-none transition-all placeholder-gray-400"
+                />
+              </div>
+
+              <div className="flex items-center gap-4">
+                <button onClick={() => setStep(step - 1)} className="px-6 py-3 rounded-full text-sm font-bold text-gray-500 hover:bg-gray-100 transition-all">
+                  Back
+                </button>
+                <button
+                  onClick={handleNext}
+                  className="flex-1 py-3 rounded-full font-bold text-white bg-gradient-to-r from-cyan-500 to-blue-600 shadow-lg shadow-cyan-500/20 active:scale-95 transition-all"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          </>
+        )
+
+      case 2: // PHONE
+        return (
+          <>
+            {/* Floating Icon */}
+            <div className="mb-6 animate-float">
+              <div className="w-24 h-24 bg-gradient-to-br from-white to-cyan-50 rounded-[2rem] shadow-xl flex items-center justify-center border border-white/50">
+                <Icons.Phone size={40} className="text-cyan-500" />
+              </div>
+            </div>
+
+            <h2 className="text-3xl font-black text-gray-900 mb-2 text-center">
+              What's your<br />number?
+            </h2>
+            <p className="text-gray-500 font-medium mb-8">Outfit</p> {/* Placeholder for font name in design? Or subtitle? Design says "Outfit" above title? Assuming it's a label */}
+
+            <div className="bg-white/60 backdrop-blur-xl border border-white/60 rounded-[2.5rem] p-8 w-full max-w-sm shadow-2xl shadow-purple-500/5 animate-slide-up">
+              {/* Input Area */}
+              <div className="bg-gray-50/80 border border-gray-200 rounded-2xl p-2 flex items-center mb-8 focus-within:border-cyan-500 focus-within:ring-4 focus-within:ring-cyan-500/10 transition-all">
+                <div className="flex items-center gap-2 px-3 py-2 border-r border-gray-200">
+                  <span className="text-xl">🇪🇹</span>
+                  <span className="font-bold text-gray-600">+251</span>
                 </div>
                 <input
                   type="tel"
                   value={phone}
                   onChange={(e) => {
-                    // Allow only digits and limit to 9 (after normalization)
-                    const rawValue = e.target.value
-                    // Remove non-digits for validation but keep display value for UX
-                    const digitsOnly = rawValue.replace(/\D/g, "")
-                    // If starts with 0, allow up to 10, otherwise 9
-                    const maxLen = digitsOnly.startsWith("0") ? 10 : 9
-                    const limited = digitsOnly.slice(0, maxLen)
-                    setPhone(limited)
+                    const raw = e.target.value.replace(/\D/g, "")
+                    setPhone(raw.slice(0, 10))
                     setPhoneError("")
                   }}
-                  placeholder="911234567"
-                  className="w-full bg-transparent p-3 text-xl font-bold text-white outline-none placeholder-gray-400 font-mono tracking-wider"
-                  maxLength={10}
+                  placeholder="912 345 678"
+                  className="w-full bg-transparent p-2 text-lg font-bold text-gray-900 outline-none placeholder-gray-300 tracking-wide"
                   autoFocus
                 />
               </div>
-              {phoneError && (
-                <p className="text-xs text-rose-500 mt-3 flex items-center gap-2 font-bold bg-rose-500/10 p-2 rounded-lg">
-                  <Icons.Alert size={14} /> {phoneError}
-                </p>
-              )}
-              <p className="text-[10px] text-gray-500 mt-3 text-center">
-                Enter 9 digits starting with 9 or 7 (e.g. 911... or 712...)
+              {phoneError && <p className="text-rose-500 text-xs font-bold text-center mb-4 -mt-4">{phoneError}</p>}
+
+              {renderStepIndicator()}
+              <p className="text-center text-xs font-bold text-gray-400 mb-8">Step 2 of 4</p>
+
+              <div className="flex items-center gap-4">
+                <button onClick={() => setStep(step - 1)} className="px-6 py-3 rounded-full text-sm font-bold text-gray-500 hover:bg-gray-100 transition-all">
+                  <Icons.ChevronLeft size={20} /> Back
+                </button>
+                <button
+                  onClick={handleNext}
+                  className="flex-1 py-3 rounded-full font-bold text-white bg-gradient-to-r from-cyan-500 to-blue-600 shadow-lg shadow-cyan-500/20 active:scale-95 transition-all"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          </>
+        )
+
+      case 3: // NAME
+        return (
+          <>
+            {renderStepIndicator()} {/* Design shows indicator at top for this step? No, inside card usually. Let's stick to consistent card layout */}
+
+            <div className="mb-6 animate-float">
+              <div className="w-24 h-24 bg-gradient-to-br from-white to-purple-50 rounded-[2rem] shadow-xl flex items-center justify-center border border-white/50">
+                <Icons.User size={40} className="text-purple-500" />
+              </div>
+            </div>
+
+            <h2 className="text-3xl font-black text-gray-900 mb-8 text-center leading-tight">
+              What should<br />we call you?
+            </h2>
+
+            <div className="bg-white/60 backdrop-blur-xl border border-white/60 rounded-[2.5rem] p-8 w-full max-w-sm shadow-2xl shadow-purple-500/5 animate-slide-up">
+
+              <div className="mb-8">
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setNameInput(e.target.value)}
+                  placeholder="Your display name"
+                  className="w-full bg-gray-50/80 border border-gray-200 rounded-[1.5rem] p-5 text-center text-lg font-bold text-gray-900 outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition-all placeholder-gray-400"
+                  autoFocus
+                />
+              </div>
+
+              <div className="flex items-center gap-4 mt-8">
+                <button onClick={() => setStep(step - 1)} className="px-6 py-3 rounded-full text-sm font-bold text-gray-500 hover:bg-gray-100 transition-all flex items-center gap-2">
+                  <Icons.ChevronLeft size={18} /> Back
+                </button>
+                <button
+                  onClick={handleNext}
+                  className="flex-1 py-3 rounded-full font-bold text-white bg-gradient-to-r from-emerald-400 to-emerald-600 shadow-lg shadow-emerald-500/20 active:scale-95 transition-all flex items-center justify-center gap-2"
+                >
+                  Next <Icons.ChevronRight size={18} />
+                </button>
+              </div>
+            </div>
+          </>
+        )
+
+      case 4: // COMPLETION
+        return (
+          <>
+            <h1 className="text-4xl font-black text-gray-900 mb-8 text-center">You're all set!</h1>
+
+            <div className="bg-white/60 backdrop-blur-xl border border-white/60 rounded-[2.5rem] p-8 w-full max-w-sm shadow-2xl shadow-cyan-500/5 animate-scale-up text-center relative overflow-hidden">
+
+              {/* Shield Icon */}
+              <div className="w-40 h-40 mx-auto mb-6 relative">
+                <div className="absolute inset-0 bg-gradient-to-tr from-cyan-400/20 to-blue-500/20 rounded-full blur-2xl animate-pulse"></div>
+                <Icons.Shield size={120} className="text-cyan-500 relative z-10 drop-shadow-2xl" strokeWidth={1} />
+                <div className="absolute inset-0 flex items-center justify-center z-20">
+                  <Icons.Check size={48} className="text-white drop-shadow-md" strokeWidth={4} />
+                </div>
+              </div>
+
+              <p className="text-gray-600 font-medium leading-relaxed mb-10">
+                Our AI has personalized your profile.<br />Welcome to Liq Finance.
               </p>
+
+              <button
+                onClick={handleNext}
+                className="w-full py-4 rounded-[1.5rem] font-bold text-lg text-white bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 transition-all shadow-xl shadow-cyan-500/20 active:scale-[0.98]"
+              >
+                Go to Dashboard
+              </button>
             </div>
-          </div>
+          </>
         )
-      case 2:
-        return (
-          <div className="w-full max-w-xs text-center animate-slide-up">
-            <div className="w-20 h-20 rounded-full bg-purple-500/10 flex items-center justify-center mx-auto mb-6 border border-purple-500/20">
-              <Icons.User size={32} className="text-purple-400" />
-            </div>
-            <h2 className="text-2xl font-bold text-white mb-2">What's Your Full Name?</h2>
-            <p className="text-gray-400 text-sm mb-8">First and last name so your advisor knows you.</p>
 
-            <div className="relative">
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setNameInput(e.target.value)}
-                placeholder="e.g. Abebe Kebede"
-                className="w-full bg-gray-900 border-2 border-gray-700 rounded-2xl p-4 text-center text-2xl font-bold text-white focus:border-purple-500 focus:shadow-[0_0_20px_rgba(168,85,247,0.2)] outline-none transition-all placeholder-gray-400"
-                autoFocus
-              />
-            </div>
-            <p className="text-[10px] text-gray-500 mt-3">What should we call you?</p>
-          </div>
-        )
-      case 3:
-        return (
-          <div className="w-full max-w-sm animate-slide-up">
-            <div className="text-center mb-6">
-              <h2 className="text-2xl font-bold text-white mb-2">What Are Your Goals?</h2>
-              <p className="text-gray-400 text-sm">Select all that apply. This helps your AI advisor.</p>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              {goals.map((g) => {
-                const isSelected = selectedGoals.includes(g.id)
-                const colorClasses: Record<string, string> = {
-                  cyan: "border-cyan-500 bg-cyan-500/10 shadow-cyan-500/20",
-                  rose: "border-rose-500 bg-rose-500/10 shadow-rose-500/20",
-                  purple: "border-purple-500 bg-purple-500/10 shadow-purple-500/20",
-                  yellow: "border-yellow-500 bg-yellow-500/10 shadow-yellow-500/20",
-                  emerald: "border-emerald-500 bg-emerald-500/10 shadow-emerald-500/20",
-                  blue: "border-blue-500 bg-blue-500/10 shadow-blue-500/20",
-                }
-                const iconColors: Record<string, string> = {
-                  cyan: "text-cyan-400",
-                  rose: "text-rose-400",
-                  purple: "text-purple-400",
-                  yellow: "text-yellow-400",
-                  emerald: "text-emerald-400",
-                  blue: "text-blue-400",
-                }
-                return (
-                  <button
-                    key={g.id}
-                    onClick={() => toggleGoal(g.id)}
-                    className={`p-4 rounded-2xl border-2 flex flex-col items-center gap-2 transition-all duration-200 relative overflow-hidden ${isSelected ? `${colorClasses[g.color]} shadow-lg scale-[1.02]` : "bg-gray-900/50 border-gray-700 hover:bg-gray-800 hover:border-gray-600"}`}
-                  >
-                    {isSelected && (
-                      <div className="absolute top-2 right-2">
-                        <Icons.CheckCircle size={16} className={iconColors[g.color]} />
-                      </div>
-                    )}
-                    <div className={isSelected ? iconColors[g.color] : "text-gray-500"}>{g.icon}</div>
-                    <span className={`text-xs font-bold ${isSelected ? "text-white" : "text-gray-400"}`}>
-                      {g.label}
-                    </span>
-                    <span className={`text-[10px] ${isSelected ? "text-gray-300" : "text-gray-600"}`}>{g.desc}</span>
-                  </button>
-                )
-              })}
-            </div>
-
-            {selectedGoals.length > 0 && (
-              <p className="text-center text-xs text-cyan-400 mt-4 font-medium">
-                {selectedGoals.length} goal{selectedGoals.length > 1 ? "s" : ""} selected
-              </p>
-            )}
-          </div>
-        )
-      case 4:
-        return (
-          <div className="flex flex-col items-center text-center animate-fade-in px-4">
-            <div className="relative mb-8">
-              <div className="w-28 h-28 rounded-full bg-gradient-to-br from-cyan-500/20 to-purple-500/20 flex items-center justify-center border border-cyan-500/30 shadow-[0_0_40px_rgba(6,182,212,0.2)]">
-                <Icons.AI size={48} className="text-cyan-400" />
-              </div>
-              <div className="absolute -top-4 -right-8 bg-gray-800 px-4 py-2 rounded-2xl rounded-bl-none border border-gray-700 shadow-xl animate-bounce">
-                <p className="text-sm text-white font-medium">Hello, {name}! 👋</p>
-              </div>
-            </div>
-
-            <h2 className="text-2xl font-bold text-white mb-3">Your Advisor is Ready</h2>
-            <p className="text-gray-400 text-sm max-w-xs leading-relaxed mb-8">
-              I'm here to help you achieve:{" "}
-              <span className="text-cyan-400 font-medium">
-                {selectedGoals.map((id) => goals.find((g) => g.id === id)?.label).join(", ")}
-              </span>
-            </p>
-
-            <div className="bg-gray-900/50 border border-gray-800 rounded-2xl p-4 w-full max-w-xs space-y-3">
-              <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">What You Can Do</h3>
-              <div className="flex items-center gap-3 text-left">
-                <div className="w-8 h-8 rounded-full bg-cyan-500/10 flex items-center justify-center">
-                  <Icons.Plus size={16} className="text-cyan-400" />
-                </div>
-                <p className="text-xs text-gray-300">Add transactions with one tap</p>
-              </div>
-              <div className="flex items-center gap-3 text-left">
-                <div className="w-8 h-8 rounded-full bg-purple-500/10 flex items-center justify-center">
-                  <Icons.Camera size={16} className="text-purple-400" />
-                </div>
-                <p className="text-xs text-gray-300">Scan receipts with AI</p>
-              </div>
-              <div className="flex items-center gap-3 text-left">
-                <div className="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center">
-                  <Icons.AI size={16} className="text-emerald-400" />
-                </div>
-                <p className="text-xs text-gray-300">Get personalized financial advice</p>
-              </div>
-            </div>
-          </div>
-        )
       default:
         return null
     }
   }
 
   return (
-    <div className="fixed inset-0 bg-black z-[200] flex flex-col items-center justify-between p-6 overflow-hidden">
-      <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-gray-900 via-black to-black z-0 pointer-events-none"></div>
-      <div className="absolute top-0 right-0 w-72 h-72 bg-cyan-500/5 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none"></div>
-      <div className="absolute bottom-0 left-0 w-72 h-72 bg-purple-500/5 rounded-full blur-3xl -ml-20 -mb-20 pointer-events-none"></div>
+    <div className="fixed inset-0 z-[200] flex flex-col items-center justify-center p-4 overflow-hidden bg-[#f0f4f8]">
+      {/* HOLOGRAPHIC BACKGROUND */}
+      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-[-20%] left-[-20%] w-[80%] h-[80%] bg-purple-200/40 rounded-full blur-[100px] animate-blob"></div>
+        <div className="absolute top-[-10%] right-[-20%] w-[70%] h-[70%] bg-cyan-200/40 rounded-full blur-[100px] animate-blob animation-delay-2000"></div>
+        <div className="absolute bottom-[-20%] left-[20%] w-[60%] h-[60%] bg-emerald-200/40 rounded-full blur-[100px] animate-blob animation-delay-4000"></div>
+        <div className="absolute inset-0 bg-white/30 backdrop-blur-[2px]"></div>
+      </div>
 
-      {/* Progress Indicators - Simplified */}
-      <div className="relative z-10 w-full max-w-sm pt-4 flex flex-col items-center">
-        {/* Step Text */}
-        {step > 0 && step <= 4 && (
-          <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-2">
-            Step {step} of 4
-          </p>
-        )}
+      {/* Main Content Container */}
+      <div className="relative z-10 w-full flex flex-col items-center justify-center">
+        {renderContent()}
+      </div>
 
-        {/* Step Dots */}
-        <div className="flex justify-center gap-2 px-1">
-          {[1, 2, 3, 4].map((i) => (
-            <div
-              key={i}
-              className={`w-2 h-2 rounded-full transition-all duration-300 ${i <= step
-                ? "bg-cyan-500"
-                : "bg-gray-800"
-                }`}
-            />
-          ))}
+      {/* Consent Banner (Only on last step or hidden?) - Keeping it hidden or minimal as per design focus */}
+      {step === 4 && (
+        <div className="absolute bottom-4 left-0 right-0 z-20 flex justify-center">
+          <p className="text-[10px] text-gray-400">By continuing, you agree to our Terms & Privacy Policy</p>
         </div>
-      </div>
-
-      {/* Skip Button - Only show on step 0 */}
-      {step === 0 && (
-        <button
-          onClick={() => setStep(1)}
-          className="absolute top-6 right-6 z-20 text-xs text-gray-500 hover:text-gray-300 transition-colors"
-        >
-          Skip Intro
-        </button>
       )}
-
-      {/* Main Content Area */}
-      <div className="relative z-10 flex-1 flex flex-col justify-center w-full items-center">{renderContent()}</div>
-
-      {/* Footer Action */}
-      <div className="relative z-10 w-full max-w-sm pb-6 space-y-3">
-        <button
-          onClick={handleNext}
-          disabled={
-            (step === 1 && !isPhoneButtonEnabled()) ||
-            (step === 2 && !name.trim())
-            // Removed goal requirement to allow skipping
-          }
-          className="w-full py-4 rounded-2xl font-bold text-lg text-black bg-gradient-to-r from-cyan-500 to-cyan-400 hover:from-cyan-400 hover:to-cyan-300 transition-all shadow-[0_0_30px_rgba(6,182,212,0.4)] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none flex items-center justify-center gap-2"
-        >
-          {step === 4 ? (
-            <>
-              <Icons.Sparkles size={20} />
-              Start My Journey
-            </>
-          ) : step === 0 ? (
-            <>
-              Get Started
-              <Icons.ChevronRight size={20} />
-            </>
-          ) : (
-            <>
-              {step === 3 && selectedGoals.length === 0 ? "Skip for Now" : "Continue"}
-              <Icons.ChevronRight size={20} />
-            </>
-          )}
-        </button>
-
-        {step > 0 && step < 4 && (
-          <button
-            onClick={() => setStep(step - 1)}
-            className="w-full py-3 text-sm text-gray-500 hover:text-gray-300 transition-colors"
-          >
-            Go Back
-          </button>
-        )}
-
-        {/* Social Proof for Step 0 */}
-        {step === 0 && (
-          <p className="text-[10px] text-gray-500 text-center animate-pulse">
-            Join 10,000+ Ethiopians mastering their money
-          </p>
-        )}
-      </div>
     </div>
   )
 }

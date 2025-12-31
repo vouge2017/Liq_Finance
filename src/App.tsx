@@ -3,8 +3,6 @@
 import React, { useState } from "react"
 import { Icons } from "@/shared/components/Icons"
 import { BalanceCard } from "@/features/accounts/BalanceCard"
-import { ExpenseTracking } from "@/features/budget/ExpenseTracking"
-import { SavingsGoals } from "@/features/goals/SavingsGoals"
 import { TransactionList } from "@/features/budget/TransactionList"
 import { BottomNav } from "@/shared/components/BottomNav"
 import { AIAdvisor } from "@/features/advisor/AIAdvisor"
@@ -13,27 +11,20 @@ import { BudgetPage } from "@/features/budget/BudgetPage"
 import { GoalsPage } from "@/features/goals/GoalsPage"
 import { CommunityPage } from "@/features/community/CommunityPage"
 import { AppProvider, useAppContext } from "@/context/AppContext"
+import { AuthProvider } from "@/context/AuthContext"
 import { TransactionModal } from "@/features/budget/TransactionModal"
 import { Onboarding } from "@/features/auth/Onboarding"
 import { FinancialProfileModal } from "@/features/auth/FinancialProfileModal"
 import { FeedbackModal } from "@/shared/components/FeedbackModal"
 import { DataManagementModal } from "@/shared/components/DataManagementModal"
-import { LanguageSwitcher } from "@/shared/components/LanguageSwitcher"
+import { GlobalConsentBanner } from "@/components/GlobalConsentBanner"
+import PrivacyPolicy from "@/components/PrivacyPolicy"
+import TermsOfService from "@/components/TermsOfService"
 import { OfflineBanner } from "@/shared/components/OfflineBanner"
 import { QuickActions } from "@/features/dashboard/QuickActions"
-import { DailyBriefing } from "@/features/dashboard/DailyBriefing"
-import { ActionableInsights } from "@/features/dashboard/ActionableInsights"
 import { AINotificationStack } from "@/shared/components/AINotificationBanner"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/shared/components/ui/dropdown-menu"
 import { SubscriptionModal } from "@/shared/components/SubscriptionModal"
 import { SubscriptionWidget } from "@/features/dashboard/SubscriptionWidget"
-import { Settings, Globe, Eye, EyeOff, Calendar, Sun, Moon, Cloud, ChevronRight, User, Users } from "lucide-react"
-
 
 // Global Notification Component
 const NotificationToast = () => {
@@ -41,7 +32,7 @@ const NotificationToast = () => {
   if (!notification) return null
 
   const isError = notification.type === "error"
-  const bgColor = isError ? "bg-rose-500" : notification.type === "success" ? "bg-emerald-500" : "bg-cyan-500"
+  const bgColor = isError ? "bg-ethiopian-red" : notification.type === "success" ? "bg-ethiopian-green" : "bg-ethiopian-blue"
   const icon = isError ? (
     <Icons.Error size={20} className="text-white" />
   ) : (
@@ -49,12 +40,14 @@ const NotificationToast = () => {
   )
 
   return (
-    <div className="fixed top-4 left-4 right-4 z-[200] animate-slide-down flex justify-center pointer-events-none">
+    <div className="fixed z-[200] animate-slide-down flex justify-center pointer-events-none" style={{ top: '16px', left: '20px', right: '20px' }}>
       <div
-        className={`${bgColor} text-white px-4 py-3 rounded-2xl shadow-xl flex items-center gap-3 min-w-[300px] pointer-events-auto`}
+        className={`${bgColor} text-white px-5 py-4 rounded-2xl shadow-elevation-5 flex items-center gap-3 min-w-[320px] pointer-events-auto border border-white/10`}
       >
-        {icon}
-        <span className="font-bold text-sm">{notification.message}</span>
+        <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center shrink-0">
+          {icon}
+        </div>
+        <span className="font-bold text-sm tracking-tight">{notification.message}</span>
       </div>
     </div>
   )
@@ -63,49 +56,40 @@ const NotificationToast = () => {
 function MainLayout() {
   const {
     state,
-    theme,
-    setTheme,
-    calendarMode,
-    setCalendarMode,
     activeProfile,
-    setActiveProfile,
-    isPrivacyMode,
-    togglePrivacyMode,
     activeTab,
     setActiveTab,
     visibleWidgets,
-    toggleWidget,
     hasOnboarded,
     logout,
     dismissAINotification,
   } = useAppContext()
-  const [showProfileModal, setShowProfileModal] = useState(false)
+
+  // Simple hash-based routing for legal pages
+  const [currentRoute, setCurrentRoute] = React.useState(window.location.hash)
+
+  React.useEffect(() => {
+    const handleHashChange = () => {
+      setCurrentRoute(window.location.hash)
+    }
+    window.addEventListener('hashchange', handleHashChange)
+    return () => window.removeEventListener('hashchange', handleHashChange)
+  }, [])
+
+  // Handle legal page routes
+  if (currentRoute === '#/legal/privacy') {
+    return <PrivacyPolicy />
+  }
+  if (currentRoute === '#/legal/terms') {
+    return <TermsOfService />
+  }
+
   const [showFinancialProfile, setShowFinancialProfile] = useState(false)
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
   const [showFeedbackModal, setShowFeedbackModal] = useState(false)
   const [showDataManagementModal, setShowDataManagementModal] = useState(false)
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false)
-
-  // UI State for Profile Modal Collapsibles
-  const [isDashboardSettingsOpen, setIsDashboardSettingsOpen] = useState(false)
-
-  // Cycle themes: dark -> dim -> light -> dark
-  const toggleTheme = () => {
-    if (theme === "dark") setTheme("dim")
-    else if (theme === "dim") setTheme("light")
-    else setTheme("dark")
-  }
-
-  const toggleCalendar = () => {
-    setCalendarMode(calendarMode === "gregorian" ? "ethiopian" : "gregorian")
-  }
-
-  const toggleProfile = () => {
-    // Toggle: Personal -> Family -> All -> Personal
-    if (activeProfile === "Personal") setActiveProfile("Family")
-    else if (activeProfile === "Family") setActiveProfile("All")
-    else setActiveProfile("Personal")
-  }
+  const [showConsentSettings, setShowConsentSettings] = useState(false)
 
   // Show Onboarding if not completed
   if (!hasOnboarded) {
@@ -113,7 +97,7 @@ function MainLayout() {
   }
 
   return (
-    <div className="min-h-screen bg-theme-main text-theme-primary relative transition-colors duration-300">
+    <div className="min-h-screen bg-background-light dark:bg-background-dark text-[#111318] dark:text-white font-display relative transition-colors duration-300 selection:bg-primary/20">
       {/* Offline Status Banner */}
       <OfflineBanner />
 
@@ -121,154 +105,81 @@ function MainLayout() {
       <TransactionModal />
       {showFinancialProfile && <FinancialProfileModal onClose={() => setShowFinancialProfile(false)} />}
       <FeedbackModal isOpen={showFeedbackModal} onClose={() => setShowFeedbackModal(false)} />
-      <DataManagementModal isOpen={showDataManagementModal} onClose={() => setShowDataManagementModal(false)} />
+      <DataManagementModal
+        isOpen={showDataManagementModal || showConsentSettings}
+        onClose={() => {
+          setShowDataManagementModal(false)
+          setShowConsentSettings(false)
+        }}
+      />
       <NotificationToast />
-      <div className="px-4 pt-4">
+      <div className="px-5 pt-4">
         <AINotificationStack
           notifications={state.aiNotifications}
           onDismiss={dismissAINotification}
         />
       </div>
 
-      {/* Header */}
-      <header className="px-6 pt-8 pb-4 sticky top-0 bg-theme-main/80 backdrop-blur-md z-40 border-b border-transparent transition-colors duration-300">
-        <div className="flex justify-between items-center">
-          <div className="flex items-center gap-4 cursor-pointer" onClick={() => setShowProfileModal(true)}>
-            {/* Avatar with gradient ring */}
+      {/* Header - Stitch Design */}
+      <header className="flex items-center justify-between p-6 pb-2">
+        <div className="flex flex-col">
+          <div className="flex items-center gap-3">
             <div className="relative">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-cyan-500 via-blue-500 to-indigo-500 p-0.5 shadow-lg shadow-cyan-500/20">
-                <div className="w-full h-full rounded-[14px] bg-theme-card flex items-center justify-center overflow-hidden">
-                  <img
-                    src={activeProfile === "Personal" ? "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" : "https://api.dicebear.com/7.x/avataaars/svg?seed=Family"}
-                    alt="Profile"
-                    className="w-10 h-10 object-cover"
-                  />
-                </div>
-              </div>
-              {/* Status indicator */}
               <div
-                className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-theme-main ${activeProfile === "Personal" ? "bg-emerald-500" : activeProfile === "Family" ? "bg-pink-500" : "bg-amber-500"}`}
-              ></div>
+                className="bg-center bg-no-repeat bg-cover rounded-full w-12 h-12 border-2 border-white dark:border-surface-dark shadow-sm"
+                style={{ backgroundImage: `url("${activeProfile === "Personal" ? "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" : "https://api.dicebear.com/7.x/avataaars/svg?seed=Family"}")` }}
+              />
+              <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white dark:border-background-dark"></div>
             </div>
-            <div>
-              <p className="text-[10px] font-black text-theme-secondary uppercase tracking-[0.2em] mb-0.5 opacity-60">Welcome Back</p>
-              <h1 className="text-xl font-black text-theme-primary tracking-tight">{(state.userName || "").split(' ')[0]}!</h1>
+            <div className="flex flex-col">
+              <span className="text-sm text-gray-500 dark:text-gray-400 font-medium">Good Morning</span>
+              <h2 className="text-xl font-bold leading-tight tracking-tight text-[#111318] dark:text-white">
+                Selam, {state.userName?.split(' ')[0] || "User"}
+              </h2>
             </div>
           </div>
-
-          <div className="flex items-center gap-2">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button
-                  className="w-12 h-12 rounded-2xl bg-theme-card border border-theme flex items-center justify-center hover:bg-theme-main transition-all active:scale-90 shadow-sm"
-                  title="Quick Settings"
-                >
-                  <Settings size={24} className="text-theme-secondary" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56 bg-theme-card/95 backdrop-blur-xl border-theme p-2 rounded-2xl shadow-2xl z-[100]">
-                {/* Language Setting */}
-                <div className="p-2 mb-1">
-                  <p className="text-[10px] uppercase tracking-wider text-theme-secondary font-bold mb-2 px-2">Language</p>
-                  <LanguageSwitcher />
-                </div>
-
-                <div className="h-px bg-white/5 my-1 mx-2" />
-
-                {/* Privacy Toggle */}
-                <DropdownMenuItem
-                  onClick={togglePrivacyMode}
-                  className="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 cursor-pointer transition-colors"
-                >
-                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isPrivacyMode ? "bg-rose-500/20 text-rose-500" : "bg-cyan-500/20 text-cyan-500"}`}>
-                    {isPrivacyMode ? <EyeOff size={16} /> : <Eye size={16} />}
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-xs font-bold text-theme-primary">{isPrivacyMode ? "Show Amounts" : "Hide Amounts"}</p>
-                    <p className="text-[10px] text-theme-secondary">Privacy Mode</p>
-                  </div>
-                </DropdownMenuItem>
-
-                {/* Calendar Toggle */}
-                <DropdownMenuItem
-                  onClick={toggleCalendar}
-                  className="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 cursor-pointer transition-colors"
-                >
-                  <div className="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-500 flex items-center justify-center">
-                    <Calendar size={16} />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-xs font-bold text-theme-primary">{calendarMode === "gregorian" ? "Ethiopian Calendar" : "Gregorian Calendar"}</p>
-                    <p className="text-[10px] text-theme-secondary">Current: {calendarMode === "gregorian" ? "GC" : "EC"}</p>
-                  </div>
-                </DropdownMenuItem>
-
-                {/* Theme Toggle */}
-                <DropdownMenuItem
-                  onClick={toggleTheme}
-                  className="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 cursor-pointer transition-colors"
-                >
-                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${theme === "light" ? "bg-orange-500/20 text-orange-500" : theme === "dim" ? "bg-blue-500/20 text-blue-500" : "bg-indigo-500/20 text-indigo-400"}`}>
-                    {theme === "light" ? <Sun size={16} /> : theme === "dim" ? <Cloud size={16} /> : <Moon size={16} />}
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-xs font-bold text-theme-primary">Switch Theme</p>
-                    <p className="text-[10px] text-theme-secondary capitalize">Current: {theme}</p>
-                  </div>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+          {/* Date Pill with Calendar Toggle */}
+          <div className="flex items-center gap-2 mt-2 ml-14">
+            <div className="flex items-center gap-2 px-3 py-1 bg-white dark:bg-surface-dark rounded-full border border-gray-100 dark:border-gray-800 shadow-sm">
+              <span className="text-gray-700 dark:text-gray-200 text-xs font-bold tracking-wide">24/10/2023</span>
+              <div className="w-px h-3 bg-gray-200 dark:bg-gray-700"></div>
+              <button className="flex items-center gap-1 text-primary hover:text-primary-dark transition-colors">
+                <span className="text-[10px] font-black">GC</span>
+                <Icons.Refresh size={12} />
+              </button>
+            </div>
           </div>
         </div>
+        <button className="flex items-center justify-center w-10 h-10 rounded-full bg-white dark:bg-surface-dark shadow-sm border border-gray-100 dark:border-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+          <Icons.Bell size={24} />
+        </button>
       </header>
 
+      {/* Global Consent Banner */}
+      <GlobalConsentBanner
+        onConsentUpdate={() => console.log('Global consent updated')}
+        onManageConsent={() => setShowConsentSettings(true)}
+      />
+
       {/* Main Content Area */}
-      <main className="px-4 pb-4">
-
-
+      <main className="max-w-md mx-auto px-5 py-4">
         {activeTab === "dashboard" && (
           <div className="animate-fade-in pb-28">
-            <DailyBriefing />
             {visibleWidgets.balance && <BalanceCard />}
-            <ActionableInsights />
             <QuickActions
               onOpenSubscription={() => setShowSubscriptionModal(true)}
               onOpenFinancialProfile={() => setShowFinancialProfile(true)}
             />
             <SubscriptionWidget onOpenModal={() => setShowSubscriptionModal(true)} />
-            {visibleWidgets.budget && <ExpenseTracking />}
-            {visibleWidgets.goals && <SavingsGoals />}
             {visibleWidgets.transactions && <TransactionList />}
-
-            {!visibleWidgets.balance &&
-              !visibleWidgets.budget &&
-              !visibleWidgets.goals &&
-              !visibleWidgets.transactions && (
-                <div className="text-center py-20 opacity-50">
-                  <p className="text-sm">All widgets hidden.</p>
-                  <p className="text-xs">Check Profile settings to customize.</p>
-                </div>
-              )}
           </div>
         )}
 
         {activeTab === "accounts" && <AccountsPage />}
-
-        {/* Render Budget Page */}
         {activeTab === "budget" && <BudgetPage />}
-
-        {/* Render Goals Page */}
         {activeTab === "goals" && <GoalsPage />}
-
-        {/* Render Community Page */}
         {activeTab === "community" && <CommunityPage />}
-
-        {activeTab === "ai" && (
-          <div className="animate-fade-in">
-            <AIAdvisor />
-          </div>
-        )}
-
+        {activeTab === "ai" && <AIAdvisor />}
       </main>
 
       {/* Navigation */}
@@ -279,263 +190,18 @@ function MainLayout() {
         onClose={() => setShowSubscriptionModal(false)}
       />
 
-      {/* PROFILE & SETTINGS MODAL */}
-      {showProfileModal && (
-        <div
-          onClick={(e) => {
-            if (e.target === e.currentTarget) setShowProfileModal(false)
-          }}
-          className="fixed inset-0 modal-overlay z-[100] flex items-end sm:items-center justify-center"
-        >
-          <div className="modal-content w-full max-w-sm mx-auto sm:rounded-3xl rounded-t-[2rem] p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] animate-slide-up shadow-2xl h-[85vh] sm:h-auto overflow-y-auto">
-            <div className="w-16 h-1.5 modal-handle rounded-full mx-auto mb-6 sm:hidden"></div>
-
-            <div className="flex items-center gap-4 mb-8">
-              <div className="w-16 h-16 rounded-full bg-theme-main border-2 border-theme shadow-md flex items-center justify-center relative">
-                <Icons.User size={32} className="text-theme-secondary" />
-              </div>
-              <div>
-                <h2 className="text-xl font-bold text-theme-primary">{state.userName}</h2>
-                <div className="flex items-center gap-2 mt-1 text-theme-secondary">
-                  <Icons.Phone size={12} />
-                  <p className="text-xs font-mono">
-                    {state.userPhone
-                      ? `+251 ${state.userPhone.startsWith("0") ? state.userPhone.substring(1) : state.userPhone}`
-                      : "No Phone"}
-                  </p>
-                </div>
-                <span className="text-[10px] bg-cyan-500/10 text-cyan-400 px-2 py-0.5 rounded-md mt-2 inline-block font-bold">
-                  Beta Tester
-                </span>
-              </div>
-            </div>
-
-            <div className="space-y-3 mb-8">
-              {/* Manage Accounts - Primary Action */}
-              <button
-                onClick={() => {
-                  setActiveTab("accounts")
-                  setShowProfileModal(false)
-                }}
-                className="w-full p-4 rounded-2xl bg-theme-main border border-theme flex items-center justify-between hover:bg-theme-card transition-colors group active:scale-[0.98]"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-indigo-500/10 flex items-center justify-center text-indigo-500 group-hover:bg-indigo-500 group-hover:text-white transition-colors">
-                    <Icons.CreditCard size={20} />
-                  </div>
-                  <span className="font-bold text-theme-primary">Manage Accounts</span>
-                </div>
-                <Icons.ChevronRight size={18} className="text-theme-secondary" />
-              </button>
-
-              {/* Financial Profile (Income Center) */}
-              <button
-                onClick={() => {
-                  setShowFinancialProfile(true)
-                  setShowProfileModal(false)
-                }}
-                className="w-full p-4 rounded-2xl bg-theme-main border border-theme flex items-center justify-between hover:bg-theme-card transition-colors group active:scale-[0.98]"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500 group-hover:bg-emerald-500 group-hover:text-white transition-colors">
-                    <Icons.Briefcase size={20} />
-                  </div>
-                  <div className="text-left">
-                    <span className="font-bold text-theme-primary block">Financial Profile</span>
-                    <span className="text-[10px] text-theme-secondary">Manage Income & Paydays</span>
-                  </div>
-                </div>
-                <Icons.ChevronRight size={18} className="text-theme-secondary" />
-              </button>
-
-              {/* Switch Profile */}
-              <button
-                onClick={toggleProfile}
-                className="w-full p-4 rounded-2xl bg-theme-main border border-theme flex items-center justify-between hover:bg-theme-card transition-colors group active:scale-[0.98]"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-cyan-500/10 flex items-center justify-center text-cyan-500 group-hover:bg-cyan-500 group-hover:text-white transition-colors">
-                    <Icons.Users size={20} />
-                  </div>
-                  <div className="text-left">
-                    <span className="font-bold text-theme-primary block">Switch Profile</span>
-                    <span className="text-[10px] text-theme-secondary">Currently: {activeProfile}</span>
-                  </div>
-                </div>
-                <Icons.ChevronRight size={18} className="text-theme-secondary" />
-              </button>
-
-              {/* Community Hub */}
-              <button
-                onClick={() => {
-                  setActiveTab("community")
-                  setShowProfileModal(false)
-                }}
-                className="w-full p-4 rounded-2xl bg-theme-main border border-theme flex items-center justify-between hover:bg-theme-card transition-colors group active:scale-[0.98]"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-pink-500/10 flex items-center justify-center text-pink-500 group-hover:bg-pink-500 group-hover:text-white transition-colors">
-                    <Icons.Users size={20} />
-                  </div>
-                  <div className="text-left">
-                    <span className="font-bold text-theme-primary block">Family Hub</span>
-                    <span className="text-[10px] text-theme-secondary">Manage members & invites</span>
-                  </div>
-                </div>
-                <Icons.ChevronRight size={18} className="text-theme-secondary" />
-              </button>
-
-              <button
-                onClick={() => {
-                  setShowDataManagementModal(true)
-                  setShowProfileModal(false)
-                }}
-                className="w-full p-4 rounded-2xl bg-theme-main border border-theme flex items-center justify-between hover:bg-theme-card transition-colors group active:scale-[0.98]"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-cyan-500/10 flex items-center justify-center text-cyan-500 group-hover:bg-cyan-500 group-hover:text-white transition-colors">
-                    <Icons.Database size={20} />
-                  </div>
-                  <div className="text-left">
-                    <span className="font-bold text-theme-primary block">Data Management</span>
-                    <span className="text-[10px] text-theme-secondary">Backup & Restore</span>
-                  </div>
-                </div>
-                <Icons.ChevronRight size={18} className="text-theme-secondary" />
-              </button>
-
-              <button
-                onClick={() => {
-                  setShowFeedbackModal(true)
-                  setShowProfileModal(false)
-                }}
-                className="w-full p-4 rounded-2xl bg-theme-main border border-theme flex items-center justify-between hover:bg-theme-card transition-colors group active:scale-[0.98]"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-yellow-500/10 flex items-center justify-center text-yellow-500 group-hover:bg-yellow-500 group-hover:text-white transition-colors">
-                    <Icons.Feedback size={20} />
-                  </div>
-                  <div className="text-left">
-                    <span className="font-bold text-theme-primary block">Send Feedback</span>
-                    <span className="text-[10px] text-theme-secondary">Report bugs or suggest features</span>
-                  </div>
-                </div>
-                <Icons.ChevronRight size={18} className="text-theme-secondary" />
-              </button>
-
-
-
-              {/* --- PRO FEATURE: WIDGET MANAGEMENT (COLLAPSIBLE) --- */}
-              <div
-                className={`rounded-2xl bg-theme-main border border-theme transition-all duration-300 ${isDashboardSettingsOpen ? "p-4" : "p-0"}`}
-              >
-                <button
-                  onClick={() => setIsDashboardSettingsOpen(!isDashboardSettingsOpen)}
-                  className={`w-full flex items-center justify-between p-4 ${isDashboardSettingsOpen ? "pb-2 border-b border-theme/50 mb-2" : ""} hover:bg-theme-card rounded-2xl transition-colors`}
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-gray-500/10 flex items-center justify-center text-gray-400">
-                      <Icons.Settings size={20} />
-                    </div>
-                    <span className="font-bold text-theme-primary">Customize Dashboard</span>
-                  </div>
-                  <Icons.ChevronRight
-                    size={18}
-                    className={`text-theme-secondary transition-transform duration-300 ${isDashboardSettingsOpen ? "rotate-90" : ""}`}
-                  />
-                </button>
-
-                {isDashboardSettingsOpen && (
-                  <div className="space-y-3 pt-2 animate-fade-in">
-                    {(["balance", "budget", "goals", "transactions"] as const).map((w) => (
-                      <div key={w} className="flex items-center justify-between px-2 py-1">
-                        <span className="text-xs font-medium text-theme-secondary capitalize">
-                          {w === "budget" ? "Budget Health" : w}
-                        </span>
-                        <div
-                          onClick={() => toggleWidget(w)}
-                          className={`w-10 h-6 rounded-full relative cursor-pointer transition-colors ${visibleWidgets[w] ? "bg-cyan-500" : "bg-gray-700"}`}
-                        >
-                          <div
-                            className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${visibleWidgets[w] ? "left-5" : "left-1"}`}
-                          ></div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              <div className="text-center pt-4 border-t border-theme-secondary/10">
-                <div className="flex justify-center gap-4 text-[10px] text-theme-secondary">
-                  <a href="/legal/privacy" className="hover:text-theme-primary">
-                    Privacy Policy
-                  </a>
-                  <span>•</span>
-                  <a href="/legal/terms" className="hover:text-theme-primary">
-                    Terms of Service
-                  </a>
-                </div>
-                <p className="text-[10px] text-theme-secondary/50 mt-2">Version 1.0.0-beta (Build 250)</p>
-              </div>
-
-              {/* Log Out Button */}
-              <button
-                onClick={() => setShowLogoutConfirm(true)}
-                className="w-full p-4 rounded-2xl bg-theme-main border border-theme flex items-center justify-between hover:bg-rose-500/10 hover:border-rose-500/50 transition-colors group active:scale-[0.98]"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-rose-500/10 flex items-center justify-center text-rose-500">
-                    <Icons.LogOut size={20} />
-                  </div>
-                  <span className="font-bold text-theme-primary group-hover:text-rose-500">Log Out</span>
-                </div>
-              </button>
-            </div>
-
-            <button
-              onClick={() => setShowProfileModal(false)}
-              className="w-full py-4 rounded-2xl bg-theme-main font-bold text-theme-secondary hover:text-theme-primary border border-theme"
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* LOGOUT CONFIRMATION MODAL - Center Pop Up */}
+      {/* LOGOUT CONFIRMATION MODAL */}
       {showLogoutConfirm && (
-        <div
-          className="fixed inset-0 modal-overlay z-[120] flex items-center justify-center p-6"
-          onClick={() => setShowLogoutConfirm(false)}
-        >
-          <div
-            className="modal-content w-full max-w-sm rounded-3xl p-6 animate-dialog text-center shadow-2xl relative border-2 border-rose-500/30"
-            onClick={(e) => e.stopPropagation()}
-          >
+        <div className="fixed inset-0 modal-overlay z-[120] flex items-center justify-center p-6" onClick={() => setShowLogoutConfirm(false)}>
+          <div className="bg-white w-full max-w-sm rounded-3xl p-8 animate-dialog text-center shadow-2xl relative border border-black/[0.05]" onClick={e => e.stopPropagation()}>
             <div className="w-16 h-16 rounded-full bg-rose-500/10 flex items-center justify-center mx-auto mb-4 text-rose-500">
               <Icons.Alert size={32} />
             </div>
-            <h3 className="text-xl font-bold text-theme-primary mb-2">Log Out?</h3>
-            <p className="text-sm text-theme-secondary mb-6 leading-relaxed">
-              This will reset your session and clear all local data on this device.
-              <br />
-              <span className="text-rose-400 text-xs font-bold mt-2 block">This action cannot be undone.</span>
-            </p>
-
+            <h3 className="text-xl font-bold text-zinc-900 mb-2">Log Out?</h3>
+            <p className="text-sm text-zinc-500 mb-6">This will reset your session and clear all local data on this device.</p>
             <div className="space-y-3">
-              <button
-                onClick={logout}
-                className="w-full py-4 bg-rose-500 rounded-2xl text-white font-bold hover:bg-rose-600 shadow-lg shadow-rose-500/20 active:scale-95 transition-transform"
-              >
-                Confirm Reset
-              </button>
-              <button
-                onClick={() => setShowLogoutConfirm(false)}
-                className="w-full py-4 bg-theme-main border border-theme rounded-2xl text-theme-secondary font-bold hover:text-white"
-              >
-                Cancel
-              </button>
+              <button onClick={logout} className="w-full py-4 bg-rose-500 rounded-2xl text-white font-bold hover:bg-rose-600 shadow-lg shadow-rose-500/20">Confirm Reset</button>
+              <button onClick={() => setShowLogoutConfirm(false)} className="w-full py-4 bg-zinc-100 rounded-2xl text-zinc-600 font-bold">Cancel</button>
             </div>
           </div>
         </div>
@@ -544,14 +210,12 @@ function MainLayout() {
   )
 }
 
-import { AuthProvider } from "./context/AuthContext"
-
 export default function App() {
   return (
     <AuthProvider>
       <AppProvider>
         <React.Suspense fallback={
-          <div className="flex items-center justify-center min-h-screen bg-black text-cyan-500">
+          <div className="flex items-center justify-center min-h-screen bg-[#F9FAFB] text-blue-600">
             <Icons.Loader className="animate-spin" size={32} />
           </div>
         }>

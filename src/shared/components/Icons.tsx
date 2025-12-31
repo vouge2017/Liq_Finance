@@ -104,6 +104,10 @@ import {
   Code,
   Newspaper,
   Play,
+  Upload,
+  Minus,
+  ArrowUpRight,
+  ArrowDownRight,
 } from "lucide-react"
 
 export const Icons = {
@@ -216,4 +220,12 @@ export const Icons = {
   Code: Code,
   Newspaper: Newspaper,
   Play: Play,
+  Upload: Upload,
+  Refresh: RefreshCw,
+  Minus: Minus,
+  PieChart: PieChart,
+  Target: Target,
+  AlertTriangle: AlertTriangle,
+  ArrowUpRight: ArrowUpRight,
+  ArrowDownRight: ArrowDownRight,
 }

@@ -1,0 +1,138 @@
+﻿node.exe : npm info using 
+npm@10.9.2
+At D:\Program 
+Files\nodejs\npx.ps1:29 char:3
++   & $NODE_EXE $NPX_CLI_JS 
+$args
++   
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : 
+    NotSpecified: (npm info   
+  using npm@10.9.2:String)    
+ [], RemoteException
+    + FullyQualifiedErrorId : 
+    NativeCommandError
+ 
+npm info using node@v22.17.0
+src/shared/components/ui/badge.tsx(38,6): error TS2322: Type '{ ref?: Ref<HTMLSpanElement> | undefined; key?: Key | null | undefined; defaultChecked?: boolean | undefined; defaultValue?: string | number | readonly string[] | undefined; ... 276 more ...; className: string; }' is not assignable to type 'RefAttributes<HTMLElement>'.
+  Types of property 'ref' are incompatible.
+    Type 'Ref<HTMLSpanElement> | undefined' is not assignable to type 'Ref<HTMLElement> | undefined'.
+      Type '(instance: HTMLSpanElement | null) => void | (() => VoidOrUndefinedOnly)' is not assignable to type 'Ref<HTMLElement> | undefined'.
+        Type '(instance: HTMLSpanElement | null) => void | (() => VoidOrUndefinedOnly)' is not assignable to type '(instance: HTMLElement | null) => void | (() => VoidOrUndefinedOnly)'.
+          Type 'void | (() => VoidOrUndefinedOnly)' is not assignable to type 'void | (() => VoidOrUndefinedOnly)'. Two different types with this name exist, but they are unrelated.
+            Type '() => VoidOrUndefinedOnly' is not assignable to type 'void | (() => VoidOrUndefinedOnly)'.
+              Type '() => VoidOrUndefinedOnly' is not assignable to type '() => VoidOrUndefinedOnly'. Two different types with this name exist, but they are unrelated.
+                Type 'VoidOrUndefinedOnly' is not assignable to type 'VoidOrUndefinedOnly'. Two different types with this name exist, but they are unrelated.
+                  Type '{ [UNDEFINED_VOID_ONLY]: never; }' is not assignable to type 'VoidOrUndefinedOnly'.
+src/shared/components/ui/breadcrumb.tsx(44,6): error TS2322: Type '{ ref?: Ref<HTMLAnchorElement> | undefined; key?: Key | null | undefined; download?: any; href?: string | undefined; hrefLang?: string | undefined; media?: string | undefined; ... 282 more ...; className: string; }' is not assignable to type 'RefAttributes<HTMLElement>'.
+  Types of property 'ref' are incompatible.
+    Type 'Ref<HTMLAnchorElement> | undefined' is not assignable to type 'Ref<HTMLElement> | undefined'.
+      Type '(instance: HTMLAnchorElement | null) => void | (() => VoidOrUndefinedOnly)' is not assignable to type 'Ref<HTMLElement> | undefined'.
+        Type '(instance: HTMLAnchorElement | null) => void | (() => VoidOrUndefinedOnly)' is not assignable to type '(instance: HTMLElement | null) => void | (() => VoidOrUndefinedOnly)'.
+          Type 'void | (() => VoidOrUndefinedOnly)' is not assignable to type 'void | (() => VoidOrUndefinedOnly)'. Two different types with this name exist, but they are unrelated.
+            Type '() => VoidOrUndefinedOnly' is not assignable to type 'void | (() => VoidOrUndefinedOnly)'.
+              Type '() => VoidOrUndefinedOnly' is not assignable to type '() => VoidOrUndefinedOnly'. Two different types with this name exist, but they are unrelated.
+                Type 'VoidOrUndefinedOnly' is not assignable to type 'VoidOrUndefinedOnly'. Two different types with this name exist, but they are unrelated.
+                  Type '{ [UNDEFINED_VOID_ONLY]: never; }' is not assignable to type 'VoidOrUndefinedOnly'.
+src/shared/components/ui/button-group.tsx(50,6): error TS2322: Type '{ ref?: Ref<HTMLDivElement> | undefined; key?: Key | null | undefined; defaultChecked?: boolean | undefined; defaultValue?: string | number | readonly string[] | undefined; ... 275 more ...; className: string; }' is not assignable to type 'RefAttributes<HTMLElement>'.
+  Types of property 'ref' are incompatible.
+    Type 'Ref<HTMLDivElement> | undefined' is not assignable to type 'Ref<HTMLElement> | undefined'.
+      Type '(instance: HTMLDivElement | null) => void | (() => VoidOrUndefinedOnly)' is not assignable to type 'Ref<HTMLElement> | undefined'.
+        Type '(instance: HTMLDivElement | null) => void | (() => VoidOrUndefinedOnly)' is not assignable to type '(instance: HTMLElement | null) => void | (() => VoidOrUndefinedOnly)'.
+          Type 'void | (() => VoidOrUndefinedOnly)' is not assignable to type 'void | (() => VoidOrUndefinedOnly)'. Two different types with this name exist, but they are unrelated.
+            Type '() => VoidOrUndefinedOnly' is not assignable to type 'void | (() => VoidOrUndefinedOnly)'.
+              Type '() => VoidOrUndefinedOnly' is not assignable to type '() => VoidOrUndefinedOnly'. Two different types with this name exist, but they are unrelated.
+                Type 'VoidOrUndefinedOnly' is not assignable to type 'VoidOrUndefinedOnly'. Two different types with this name exist, but they are unrelated.
+                  Type '{ [UNDEFINED_VOID_ONLY]: never; }' is not assignable to type 'VoidOrUndefinedOnly'.
+src/shared/components/ui/button.tsx(52,6): error TS2322: Type '{ ref?: Ref<HTMLButtonElement> | undefined; key?: Key | null | undefined; disabled?: boolean | undefined; form?: string | undefined; formAction?: string | ((formData: FormData) => void | Promise<...>) | undefined; ... 285 more ...; className: string; }' is not assignable to type 'RefAttributes<HTMLElement>'.
+  Types of property 'ref' are incompatible.
+    Type 'Ref<HTMLButtonElement> | undefined' is not assignable to type 'Ref<HTMLElement> | undefined'.
+      Type '(instance: HTMLButtonElement | null) => void | (() => VoidOrUndefinedOnly)' is not assignable to type 'Ref<HTMLElement> | undefined'.
+        Type '(instance: HTMLButtonElement | null) => void | (() => VoidOrUndefinedOnly)' is not assignable to type '(instance: HTMLElement | null) => void | (() => VoidOrUndefinedOnly)'.
+          Type 'void | (() => VoidOrUndefinedOnly)' is not assignable to type 'void | (() => VoidOrUndefinedOnly)'. Two different types with this name exist, but they are unrelated.
+            Type '() => VoidOrUndefinedOnly' is not assignable to type 'void | (() => VoidOrUndefinedOnly)'.
+              Type '() => VoidOrUndefinedOnly' is not assignable to type '() => VoidOrUndefinedOnly'. Two different types with this name exist, but they are unrelated.
+                Type 'VoidOrUndefinedOnly' is not assignable to type 'VoidOrUndefinedOnly'. Two different types with this name exist, but they are unrelated.
+                  Type '{ [UNDEFINED_VOID_ONLY]: never; }' is not assignable to type 'VoidOrUndefinedOnly'.
+src/shared/components/ui/calendar.tsx(132,15): error TS2322: Type 'import("D:/Liq_Finance/node_modules/.pnpm/@types+react@19.2.7/node_modules/@types/react/index").Ref<HTMLDivElement> | undefined' is not assignable to type 'React.Ref<HTMLDivElement> | undefined'.
+  Type '(instance: HTMLDivElement | null) => void | (() => VoidOrUndefinedOnly)' is not assignable to type 'Ref<HTMLDivElement> | undefined'.
+    Type '(instance: HTMLDivElement | null) => void | (() => VoidOrUndefinedOnly)' is not assignable to type '(instance: HTMLDivElement | null) => void | (() => VoidOrUndefinedOnly)'. Two different types with this name exist, but they are unrelated.
+      Type 'void | (() => VoidOrUndefinedOnly)' is not assignable to type 'void | (() => VoidOrUndefinedOnly)'. Two different types with this name exist, but they are unrelated.
+        Type '() => VoidOrUndefinedOnly' is not assignable to type 'void | (() => VoidOrUndefinedOnly)'.
+          Type '() => VoidOrUndefinedOnly' is not assignable to type '() => VoidOrUndefinedOnly'. Two different types with this name exist, but they are unrelated.
+            Type 'VoidOrUndefinedOnly' is not assignable to type 'VoidOrUndefinedOnly'. Two different types with this name exist, but they are unrelated.
+              Type '{ [UNDEFINED_VOID_ONLY]: never; }' is not assignable to type 'VoidOrUndefinedOnly'.
+src/shared/components/ui/chart.tsx(109,3): error TS2339: Property 'payload' does not exist on type 'Omit<Props<ValueType, NameType>, PropertiesReadFromContext> & { active?: boolean | undefined; allowEscapeViewBox?: AllowInDimension | undefined; ... 17 more ...; wrapperStyle?: CSSProperties | undefined; } & ClassAttributes<...> & HTMLAttributes<...> & { ...; }'.
+src/shared/components/ui/chart.tsx(114,3): error TS2339: Property 'label' does not exist on type 'Omit<Props<ValueType, NameType>, PropertiesReadFromContext> & { active?: boolean | undefined; allowEscapeViewBox?: AllowInDimension | undefined; ... 17 more ...; wrapperStyle?: CSSProperties | undefined; } & ClassAttributes<...> & HTMLAttributes<...> & { ...; }'.
+src/shared/components/ui/chart.tsx(260,39): error TS2344: Type '"payload" | "verticalAlign"' does not satisfy the constraint '"string" | "formatter" | "type" | "filter" | "fill" | "values" | "key" | "id" | "name" | "style" | "clipPath" | "mask" | "path" | "suppressHydrationWarning" | "className" | "lang" | ... 430 more ... | "onBBoxUpdate"'.
+  Type '"payload"' is not assignable to type '"string" | "formatter" | "type" | "filter" | "fill" | "values" | "key" | "id" | "name" | "style" | "clipPath" | "mask" | "path" | "suppressHydrationWarning" | "className" | "lang" | ... 430 more ... | "onBBoxUpdate"'.
+src/shared/components/ui/item.tsx(64,6): error TS2322: Type '{ ref?: Ref<HTMLDivElement> | undefined; key?: Key | null | undefined; defaultChecked?: boolean | undefined; defaultValue?: string | number | readonly string[] | undefined; ... 278 more ...; className: string; }' is not assignable to type 'RefAttributes<HTMLElement>'.
+  Types of property 'ref' are incompatible.
+    Type 'Ref<HTMLDivElement> | undefined' is not assignable to type 'Ref<HTMLElement> | undefined'.
+      Type '(instance: HTMLDivElement | null) => void | (() => VoidOrUndefinedOnly)' is not assignable to type 'Ref<HTMLElement> | undefined'.
+        Type '(instance: HTMLDivElement | null) => void | (() => VoidOrUndefinedOnly)' is not assignable to type '(instance: HTMLElement | null) => void | (() => VoidOrUndefinedOnly)'.
+          Type 'void | (() => VoidOrUndefinedOnly)' is not assignable to type 'void | (() => VoidOrUndefinedOnly)'. Two different types with this name exist, but they are unrelated.
+            Type '() => VoidOrUndefinedOnly' is not assignable to type 'void | (() => VoidOrUndefinedOnly)'.
+              Type '() => VoidOrUndefinedOnly' is not assignable to type '() => VoidOrUndefinedOnly'. Two different types with this name exist, but they are unrelated.
+                Type 'VoidOrUndefinedOnly' is not assignable to type 'VoidOrUndefinedOnly'. Two different types with this name exist, but they are unrelated.
+                  Type '{ [UNDEFINED_VOID_ONLY]: never; }' is not assignable to type 'VoidOrUndefinedOnly'.
+src/shared/components/ui/sidebar.tsx(404,6): error TS2322: Type '{ ref?: Ref<HTMLDivElement> | undefined; key?: Key | null | undefined; defaultChecked?: boolean | undefined; defaultValue?: string | number | readonly string[] | undefined; ... 277 more ...; className: string; }' is not assignable to type 'RefAttributes<HTMLElement>'.
+  Types of property 'ref' are incompatible.
+    Type 'Ref<HTMLDivElement> | undefined' is not assignable to type 'Ref<HTMLElement> | undefined'.
+      Type '(instance: HTMLDivElement | null) => void | (() => VoidOrUndefinedOnly)' is not assignable to type 'Ref<HTMLElement> | undefined'.
+        Type '(instance: HTMLDivElement | null) => void | (() => VoidOrUndefinedOnly)' is not assignable to type '(instance: HTMLElement | null) => void | (() => VoidOrUndefinedOnly)'.
+          Type 'void | (() => VoidOrUndefinedOnly)' is not assignable to type 'void | (() => VoidOrUndefinedOnly)'. Two different types with this name exist, but they are unrelated.
+            Type '() => VoidOrUndefinedOnly' is not assignable to type 'void | (() => VoidOrUndefinedOnly)'.
+              Type '() => VoidOrUndefinedOnly' is not assignable to type '() => VoidOrUndefinedOnly'. Two different types with this name exist, but they are unrelated.
+                Type 'VoidOrUndefinedOnly' is not assignable to type 'VoidOrUndefinedOnly'. Two different types with this name exist, but they are unrelated.
+                  Type '{ [UNDEFINED_VOID_ONLY]: never; }' is not assignable to type 'VoidOrUndefinedOnly'.
+src/shared/components/ui/sidebar.tsx(425,6): error TS2322: Type '{ ref?: Ref<HTMLButtonElement> | undefined; key?: Key | null | undefined; disabled?: boolean | undefined; form?: string | undefined; formAction?: string | ((formData: FormData) => void | Promise<...>) | undefined; ... 286 more ...; className: string; }' is not assignable to type 'RefAttributes<HTMLElement>'.
+  Types of property 'ref' are incompatible.
+    Type 'Ref<HTMLButtonElement> | undefined' is not assignable to type 'Ref<HTMLElement> | undefined'.
+      Type '(instance: HTMLButtonElement | null) => void | (() => VoidOrUndefinedOnly)' is not assignable to type 'Ref<HTMLElement> | undefined'.
+        Type '(instance: HTMLButtonElement | null) => void | (() => VoidOrUndefinedOnly)' is not assignable to type '(instance: HTMLElement | null) => void | (() => VoidOrUndefinedOnly)'.
+          Type 'void | (() => VoidOrUndefinedOnly)' is not assignable to type 'void | (() => VoidOrUndefinedOnly)'. Two different types with this name exist, but they are unrelated.
+            Type '() => VoidOrUndefinedOnly' is not assignable to type 'void | (() => VoidOrUndefinedOnly)'.
+              Type '() => VoidOrUndefinedOnly' is not assignable to type '() => VoidOrUndefinedOnly'. Two different types with this name exist, but they are unrelated.
+                Type 'VoidOrUndefinedOnly' is not assignable to type 'VoidOrUndefinedOnly'. Two different types with this name exist, but they are unrelated.
+                  Type '{ [UNDEFINED_VOID_ONLY]: never; }' is not assignable to type 'VoidOrUndefinedOnly'.
+src/shared/components/ui/sidebar.tsx(515,6): error TS2322: Type '{ ref?: Ref<HTMLButtonElement> | undefined; key?: Key | null | undefined; disabled?: boolean | undefined; form?: string | undefined; formAction?: string | ((formData: FormData) => void | Promise<...>) | undefined; ... 288 more ...; className: string; }' is not assignable to type 'RefAttributes<HTMLElement>'.
+  Types of property 'ref' are incompatible.
+    Type 'Ref<HTMLButtonElement> | undefined' is not assignable to type 'Ref<HTMLElement> | undefined'.
+      Type '(instance: HTMLButtonElement | null) => void | (() => VoidOrUndefinedOnly)' is not assignable to type 'Ref<HTMLElement> | undefined'.
+        Type '(instance: HTMLButtonElement | null) => void | (() => VoidOrUndefinedOnly)' is not assignable to type '(instance: HTMLElement | null) => void | (() => VoidOrUndefinedOnly)'.
+          Type 'void | (() => VoidOrUndefinedOnly)' is not assignable to type 'void | (() => VoidOrUndefinedOnly)'. Two different types with this name exist, but they are unrelated.
+            Type '() => VoidOrUndefinedOnly' is not assignable to type 'void | (() => VoidOrUndefinedOnly)'.
+              Type '() => VoidOrUndefinedOnly' is not assignable to type '() => VoidOrUndefinedOnly'. Two different types with this name exist, but they are unrelated.
+                Type 'VoidOrUndefinedOnly' is not assignable to type 'VoidOrUndefinedOnly'. Two different types with this name exist, but they are unrelated.
+                  Type '{ [UNDEFINED_VOID_ONLY]: never; }' is not assignable to type 'VoidOrUndefinedOnly'.
+src/shared/components/ui/sidebar.tsx(560,6): error TS2322: Type '{ ref?: Ref<HTMLButtonElement> | undefined; key?: Key | null | undefined; disabled?: boolean | undefined; form?: string | undefined; formAction?: string | ((formData: FormData) => void | Promise<...>) | undefined; ... 286 more ...; className: string; }' is not assignable to type 'RefAttributes<HTMLElement>'.
+  Types of property 'ref' are incompatible.
+    Type 'Ref<HTMLButtonElement> | undefined' is not assignable to type 'Ref<HTMLElement> | undefined'.
+      Type '(instance: HTMLButtonElement | null) => void | (() => VoidOrUndefinedOnly)' is not assignable to type 'Ref<HTMLElement> | undefined'.
+        Type '(instance: HTMLButtonElement | null) => void | (() => VoidOrUndefinedOnly)' is not assignable to type '(instance: HTMLElement | null) => void | (() => VoidOrUndefinedOnly)'.
+          Type 'void | (() => VoidOrUndefinedOnly)' is not assignable to type 'void | (() => VoidOrUndefinedOnly)'. Two different types with this name exist, but they are unrelated.
+            Type '() => VoidOrUndefinedOnly' is not assignable to type 'void | (() => VoidOrUndefinedOnly)'.
+              Type '() => VoidOrUndefinedOnly' is not assignable to type '() => VoidOrUndefinedOnly'. Two different types with this name exist, but they are unrelated.
+                Type 'VoidOrUndefinedOnly' is not assignable to type 'VoidOrUndefinedOnly'. Two different types with this name exist, but they are unrelated.
+                  Type '{ [UNDEFINED_VOID_ONLY]: never; }' is not assignable to type 'VoidOrUndefinedOnly'.
+src/shared/components/ui/sidebar.tsx(683,6): error TS2322: Type '{ ref?: Ref<HTMLAnchorElement> | undefined; key?: Key | null | undefined; download?: any; href?: string | undefined; hrefLang?: string | undefined; media?: string | undefined; ... 285 more ...; className: string; }' is not assignable to type 'RefAttributes<HTMLElement>'.
+  Types of property 'ref' are incompatible.
+    Type 'Ref<HTMLAnchorElement> | undefined' is not assignable to type 'Ref<HTMLElement> | undefined'.
+      Type '(instance: HTMLAnchorElement | null) => void | (() => VoidOrUndefinedOnly)' is not assignable to type 'Ref<HTMLElement> | undefined'.
+        Type '(instance: HTMLAnchorElement | null) => void | (() => VoidOrUndefinedOnly)' is not assignable to type '(instance: HTMLElement | null) => void | (() => VoidOrUndefinedOnly)'.
+          Type 'void | (() => VoidOrUndefinedOnly)' is not assignable to type 'void | (() => VoidOrUndefinedOnly)'. Two different types with this name exist, but they are unrelated.
+            Type '() => VoidOrUndefinedOnly' is not assignable to type 'void | (() => VoidOrUndefinedOnly)'.
+              Type '() => VoidOrUndefinedOnly' is not assignable to type '() => VoidOrUndefinedOnly'. Two different types with this name exist, but they are unrelated.
+                Type 'VoidOrUndefinedOnly' is not assignable to type 'VoidOrUndefinedOnly'. Two different types with this name exist, but they are unrelated.
+                  Type '{ [UNDEFINED_VOID_ONLY]: never; }' is not assignable to type 'VoidOrUndefinedOnly'.
+src/shared/components/ui/spinner.tsx(7,6): error TS2322: Type '{ suppressHydrationWarning?: boolean | undefined; color?: string | undefined; height?: string | number | undefined; id?: string | undefined; lang?: string | undefined; max?: string | number | undefined; ... 478 more ...; className: string; }' is not assignable to type 'RefAttributes<SVGSVGElement>'.
+  Types of property 'ref' are incompatible.
+    Type 'React.Ref<SVGSVGElement> | undefined' is not assignable to type 'import("D:/Liq_Finance/node_modules/.pnpm/@types+react@19.2.7/node_modules/@types/react/index").Ref<SVGSVGElement> | undefined'.
+      Type '(instance: SVGSVGElement | null) => void | (() => VoidOrUndefinedOnly)' is not assignable to type 'Ref<SVGSVGElement> | undefined'.
+        Type '(instance: SVGSVGElement | null) => void | (() => VoidOrUndefinedOnly)' is not assignable to type '(instance: SVGSVGElement | null) => void | (() => VoidOrUndefinedOnly)'. Two different types with this name exist, but they are unrelated.
+          Type 'void | (() => VoidOrUndefinedOnly)' is not assignable to type 'void | (() => VoidOrUndefinedOnly)'. Two different types with this name exist, but they are unrelated.
+            Type '() => VoidOrUndefinedOnly' is not assignable to type 'void | (() => VoidOrUndefinedOnly)'.
+              Type '() => VoidOrUndefinedOnly' is not assignable to type '() => VoidOrUndefinedOnly'. Two different types with this name exist, but they are unrelated.
+                Type 'VoidOrUndefinedOnly' is not assignable to type 'VoidOrUndefinedOnly'. Two different types with this name exist, but they are unrelated.
+                  Type '{ [UNDEFINED_VOID_ONLY]: never; }' is not assignable to type 'VoidOrUndefinedOnly'.

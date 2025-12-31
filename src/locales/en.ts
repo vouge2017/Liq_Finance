@@ -53,6 +53,9 @@ export const en = {
             contribution: "Contribution",
             payout: "Payout",
             win: "I Won!",
+            startJourney: "Start Your Journey",
+            setFinancialGoals: "Set financial goals for weddings, holidays, or your first home.",
+            createPersonalGoal: "Create Personal Goal",
         },
         accounts: {
             myAccounts: "My Accounts",
@@ -62,6 +65,40 @@ export const en = {
             mobileMoney: "Mobile Money",
             loan: "Loan",
             addAccount: "Add Account",
+        },
+        auth: {
+            goalSelection: {
+                title: "What's Your Focus?",
+                subtitle: "Choose your main financial goal to get started",
+                continue: "Continue",
+                skip: "Skip for Now →",
+                goals: {
+                    savings: {
+                        title: "Build Savings",
+                        description: "Emergency fund & future"
+                    },
+                    debt: {
+                        title: "Pay Off Debt",
+                        description: "Become debt-free"
+                    },
+                    spending: {
+                        title: "Track Spending",
+                        description: "Know where money goes"
+                    },
+                    iqub: {
+                        title: "Join/Track Iqub",
+                        description: "Community savings"
+                    },
+                    investing: {
+                        title: "Start Investing",
+                        description: "Grow your wealth"
+                    },
+                    family: {
+                        title: "Family Budget",
+                        description: "Household planning"
+                    }
+                }
+            }
         }
     }
 };

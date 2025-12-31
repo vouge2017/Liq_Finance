@@ -7,7 +7,7 @@ import { Icons } from "@/shared/components/Icons"
 import { useAppContext } from "@/context/AppContext"
 import type { Transaction } from "@/types"
 import { HorizontalScroll } from "@/shared/components/HorizontalScroll"
-import { VoiceRecordingModal } from "@/features/voice/VoiceRecordingModal"
+import { VoiceRecordingModal, ParsedTransaction } from "@/features/voice/VoiceRecordingModal"
 import { Mic, Zap, ChevronDown, RefreshCw } from "lucide-react"
 import { useLocalStorage } from "@/hooks/useLocalStorage"
 import { Confetti } from "@/shared/components/Confetti"
@@ -276,16 +276,15 @@ export const TransactionModal: React.FC = () => {
   }
 
   // Handle voice transaction parsed
-  const handleVoiceTransaction = (tx: {
-    type: "income" | "expense"
-    amount: number
-    category: string
-    title: string
-    date: string
-  }) => {
+  const handleVoiceTransaction = (tx: ParsedTransaction) => {
     setAmount(tx.amount.toLocaleString())
     setTitle(tx.title)
-    setType(tx.type)
+    // Map extended types to supported income/expense
+    if (tx.type === "income") {
+      setType("income")
+    } else {
+      setType("expense")
+    }
     setCategory(tx.category)
     setDate(tx.date)
     showNotification("Voice transaction added! Review and save.", "success")
@@ -453,7 +452,7 @@ export const TransactionModal: React.FC = () => {
           onClick={() => closeTransactionModal()}
         />
 
-        <div className="modal-content w-full max-w-md rounded-t-[2rem] sm:rounded-3xl p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] shadow-2xl pointer-events-auto animate-slide-up relative overflow-hidden h-[90vh] sm:h-auto flex flex-col">
+        <div className="modal-content w-full max-w-md rounded-t-[2rem] sm:rounded-3xl p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] shadow-2xl pointer-events-auto animate-slide-up relative overflow-hidden h-[90vh] sm:max-h-[90vh] flex flex-col bg-[#F9FAFB] dark:bg-[#101622]">
           <input
             type="file"
             accept="image/*"
@@ -468,59 +467,59 @@ export const TransactionModal: React.FC = () => {
           {isSuccess && (
             <>
               <Confetti />
-              <div className="absolute inset-0 z-50 bg-theme-card flex flex-col items-center justify-center animate-fade-in">
-                <div className="w-24 h-24 rounded-full bg-emerald-500/20 flex items-center justify-center mb-4 animate-bounce">
+              <div className="absolute inset-0 z-50 bg-white dark:bg-[#101622] flex flex-col items-center justify-center animate-fade-in">
+                <div className="w-24 h-24 rounded-full bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center mb-4 animate-bounce">
                   <Icons.Coins className="text-emerald-500 w-12 h-12" strokeWidth={2} />
                 </div>
-                <h3 className="text-2xl font-bold text-emerald-500">Saved!</h3>
-                <p className="text-theme-secondary text-sm">Transaction recorded.</p>
+                <h3 className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">Saved!</h3>
+                <p className="text-zinc-400 dark:text-zinc-500 text-sm font-bold">Transaction recorded.</p>
               </div>
             </>
           )}
 
           {/* Scanning Overlay */}
           {isScanning && (
-            <div className="absolute inset-0 z-50 bg-theme-card/90 backdrop-blur-md flex flex-col items-center justify-center animate-fade-in">
-              <div className="w-20 h-20 rounded-2xl bg-cyan-500/20 border border-cyan-500/50 flex items-center justify-center mb-4 relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-1 bg-cyan-400 shadow-[0_0_15px_rgba(34,211,238,0.8)] animate-scan-down"></div>
-                <Icons.Scan size={40} className="text-cyan-400" />
+            <div className="absolute inset-0 z-50 bg-white/90 dark:bg-[#101622]/90 backdrop-blur-md flex flex-col items-center justify-center animate-fade-in">
+              <div className="w-20 h-20 rounded-2xl bg-blue-50 dark:bg-blue-500/10 border border-blue-600/20 flex items-center justify-center mb-4 relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-1 bg-blue-600 shadow-[0_0_15px_rgba(37,99,235,0.8)] animate-scan-down"></div>
+                <Icons.Scan size={40} className="text-blue-600 dark:text-blue-400" />
               </div>
-              <h3 className="text-xl font-bold text-theme-primary animate-pulse">Analyzing Receipt...</h3>
-              <p className="text-theme-secondary text-sm mt-2">Extracting details with AI</p>
+              <h3 className="text-xl font-bold text-zinc-900 dark:text-white animate-pulse">Analyzing Receipt...</h3>
+              <p className="text-zinc-400 dark:text-zinc-500 text-sm mt-2 font-bold">Extracting details with AI</p>
             </div>
           )}
 
-          <div className="w-16 h-1.5 modal-handle rounded-full mx-auto mb-6 sm:hidden shrink-0" />
+          <div className="w-16 h-1.5 bg-zinc-200 dark:bg-zinc-700 rounded-full mx-auto mb-6 sm:hidden shrink-0" />
 
           {/* Header */}
           <div className="flex justify-between items-center mb-6 shrink-0">
-            <h3 className="text-xl font-bold text-theme-primary">
+            <h3 className="text-xl font-bold text-zinc-900 dark:text-white">
               {editingTransaction ? "Edit Transaction" : "New Transaction"}
             </h3>
             <div className="flex gap-2">
               {!editingTransaction && (
-                <div className="flex items-center bg-theme-main rounded-full border border-theme p-1 gap-1">
+                <div className="flex items-center bg-white dark:bg-white/5 rounded-full border border-black/[0.03] dark:border-white/10 p-1 gap-1 shadow-sm">
                   <button
                     onClick={() => setShowVoiceModal(true)}
-                    className="p-2 rounded-full hover:bg-cyan-500/10 text-cyan-400 transition-colors"
+                    className="p-2 rounded-full hover:bg-blue-50 dark:hover:bg-blue-500/10 text-blue-600 dark:text-blue-400 transition-colors"
                     title="Voice Input"
                     aria-label="Voice Input"
                   >
                     <Mic size={18} />
                   </button>
-                  <div className="w-px h-4 bg-theme-secondary/20"></div>
+                  <div className="w-px h-4 bg-zinc-100 dark:bg-white/10"></div>
                   <button
                     onClick={handleCameraClick}
-                    className="p-2 rounded-full hover:bg-cyan-500/10 text-cyan-400 transition-colors"
+                    className="p-2 rounded-full hover:bg-blue-50 dark:hover:bg-blue-500/10 text-blue-600 dark:text-blue-400 transition-colors"
                     title="Take Photo"
                     aria-label="Take Photo"
                   >
                     <Icons.Camera size={18} />
                   </button>
-                  <div className="w-px h-4 bg-theme-secondary/20"></div>
+                  <div className="w-px h-4 bg-zinc-100 dark:bg-white/10"></div>
                   <button
                     onClick={handleGalleryClick}
-                    className="p-2 rounded-full hover:bg-cyan-500/10 text-cyan-400 transition-colors"
+                    className="p-2 rounded-full hover:bg-blue-50 dark:hover:bg-blue-500/10 text-blue-600 dark:text-blue-400 transition-colors"
                     title="Upload from Gallery"
                     aria-label="Upload from Gallery"
                   >
@@ -531,7 +530,7 @@ export const TransactionModal: React.FC = () => {
               {editingTransaction && (
                 <button
                   onClick={() => setShowDeleteConfirm(true)}
-                  className="p-2 rounded-full hover:bg-rose-500/10 text-rose-500 transition-colors"
+                  className="p-2 rounded-full hover:bg-rose-50 dark:hover:bg-rose-500/10 text-rose-500 transition-colors"
                 >
                   <Icons.Delete size={20} />
                 </button>
@@ -541,17 +540,17 @@ export const TransactionModal: React.FC = () => {
 
           {/* Delete Confirmation */}
           {showDeleteConfirm && (
-            <div className="absolute inset-0 z-40 bg-theme-card/95 backdrop-blur-md flex flex-col items-center justify-center p-8 text-center animate-dialog">
-              <div className="w-16 h-1.5 modal-handle rounded-full mx-auto mb-6 shrink-0 sm:hidden"></div>
-              <div className="w-16 h-16 bg-rose-500/10 rounded-full flex items-center justify-center mb-4 text-rose-500">
+            <div className="absolute inset-0 z-40 bg-white/95 dark:bg-[#101622]/95 backdrop-blur-md flex flex-col items-center justify-center p-8 text-center animate-dialog">
+              <div className="w-16 h-1.5 bg-zinc-200 dark:bg-zinc-700 rounded-full mx-auto mb-6 shrink-0 sm:hidden"></div>
+              <div className="w-16 h-16 bg-rose-50 dark:bg-rose-500/10 rounded-full flex items-center justify-center mb-4 text-rose-500">
                 <Icons.Delete size={32} />
               </div>
-              <h4 className="text-lg font-bold text-theme-primary mb-2">Delete this transaction?</h4>
-              <p className="text-sm text-theme-secondary mb-6">This action cannot be undone.</p>
+              <h4 className="text-lg font-bold text-zinc-900 dark:text-white mb-2">Delete this transaction?</h4>
+              <p className="text-sm text-zinc-400 dark:text-zinc-500 mb-6 font-medium">This action cannot be undone.</p>
               <div className="flex gap-3 w-full">
                 <button
                   onClick={() => setShowDeleteConfirm(false)}
-                  className="flex-1 py-3 bg-theme-main rounded-xl font-bold text-theme-secondary"
+                  className="flex-1 py-3 bg-zinc-100 dark:bg-white/5 rounded-xl font-bold text-zinc-600 dark:text-zinc-300"
                 >
                   Cancel
                 </button>
@@ -567,28 +566,28 @@ export const TransactionModal: React.FC = () => {
 
           {/* Paste SMS Modal */}
           {showPasteModal && (
-            <div className="absolute inset-0 z-40 bg-theme-card/95 backdrop-blur-md flex flex-col items-center justify-center p-6 animate-dialog">
+            <div className="absolute inset-0 z-40 bg-white/95 dark:bg-[#101622]/95 backdrop-blur-md flex flex-col items-center justify-center p-6 animate-dialog">
               <div className="w-full max-w-sm">
                 <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-xl font-bold text-theme-primary">Paste SMS</h3>
-                  <button onClick={() => setShowPasteModal(false)} className="text-theme-secondary">
+                  <h3 className="text-xl font-bold text-zinc-900 dark:text-white">Paste SMS</h3>
+                  <button onClick={() => setShowPasteModal(false)} className="text-zinc-400">
                     <Icons.Close size={24} />
                   </button>
                 </div>
-                <p className="text-sm text-theme-secondary mb-4">
+                <p className="text-sm text-zinc-400 dark:text-zinc-500 mb-4 font-medium">
                   Paste the transaction SMS from your bank (CBE, Telebirr, etc.)
                 </p>
                 <textarea
                   value={pastedSMS}
                   onChange={(e) => setPastedSMS(e.target.value)}
                   placeholder="Paste SMS here..."
-                  className="w-full h-32 bg-black/20 border border-white/10 rounded-xl p-4 text-white placeholder-gray-500 outline-none focus:border-cyan-500/50 mb-4 resize-none"
+                  className="w-full h-32 bg-zinc-50 dark:bg-white/5 border border-black/[0.03] dark:border-white/10 rounded-xl p-4 text-zinc-900 dark:text-white placeholder-zinc-300 dark:placeholder-zinc-600 outline-none focus:border-blue-600/30 mb-4 resize-none font-bold"
                   autoFocus
                 />
                 <button
                   onClick={handleParseSMS}
                   disabled={!pastedSMS.trim()}
-                  className="w-full py-3 bg-cyan-500 hover:bg-cyan-400 disabled:opacity-50 disabled:cursor-not-allowed text-black font-bold rounded-xl transition-colors"
+                  className="w-full py-3 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold rounded-xl transition-colors shadow-lg shadow-blue-600/20"
                 >
                   Parse & Fill
                 </button>
@@ -600,12 +599,12 @@ export const TransactionModal: React.FC = () => {
           <div className="flex-1 overflow-y-auto space-y-6 pb-4 no-scrollbar">
             {/* Receipt Preview */}
             {(receiptPreview || scanError) && (
-              <div className="relative w-full rounded-xl overflow-hidden border border-theme bg-black/50 p-1">
+              <div className="relative w-full rounded-xl overflow-hidden border border-black/[0.03] dark:border-white/10 bg-white dark:bg-white/5 p-1 shadow-sm">
                 {scanError ? (
                   <div className="p-4 text-center">
-                    <Icons.Alert className="text-yellow-500 mx-auto mb-2" size={24} />
-                    <p className="text-xs text-theme-primary font-bold">{scanError}</p>
-                    <button onClick={handleCameraClick} className="text-xs text-cyan-400 mt-2 underline">
+                    <Icons.Alert className="text-amber-500 mx-auto mb-2" size={24} />
+                    <p className="text-xs text-zinc-900 dark:text-white font-bold">{scanError}</p>
+                    <button onClick={handleCameraClick} className="text-xs text-blue-600 dark:text-blue-400 mt-2 underline font-bold">
                       Try Again
                     </button>
                   </div>
@@ -616,14 +615,14 @@ export const TransactionModal: React.FC = () => {
                       alt="Receipt Preview"
                       className="w-full h-full object-contain"
                     />
-                    <div className="absolute bottom-2 left-2 bg-black/60 px-2 py-1 rounded text-[10px] text-white backdrop-blur-md font-medium flex items-center gap-1">
-                      <Icons.Check size={10} className="text-emerald-400" /> Receipt Scanned
+                    <div className="absolute bottom-2 left-2 bg-white/80 dark:bg-black/80 px-2 py-1 rounded text-[10px] text-zinc-900 dark:text-white backdrop-blur-md font-bold flex items-center gap-1 border border-black/[0.03] dark:border-white/10">
+                      <Icons.Check size={10} className="text-emerald-600 dark:text-emerald-400" /> Receipt Scanned
                     </div>
                   </div>
                 )}
                 <button
                   onClick={clearReceipt}
-                  className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center bg-black/60 rounded-full text-white hover:bg-rose-500 transition-colors backdrop-blur-md border border-white/10"
+                  className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center bg-white/80 dark:bg-black/80 rounded-full text-zinc-400 hover:text-rose-500 transition-colors backdrop-blur-md border border-black/[0.03] dark:border-white/10"
                   title="Remove"
                 >
                   <Icons.Close size={14} />
@@ -636,9 +635,9 @@ export const TransactionModal: React.FC = () => {
               <div className="flex justify-center mb-2">
                 <button
                   onClick={() => setShowVoiceModal(true)}
-                  className="flex items-center gap-2 px-6 py-3 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 rounded-full border border-cyan-500/30 transition-all active:scale-95 group"
+                  className="flex items-center gap-2 px-6 py-3 bg-blue-50 dark:bg-blue-500/10 hover:bg-blue-100 dark:hover:bg-blue-500/20 text-blue-600 dark:text-blue-400 rounded-full border border-blue-600/10 dark:border-blue-500/20 transition-all active:scale-95 group shadow-sm"
                 >
-                  <div className="p-2 bg-cyan-500 rounded-full text-black group-hover:scale-110 transition-transform shadow-[0_0_15px_rgba(6,182,212,0.4)]">
+                  <div className="p-2 bg-blue-600 rounded-full text-white group-hover:scale-110 transition-transform shadow-lg shadow-blue-600/20">
                     <Mic size={20} />
                   </div>
                   <span className="font-bold text-sm">Tap to Speak</span>
@@ -671,12 +670,12 @@ export const TransactionModal: React.FC = () => {
             <div className="flex justify-center py-2">
               <button
                 onClick={() => setShowAdvanced(!showAdvanced)}
-                className="text-xs font-bold text-cyan-400 flex items-center gap-1 hover:text-cyan-300 transition-colors bg-cyan-500/10 px-4 py-2 rounded-full"
+                className="text-[10px] font-bold text-blue-600 dark:text-blue-400 flex items-center gap-1 hover:text-blue-700 dark:hover:text-blue-300 transition-colors bg-blue-50 dark:bg-blue-500/10 px-4 py-2 rounded-full uppercase tracking-widest"
               >
                 {showAdvanced ? "Less Details" : "More Details"}
                 <Icons.ChevronDown
                   className={`transition-transform duration-300 ${showAdvanced ? "rotate-180" : ""}`}
-                  size={14}
+                  size={12}
                 />
               </button>
             </div>
@@ -693,26 +692,26 @@ export const TransactionModal: React.FC = () => {
 
                 {/* Templates Toggle (Moved to Advanced) */}
                 {!editingTransaction && (
-                  <div className="space-y-3 pt-4 border-t border-white/5">
+                  <div className="space-y-3 pt-4 border-t border-black/[0.03] dark:border-white/10">
                     <button
                       onClick={() => setShowQuickTemplates(!showQuickTemplates)}
-                      className={`w-full py-3 rounded-xl border flex items-center justify-center gap-2 transition-all ${showQuickTemplates ? "bg-cyan-500/10 border-cyan-500/50 text-cyan-400" : "bg-black/20 border-white/5 text-gray-500 hover:text-white"}`}
+                      className={`w-full py-3 rounded-xl border flex items-center justify-center gap-2 transition-all ${showQuickTemplates ? "bg-blue-50 dark:bg-blue-500/10 border-blue-600/20 dark:border-blue-500/20 text-blue-600 dark:text-blue-400" : "bg-white dark:bg-white/5 border-black/[0.03] dark:border-white/10 text-zinc-400 dark:text-zinc-500 hover:text-zinc-600 dark:hover:text-zinc-300 shadow-sm"}`}
                     >
                       <Zap size={16} />
                       <span className="text-xs font-bold">Quick Templates</span>
                     </button>
 
                     {showQuickTemplates && (
-                      <div className="grid grid-cols-3 gap-3 animate-fade-in bg-black/20 p-4 rounded-2xl border border-white/5">
+                      <div className="grid grid-cols-3 gap-3 animate-fade-in bg-white dark:bg-white/5 p-4 rounded-2xl border border-black/[0.03] dark:border-white/10 shadow-sm">
                         {quickTemplates.map((t, i) => (
                           <button
                             key={i}
                             onClick={() => applyQuickTemplate(t)}
-                            className="flex flex-col items-center gap-1 p-3 bg-gray-800/50 rounded-xl border border-white/5 hover:border-cyan-500/50 hover:bg-cyan-500/10 transition-all"
+                            className="flex flex-col items-center gap-1 p-3 bg-zinc-50 dark:bg-white/5 rounded-xl border border-black/[0.03] dark:border-white/10 hover:border-blue-600/20 hover:bg-blue-50 dark:hover:bg-blue-500/10 transition-all"
                           >
                             <span className="text-xl">{t.icon}</span>
-                            <span className="text-xs font-medium text-white">{t.label}</span>
-                            <span className="text-[10px] text-gray-500">{t.amount} ETB</span>
+                            <span className="text-[10px] font-bold text-zinc-900 dark:text-white">{t.label}</span>
+                            <span className="text-[9px] text-zinc-400 dark:text-zinc-500 font-bold">{t.amount} ETB</span>
                           </button>
                         ))}
                       </div>
@@ -727,7 +726,7 @@ export const TransactionModal: React.FC = () => {
           <div className="pt-4 mt-auto shrink-0 pb-6">
             <button
               onClick={handleSave}
-              className="w-full py-4 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-2xl font-bold text-white shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/40 transition-all active:scale-[0.98] flex items-center justify-center gap-2 text-lg"
+              className="w-full py-4 bg-gradient-to-r from-blue-600 to-blue-700 rounded-2xl font-bold text-white shadow-lg shadow-blue-600/20 hover:shadow-blue-600/40 transition-all active:scale-[0.98] flex items-center justify-center gap-2 text-lg"
             >
               {isSuccess ? <Icons.Check size={24} /> : editingTransaction ? "Update Transaction" : "Save Transaction"}
             </button>

@@ -24,6 +24,7 @@ import { toEthiopianDateString, toGregorianDateString, getCurrentBudgetMonth, is
 import * as dataService from "@/lib/supabase/data-service"
 import type { UserData } from "@/hooks/use-user-data"
 import { FamilyMember, Invitation } from "@/types"
+import { OfflineSyncManager } from "@/lib/offline-sync"
 
 // Default budget categories for new users
 const defaultBudgetCategories: BudgetCategory[] = [
@@ -253,7 +254,13 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children, initialData,
   const [activeTab, setActiveTab] = useState<string>("dashboard")
   const [isPrivacyMode, setIsPrivacyMode] = useState(initialData?.profile?.privacy_mode || false)
 
-  const [hasOnboarded, setHasOnboarded] = useState<boolean>(initialData?.profile?.onboarding_completed || false)
+  const [hasOnboarded, setHasOnboarded] = useState<boolean>(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("hasOnboarded")
+      if (stored === "true") return true
+    }
+    return initialData?.profile?.onboarding_completed || false
+  })
 
   const [aiConsent, setAiConsentState] = useState<boolean>(initialData?.profile?.ai_consent || false)
 
@@ -271,6 +278,9 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children, initialData,
   const [prefillTx, setPrefillTx] = useState<Partial<Transaction> | undefined>(undefined)
   const [scannedImage, setScannedImage] = useState<string | null>(null)
   const [notification, setNotification] = useState<Notification | null>(null)
+
+  // Offline sync manager for conflict resolution
+  const [offlineSyncManager, setOfflineSyncManager] = useState<OfflineSyncManager | null>(null)
 
   // Save theme/preferences to Supabase when they change
   const setTheme = useCallback(
@@ -303,8 +313,34 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children, initialData,
     [userId],
   )
 
+  // GDPR Consent Management
+  const getUserConsents = useCallback(async () => {
+    if (!userId) return []
+    return dataService.getUserConsents(userId)
+  }, [userId])
+
+  const updateConsent = useCallback(
+    async (consentType: string, granted: boolean) => {
+      if (!userId) return false
+      return dataService.updateUserConsent(userId, consentType, granted)
+    },
+    [userId],
+  )
+
+  const validateConsent = useCallback(
+    async (consentType: string) => {
+      if (!userId) return false
+      const result = await dataService.validateUserConsent(userId, consentType)
+      return result.valid
+    },
+    [userId],
+  )
+
   const completeOnboarding = useCallback(async () => {
     setHasOnboarded(true)
+    if (typeof window !== "undefined") {
+      localStorage.setItem("hasOnboarded", "true")
+    }
     if (userId) {
       await dataService.upsertProfile(userId, { onboarding_completed: true })
     }
@@ -1341,6 +1377,50 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children, initialData,
     showNotification("Data restored successfully", "success");
   }, [showNotification]);
 
+  // ============ OFFLINE SYNC AND CONFLICT RESOLUTION ============
+
+  // Initialize offline sync manager when user is authenticated
+  useEffect(() => {
+    if (userId) {
+      const clientId = localStorage.getItem('clientId') || generateClientId()
+      localStorage.setItem('clientId', clientId)
+      const syncManager = new OfflineSyncManager(userId, clientId)
+      setOfflineSyncManager(syncManager)
+    }
+  }, [userId])
+
+  const generateClientId = () => {
+    return `client-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+  }
+
+  const syncOfflineChanges = useCallback(async () => {
+    if (!offlineSyncManager) return
+
+    const result = await offlineSyncManager.syncWithServer()
+
+    if (result.conflicts > 0) {
+      showNotification(`${result.conflicts} conflicts detected during sync. Manual resolution required.`, 'error')
+    }
+
+    if (result.success) {
+      showNotification('Changes synced successfully', 'success')
+    } else if (result.errors.length > 0) {
+      showNotification(`Sync completed with ${result.errors.length} errors`, 'error')
+    }
+
+    return result
+  }, [offlineSyncManager, showNotification])
+
+  const getSyncStatus = useCallback(() => {
+    if (!offlineSyncManager) return { queued: 0, conflicts: 0, online: navigator.onLine }
+    return offlineSyncManager.getSyncStatus()
+  }, [offlineSyncManager])
+
+  const getPendingConflicts = useCallback(() => {
+    if (!offlineSyncManager) return []
+    return offlineSyncManager.getPendingConflicts()
+  }, [offlineSyncManager])
+
   const value = useMemo(
     () => ({
       state: filteredState,
@@ -1416,10 +1496,16 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children, initialData,
       removeFamilyMember,
       sendInvitation,
       restoreData,
+      syncOfflineChanges,
+      getSyncStatus,
+      getPendingConflicts,
       aiNotifications: fullState.aiNotifications,
       addAINotification,
       dismissAINotification,
       updateAchievements,
+      getUserConsents,
+      updateConsent,
+      validateConsent,
     }),
     [
       filteredState,
@@ -1486,6 +1572,12 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children, initialData,
       addFamilyMember,
       removeFamilyMember,
       sendInvitation,
+      syncOfflineChanges,
+      getSyncStatus,
+      getPendingConflicts,
+      getUserConsents,
+      updateConsent,
+      validateConsent,
     ],
   )
 

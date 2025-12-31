@@ -1,5 +1,6 @@
 import type { AppState } from "@/types"
 import { analyzeReceiptImage } from "@/services/gemini"
+import { EthiopianCulturalAdvisor, buildCulturalContext, CulturalSensitivityValidator } from "@/lib/cultural-advisor"
 
 export function buildFinancialContext(state: AppState, activeProfile: string): string {
   const today = new Date()
@@ -337,4 +338,78 @@ export function generateProactiveInsights(state: AppState): string[] {
   }
 
   return insights
+}
+
+// Generate culturally sensitive financial advice
+export function generateCulturalAdvice(state: AppState): string[] {
+  const culturalContext = buildCulturalContext(state)
+  const culturalAdvisor = new EthiopianCulturalAdvisor(state, culturalContext)
+  const culturalAdvice = culturalAdvisor.generateCulturalAdvice()
+
+  return culturalAdvice.map(advice => {
+    let adviceText = `**${advice.title}**\n\n${advice.description}\n\n`
+
+    if (advice.actionableSteps.length > 0) {
+      adviceText += `**Action Steps:**\n${advice.actionableSteps.map((step, i) => `${i + 1}. ${step}`).join('\n')}\n\n`
+    }
+
+    adviceText += `*Cultural Context: ${advice.culturalJustification}*`
+
+    if (advice.religiousReference) {
+      adviceText += `\n\n*Religious Reference: ${advice.religiousReference}*`
+    }
+
+    return adviceText
+  })
+}
+
+// Build culturally enhanced financial context
+export function buildCulturalFinancialContext(state: AppState, activeProfile: string): string {
+  const baseContext = buildFinancialContext(state, activeProfile)
+  const culturalContext = buildCulturalContext(state)
+  const culturalAdvisor = new EthiopianCulturalAdvisor(state, culturalContext)
+
+  // Get cultural financial health assessment
+  const healthAssessment = culturalAdvisor.generateCulturalFinancialHealth()
+
+  // Get Zakat calculation for Muslim users
+  let zakatSection = ''
+  if (culturalContext.financialPractices.zakatEligible) {
+    const zakatCalc = culturalAdvisor.calculateZakatObligation()
+    if (zakatCalc.eligibleForZakat) {
+      zakatSection = `\n\n===== ISLAMIC FINANCE =====\nZAKAT OBLIGATION: ${zakatCalc.zakatObligation.toLocaleString()} ETB\nCurrent Wealth: ${zakatCalc.currentWealth.toLocaleString()} ETB\nNisab Threshold: ${zakatCalc.nisabThreshold.toLocaleString()} ETB\n${zakatCalc.zakatObligation > 0 ? '⚠️ You have an active Zakat obligation this year' : '✓ Below Zakat threshold'}`
+    }
+  }
+
+  // Get cultural health score
+  const culturalScoreSection = `\n\n===== CULTURAL ALIGNMENT SCORE =====\nOverall Score: ${healthAssessment.score}/100\nCultural Alignment: ${healthAssessment.culturalAlignment}/100\nCategory: ${healthAssessment.category.toUpperCase().replace('_', ' ')}\n\n${healthAssessment.recommendations.length > 0 ? 'Top Recommendations:\n' + healthAssessment.recommendations.slice(0, 3).map(r => `• ${r.title}: ${r.description}`).join('\n') : ''}`
+
+  return baseContext + zakatSection + culturalScoreSection
+}
+
+// Validate AI response for cultural sensitivity
+export function validateCulturalSensitivity(response: string, state: AppState): {
+  isAppropriate: boolean
+  suggestions: string[]
+  culturalNotes: string[]
+  enhancedResponse?: string
+} {
+  const culturalContext = buildCulturalContext(state)
+  const validation = CulturalSensitivityValidator.validateAdvice(response, culturalContext)
+
+  // If response needs cultural enhancement, add cultural context
+  let enhancedResponse = response
+  if (!validation.isAppropriate && culturalContext.financialPractices.zakatEligible) {
+    const culturalAdvisor = new EthiopianCulturalAdvisor(state, culturalContext)
+    const culturalAdvice = generateCulturalAdvice(state)
+
+    if (culturalAdvice.length > 0) {
+      enhancedResponse += '\n\n===== CULTURAL CONSIDERATIONS =====\n' + culturalAdvice[0]
+    }
+  }
+
+  return {
+    ...validation,
+    enhancedResponse: enhancedResponse !== response ? enhancedResponse : undefined
+  }
 }

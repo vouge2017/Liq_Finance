@@ -1,43 +1,63 @@
-@import 'tailwindcss';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 
-/* Custom theme variables for Liq */
+/* Custom theme variables for Liq - Stitch Design System */
 :root {
-  --bg-main: #000000;
-  --bg-card: #1C1C1E;
-  --text-primary: #ffffff;
-  --text-secondary: #9ca3af;
-  --border-color: #2c2c2e;
-
-  /* Modal System - Default (Dark) */
-  --bg-overlay: rgba(0, 0, 0, 0.85);
+  /* Stitch Light Mode Palette */
+  --bg-main: #f6f6f8;
+  --bg-card: #ffffff;
+  --bg-elevated: #ffffff;
+  --bg-dropdown: #ffffff;
+  --text-primary: #111318;
+  --text-secondary: #6b7280;
+  --border-color: rgba(0, 0, 0, 0.05);
+  --bg-overlay: rgba(0, 0, 0, 0.4);
   --overlay-blur: 8px;
-  --modal-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
-  --modal-border: #3a3a3c;
-  --handle-color: rgba(255, 255, 255, 0.3);
+  --modal-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.08);
+  --modal-border: transparent;
+  --handle-color: rgba(0, 0, 0, 0.08);
+
+  /* Brand Colors - Stitch Primary */
+  --primary: #135bec;
+  --primary-dark: #0e46b9;
+  --primary-green: #10B981;
+  --primary-orange: #F97316;
+  --primary-purple: #9333EA;
+  --primary-red: #EF4444;
+
+  /* Geometry System */
+  --radius-ultra: 32px;
+  --radius-pill: 9999px;
 }
 
-/* Light Mode Overrides */
-[data-theme='light'] {
-  --bg-main: #f3f4f6;
-  --bg-card: #ffffff;
-  --text-primary: #111827;
-  --text-secondary: #6b7280;
-  --border-color: #e5e7eb;
-  --bg-overlay: rgba(0, 0, 0, 0.5);
-  --overlay-blur: 4px;
-  --modal-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  --modal-border: transparent;
-  --handle-color: rgba(0, 0, 0, 0.1);
+/* Dark Mode Overrides */
+.dark,
+[data-theme='dark'] {
+  --bg-main: #101622;
+  --bg-card: #1a2230;
+  --bg-elevated: #1a2230;
+  --bg-dropdown: #1a2230;
+  --border-color: rgba(255, 255, 255, 0.08);
+  --text-primary: #ffffff;
+  --text-secondary: #9ca3af;
+  --bg-overlay: rgba(0, 0, 0, 0.75);
+  --overlay-blur: 16px;
+  --modal-shadow: 0 32px 64px -12px rgba(0, 0, 0, 0.8);
+  --modal-border: rgba(255, 255, 255, 0.08);
+  --handle-color: rgba(255, 255, 255, 0.2);
 }
 
 /* Dim (Navy) Mode Overrides */
 [data-theme='dim'] {
   --bg-main: #0f172a;
   --bg-card: #1e293b;
+  --bg-elevated: #334155;
+  --bg-dropdown: #475569;
   --text-primary: #f1f5f9;
   --text-secondary: #94a3b8;
-  --border-color: transparent;
+  --border-color: #475569;
   --bg-overlay: rgba(15, 23, 42, 0.6);
   --overlay-blur: 3px;
   --modal-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
@@ -46,12 +66,60 @@
 }
 
 body {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Manrope', 'Noto Sans Ethiopic', sans-serif;
   background-color: var(--bg-main);
   color: var(--text-primary);
   transition: background-color 0.3s ease, color 0.3s ease;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+/* Tibeb Pattern (Ethiopian-inspired) */
+.tibeb-pattern {
+  background-image: radial-gradient(var(--primary) 0.5px, transparent 0.5px), radial-gradient(var(--primary) 0.5px, transparent 0.5px);
+  background-size: 20px 20px;
+  background-position: 0 0, 10px 10px;
+  opacity: 0.05;
+}
+
+/* Typography Scale System */
+.text-hero {
+  font-size: 48px;
+  line-height: 1.1;
+  font-weight: 700;
+}
+
+.text-section-title {
+  font-size: 16px;
+  line-height: 1.5;
+  font-weight: 700;
+}
+
+.text-body-professional {
+  font-size: 14px;
+  line-height: 1.5;
+  font-weight: 500;
+}
+
+.text-label-professional {
+  font-size: 12px;
+  line-height: 1.5;
+  font-weight: 400;
+}
+
+/* Mobile responsive typography */
+@media (max-width: 768px) {
+  .text-hero {
+    font-size: 42px;
+    line-height: 48px;
+  }
+
+  .text-primary-heading {
+    font-size: 22px;
+    line-height: 28px;
+  }
 }
 
 /* Better touch targets for mobile */
@@ -89,6 +157,76 @@ button {
   }
 }
 
+/* Spacing Utility Classes */
+.spacing-xs {
+  margin: var(--spacing-xs);
+}
+
+.spacing-sm {
+  margin: var(--spacing-sm);
+}
+
+.spacing-md {
+  margin: var(--spacing-md);
+}
+
+.spacing-lg {
+  margin: var(--spacing-lg);
+}
+
+.spacing-xl {
+  margin: var(--spacing-xl);
+}
+
+.spacing-2xl {
+  margin: var(--spacing-2xl);
+}
+
+.padding-xs {
+  padding: var(--spacing-xs);
+}
+
+.padding-sm {
+  padding: var(--spacing-sm);
+}
+
+.padding-md {
+  padding: var(--spacing-md);
+}
+
+.padding-lg {
+  padding: var(--spacing-lg);
+}
+
+.padding-xl {
+  padding: var(--spacing-xl);
+}
+
+.padding-2xl {
+  padding: var(--spacing-2xl);
+}
+
+/* Screen Layout Classes */
+.screen-padding {
+  padding-top: var(--screen-padding-top);
+  padding-bottom: var(--screen-padding-bottom);
+  padding-left: var(--screen-padding-horizontal);
+  padding-right: var(--screen-padding-horizontal);
+}
+
+/* Card Internal Spacing */
+.card-spacing {
+  padding: var(--card-padding);
+}
+
+.card-element-gap {
+  gap: var(--card-element-gap);
+}
+
+.card-header-gap {
+  margin-top: var(--card-header-gap);
+}
+
 /* Theme utility classes */
 .bg-theme-main {
   background-color: var(--bg-main);
@@ -96,6 +234,14 @@ button {
 
 .bg-theme-card {
   background-color: var(--bg-card);
+}
+
+.bg-theme-elevated {
+  background-color: var(--bg-elevated);
+}
+
+.bg-theme-dropdown {
+  background-color: var(--bg-dropdown);
 }
 
 .text-theme-primary {
@@ -117,7 +263,7 @@ button {
 }
 
 .modal-content {
-  background-color: var(--bg-card);
+  background-color: var(--bg-elevated);
   box-shadow: var(--modal-shadow);
   border: 1px solid var(--modal-border);
 }
@@ -126,8 +272,146 @@ button {
   background-color: var(--handle-color);
 }
 
+/* Ethiopian Cultural Elements */
+
+/* Ethiopian Typography */
 .ethiopic {
+  font-family: 'Noto Sans Ethiopic', 'Nyala', 'Abyssinica SIL', sans-serif;
+}
+
+.amharic-numerals {
+  font-feature-settings: "tnum";
+}
+
+/* Ethiopian Cultural Colors Meaning */
+:root {
+  /* Ethiopian Cultural Color Meanings */
+  --ethiopian-green: #10b981;
+  /* Growth - Ethiopian landscape */
+  --ethiopian-yellow: #f59e0b;
+  /* Sunshine - Ethiopian optimism */
+  --ethiopian-red: #ef4444;
+  /* Strength - Ethiopian heritage */
+  --ethiopian-blue: #0ea5e9;
+  /* Hope - Ethiopian sky */
+}
+
+/* Ultra-Premium Glassmorphism Utilities */
+.glass {
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(24px) saturate(200%);
+  -webkit-backdrop-filter: blur(24px) saturate(200%);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.glass-dark {
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(32px) saturate(180%);
+  -webkit-backdrop-filter: blur(32px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.floating-nav {
+  background: rgba(15, 15, 18, 0.8);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5);
+}
+
+/* Mesh Gradient Backgrounds */
+.mesh-gradient {
+  background-color: #0a0a0c;
+  background-image:
+    radial-gradient(at 0% 0%, rgba(14, 165, 233, 0.15) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(139, 92, 246, 0.1) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.1) 0px, transparent 50%),
+    radial-gradient(at 0% 100%, rgba(239, 68, 68, 0.1) 0px, transparent 50%);
+}
+
+/* Cultural Icon Styles */
+.ethiopian-icon {
+  display: inline-block;
+  margin-right: 8px;
+  font-size: 1.2em;
+}
+
+/* Coffee Ceremony Icon */
+.icon-coffee::before {
+  content: "☕";
+  color: var(--ethiopian-brown, #8b4513);
+}
+
+/* Traditional Home Icon */
+.icon-gdami::before {
+  content: "🏠";
+  color: var(--ethiopian-green);
+}
+
+/* Bajaj Transportation Icon */
+.icon-bajaj::before {
+  content: "🚕";
+  color: var(--ethiopian-yellow);
+}
+
+/* Ethiopian Cross Icon */
+.icon-meskel::before {
+  content: "✠";
+  color: var(--ethiopian-blue);
+  font-size: 1.1em;
+}
+
+/* Ethiopian Cultural Terms Styling */
+.cultural-term {
   font-family: 'Noto Sans Ethiopic', sans-serif;
+  font-weight: 500;
+  color: var(--ethiopian-blue);
+}
+
+/* Dual Calendar Display */
+.dual-calendar {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.dual-calendar .gregorian {
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+.dual-calendar .ethiopian {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-family: 'Noto Sans Ethiopic', sans-serif;
+}
+
+/* Ethiopian Holiday Badges */
+.holiday-badge {
+  background: linear-gradient(135deg, var(--ethiopian-green), var(--ethiopian-yellow));
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Cultural Card Styling */
+.cultural-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.cultural-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--ethiopian-green), var(--ethiopian-yellow), var(--ethiopian-red));
 }
 
 /* Hide scrollbar */
@@ -173,6 +457,43 @@ button {
   animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
+@keyframes scaleIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes bounceIn {
+  0% {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+
+  50% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-bounce-in {
+  animation: bounceIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
 @keyframes dialogBounce {
   0% {
     transform: scale(0.9);
@@ -203,35 +524,520 @@ button {
   animation: fadeIn 0.2s ease-out forwards;
 }
 
-/* Micro-interactions */
+/* Enhanced Micro-interactions & Animations */
+
+/* Easing Curves - iOS-like smooth animations */
+:root {
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out-quad: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Button Press Animation - 60fps optimized */
+.btn:active {
+  transform: scale(0.96);
+  transition: transform 100ms ease-out;
+  will-change: transform;
+}
+
+.btn:hover:not(:active) {
+  transform: translateY(-1px);
+  transition: all 200ms ease-out;
+}
+
+/* Button Press Legacy Support */
 .btn-press {
-  transition: transform 0.1s ease;
+  transition: transform 100ms ease-out;
+  will-change: transform;
 }
 
 .btn-press:active {
-  transform: scale(0.95);
+  transform: scale(0.96);
 }
 
+.btn-press:hover:not(:active) {
+  transform: translateY(-1px);
+  transition: all 200ms ease-out;
+}
+
+/* Card Hover Animation */
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+  transition: all 200ms ease-out;
+}
+
+/* Card Hover Legacy Support */
 .card-hover {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: all 200ms ease-out;
 }
 
 .card-hover:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
 }
 
-/* Global Input Styling for Better Affordance */
+/* Transaction List Item Animations */
+.transaction-item {
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.transaction-item:active {
+  transform: scale(0.98);
+}
+
+/* Swipe Action Indicators */
+.transaction-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.transaction-item.swipe-left::before {
+  background: linear-gradient(90deg, transparent, rgba(239, 68, 68, 0.1));
+  opacity: 1;
+}
+
+.transaction-item.swipe-right::before {
+  background: linear-gradient(270deg, transparent, rgba(0, 180, 216, 0.1));
+  opacity: 1;
+}
+
+/* Loading States */
+.skeleton,
+.bg-skeleton {
+  background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Pulse Animation for Loading Cards */
+.pulse-loading {
+  animation: pulse-loading 2s infinite;
+}
+
+@keyframes pulse-loading {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Number Count Animation */
+.count-up {
+  transition: all 0.3s ease;
+}
+
+.count-up.animating {
+  transform: scale(1.02);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* Enhanced Ethiopian Cultural Elements */
+.cultural-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.cultural-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--ethiopian-green), var(--ethiopian-yellow), var(--ethiopian-red));
+}
+
+/* Ethiopian Cultural Gradient Backgrounds */
+.bg-ethiopian-growth {
+  background: linear-gradient(135deg, var(--ethiopian-green), #059669);
+}
+
+.bg-ethiopian-sunshine {
+  background: linear-gradient(135deg, var(--ethiopian-yellow), #d97706);
+}
+
+.bg-ethiopian-strength {
+  background: linear-gradient(135deg, var(--ethiopian-red), #dc2626);
+}
+
+.bg-ethiopian-hope {
+  background: linear-gradient(135deg, var(--ethiopian-blue), #0096c7);
+}
+
+/* Progressive Image Loading */
+.image-blur-up {
+  filter: blur(5px);
+  transition: filter 0.3s ease;
+}
+
+.image-blur-up.loaded {
+  filter: blur(0);
+}
+
+/* Enhanced Input Styling for Better Contrast */
 input,
 select,
 textarea {
   border: 1px solid var(--border-color);
   background-color: rgba(255, 255, 255, 0.08);
   border-radius: 0.75rem;
-  /* cyan-500 */
-  background-color: rgba(255, 255, 255, 0.12);
   outline: none;
-  box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.2);
+  transition: all 0.2s ease;
+}
+
+/* Dark mode input styling */
+[data-theme='dark'] input,
+[data-theme='dark'] select,
+[data-theme='dark'] textarea {
+  background-color: rgba(255, 255, 255, 0.08);
+  border-color: var(--border-color);
+}
+
+/* Light mode input styling - IMPROVED CONTRAST */
+[data-theme='light'] input,
+[data-theme='light'] select,
+[data-theme='light'] textarea {
+  background-color: #ffffff;
+  border-color: #d1d5db;
+  color: #111827;
+}
+
+[data-theme='light'] input::placeholder,
+[data-theme='light'] textarea::placeholder {
+  color: #6b7280;
+}
+
+/* Focus states with better visibility */
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: #06b6d4;
+  box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.1);
+}
+
+/* Navigation Enhancement */
+.nav-item {
+  transition: all 0.2s ease;
+  border-radius: 0.75rem;
+}
+
+.nav-item:hover {
+  background-color: rgba(6, 182, 212, 0.1);
+  transform: translateY(-1px);
+}
+
+.nav-item.active {
+  background-color: rgba(6, 182, 212, 0.2);
+  border: 1px solid rgba(6, 182, 212, 0.3);
+  box-shadow: 0 4px 12px rgba(6, 182, 212, 0.15);
+}
+
+/* Enhanced Button System */
+.btn-primary {
+  height: 56px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--primary-action), var(--primary-action-hover));
+  box-shadow: 0 4px 16px rgba(0, 180, 216, 0.25);
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+  border: none;
+  transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(0, 180, 216, 0.35);
+}
+
+.btn-primary:active {
+  transform: translateY(0) scale(0.96);
+  box-shadow: 0 2px 8px rgba(0, 180, 216, 0.2);
+}
+
+.btn-secondary {
+  height: 48px;
+  border-radius: 12px;
+  background: transparent;
+  border: 2px solid var(--primary-action);
+  color: var(--primary-action);
+  font-size: 16px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+  background: var(--primary-action-bg);
+}
+
+.btn-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.btn-icon:hover {
+  background: var(--bg-elevated);
+  transform: translateY(-1px);
+}
+
+.btn-link {
+  color: var(--primary-action);
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.btn-link:hover {
+  text-decoration: underline;
+}
+
+/* Legacy button interactions for backward compatibility */
+button:not(:disabled):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+button:not(:disabled):active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Card System - Ethiopian Design System */
+.card-base {
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 16px;
+  padding: 20px;
+  transition: all 0.3s ease;
+}
+
+.card-elevated {
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow:
+    0 4px 6px rgba(0, 0, 0, 0.1),
+    0 2px 4px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+}
+
+.card-elevated:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 8px 25px rgba(0, 0, 0, 0.15),
+    0 4px 6px rgba(0, 0, 0, 0.1);
+  border-color: rgba(6, 182, 212, 0.3);
+}
+
+.card-hero {
+  background: linear-gradient(135deg, #5855d6, #7c3aed);
+  border: none;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 8px 24px rgba(88, 85, 214, 0.25);
+  transition: all 0.3s ease;
+}
+
+.card-hero:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(88, 85, 214, 0.35);
+}
+
+/* Ethiopian Cultural Cards */
+.card-iqub {
+  background: linear-gradient(135deg, #10b981, #059669);
+  border: none;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.25);
+  transition: all 0.3s ease;
+}
+
+.card-iddir {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  border: none;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.25);
+  transition: all 0.3s ease;
+}
+
+/* Legacy Card Classes for Backward Compatibility */
+.card-enhanced {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 20px;
+  transition: all 0.3s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.card-enhanced:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  border-color: rgba(6, 182, 212, 0.3);
+}
+
+/* Improved Focus States */
+*:focus-visible {
+  outline: 2px solid #06b6d4;
+  outline-offset: 2px;
+  border-radius: 0.5rem;
+}
+
+/* Better Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-main);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #06b6d4;
+}
+
+/* Spacing & Rhythm System - 8px Base */
+:root {
+  /* Spacing Scale (8px base) */
+  --spacing-xs: 4px;
+  /* tight elements */
+  --spacing-sm: 8px;
+  /* related items */
+  --spacing-md: 16px;
+  /* card padding */
+  --spacing-lg: 24px;
+  /* section gaps */
+  --spacing-xl: 32px;
+  /* major sections */
+  --spacing-2xl: 48px;
+  /* screen padding */
+
+  /* Screen Layout */
+  --screen-padding-top: 16px;
+  --screen-padding-bottom: 88px;
+  --screen-padding-horizontal: 20px;
+
+  /* Card Internal Spacing */
+  --card-padding: 20px;
+  --card-element-gap: 12px;
+  --card-header-gap: 16px;
+}
+
+/* Ethiopian Color Semantics - Updated */
+:root {
+  /* Primary Actions - Ethiopian Blue */
+  --primary-action: #00b4d8;
+  --primary-action-bg: rgba(0, 180, 216, 0.1);
+  --primary-action-hover: #0096c7;
+
+  /* Success/Income - Ethiopian Green */
+  --success-income: #10b981;
+  --success-income-bg: rgba(16, 185, 129, 0.1);
+  --success-income-hover: #059669;
+
+  /* Warning/Deficit - Ethiopian Yellow */
+  --warning-deficit: #f59e0b;
+  --warning-deficit-bg: rgba(245, 158, 11, 0.1);
+  --warning-deficit-hover: #d97706;
+
+  /* Danger/Expense - Ethiopian Red */
+  --danger-expense: #ef4444;
+  --danger-expense-bg: rgba(239, 68, 68, 0.1);
+  --danger-expense-hover: #dc2626;
+
+  /* Legacy compatibility */
+  --expense-primary: var(--danger-expense);
+  --expense-secondary: #6b7280;
+  --expense-bg: var(--danger-expense-bg);
+  --income-positive: var(--success-income);
+  --income-bg: var(--success-income-bg);
+  --savings-stable: #92400e;
+  --savings-bg: rgba(146, 64, 14, 0.1);
+  --alert-critical: var(--danger-expense);
+  --alert-warning: var(--warning-deficit);
+  --alert-bg: var(--danger-expense-bg);
+}
+
+/* Ethiopian expense styling - Neutral colors instead of red */
+.expense-item {
+  background-color: var(--expense-bg);
+  border-left: 4px solid var(--expense-primary);
+  color: var(--expense-primary);
+}
+
+.expense-amount {
+  color: var(--expense-primary);
+  font-weight: 600;
+}
+
+/* Income styling - Cultural colors */
+.income-item {
+  background-color: var(--income-bg);
+  border-left: 4px solid var(--income-positive);
+}
+
+.income-amount {
+  color: var(--income-positive);
+  font-weight: 600;
+}
+
+/* Savings/Iqub styling - Ethiopian heritage colors */
+.savings-item {
+  background-color: var(--savings-bg);
+  border-left: 4px solid var(--savings-stable);
+}
+
+.savings-amount {
+  color: var(--savings-stable);
+  font-weight: 600;
+}
+
+/* Only use red for critical alerts */
+.critical-alert {
+  background-color: var(--alert-bg);
+  border-left: 4px solid var(--alert-critical);
+  color: var(--alert-critical);
 }
 
 /* Flying AI Button Glow */

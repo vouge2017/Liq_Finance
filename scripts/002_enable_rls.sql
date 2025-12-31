@@ -10,6 +10,7 @@ ALTER TABLE public.recurring_transactions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.income_sources ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.feedback ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.ai_conversations ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.audit_logs ENABLE ROW LEVEL SECURITY;
 
 -- PROFILES POLICIES
 CREATE POLICY "profiles_select_own" ON public.profiles FOR SELECT USING (auth.uid() = id);
@@ -74,3 +75,7 @@ CREATE POLICY "ai_select_own" ON public.ai_conversations FOR SELECT USING (auth.
 CREATE POLICY "ai_insert_own" ON public.ai_conversations FOR INSERT WITH CHECK (auth.uid() = user_id);
 CREATE POLICY "ai_update_own" ON public.ai_conversations FOR UPDATE USING (auth.uid() = user_id);
 CREATE POLICY "ai_delete_own" ON public.ai_conversations FOR DELETE USING (auth.uid() = user_id);
+
+-- AUDIT LOGS POLICIES
+CREATE POLICY "audit_logs_select_own" ON public.audit_logs FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "audit_logs_insert_own" ON public.audit_logs FOR INSERT WITH CHECK (auth.uid() = user_id);

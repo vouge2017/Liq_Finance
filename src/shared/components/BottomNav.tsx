@@ -7,99 +7,53 @@ export const BottomNav: React.FC = () => {
     const { activeTab, setActiveTab, openTransactionModal } = useAppContext();
     const { triggerHaptic } = useHaptic();
 
-    // Updated Order: Home, Budget, FAB, Goals, Advisor
+    const tabs = [
+        { id: 'dashboard', label: 'Home', icon: Icons.Home },
+        { id: 'budget', label: 'Budget', icon: Icons.PieChart }, // Changed to PieChart to match Stitch
+        { id: 'goals', label: 'Goal', icon: Icons.Flag }, // Changed to Flag to match Stitch
+        { id: 'ai', label: 'AI Advisor', icon: Icons.AI }, // Changed to Bot to match Stitch smart_toy
+    ];
 
     return (
-        <div className="fixed bottom-0 left-0 right-0 bg-theme-main/80 backdrop-blur-xl border-t border-white/5 px-6 py-4 z-50 transition-colors duration-300" style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom))' }}>
-            <div className="flex justify-between items-center">
+        <div className="fixed bottom-6 left-0 right-0 z-50 flex justify-center items-end pointer-events-none pb-[env(safe-area-inset-bottom)]">
+            <div className="relative w-full max-w-sm px-6 flex justify-center pointer-events-auto">
+                <nav className="h-16 w-full bg-surface-light/90 dark:bg-surface-dark/95 backdrop-blur-xl rounded-[2rem] shadow-[0_8px_32px_rgba(0,0,0,0.12)] border border-white/20 dark:border-gray-700 flex items-center justify-around px-2 relative z-50">
+                    {tabs.map((tab) => (
+                        <button
+                            key={tab.id}
+                            onClick={() => {
+                                triggerHaptic('light');
+                                setActiveTab(tab.id as any);
+                            }}
+                            className={`flex flex-col items-center justify-center gap-1 w-14 group transition-colors ${activeTab === tab.id
+                                ? 'text-primary'
+                                : 'text-gray-400 hover:text-primary dark:hover:text-primary'
+                                }`}
+                        >
+                            <tab.icon
+                                size={26}
+                                strokeWidth={activeTab === tab.id ? 2.5 : 2}
+                                className="group-hover:scale-110 transition-transform"
+                            />
+                            <span className={`text-[9px] ${activeTab === tab.id ? 'font-bold' : 'font-medium'}`}>
+                                {tab.label}
+                            </span>
+                        </button>
+                    ))}
 
-                {/* Left Side */}
-                <div className="flex gap-8">
+                    {/* FAB Integrated as 5th item */}
                     <button
-                        onClick={() => setActiveTab('dashboard')}
-                        className="flex flex-col items-center gap-1 group"
-                    >
-                        <div className={`p-2 rounded-xl transition-all ${activeTab === 'dashboard' ? 'bg-cyan-500/10 text-cyan-400' : 'text-gray-500 group-hover:text-gray-300'}`}>
-                            <Icons.Dashboard size={24} />
-                        </div>
-                        <span className={`text-[10px] font-black uppercase tracking-widest ${activeTab === 'dashboard' ? 'text-cyan-400' : 'text-gray-500'}`}>Home</span>
-                    </button>
-
-                    <button
-                        onClick={() => setActiveTab('budget')}
-                        className="flex flex-col items-center gap-1 group"
-                    >
-                        <div className={`p-2 rounded-xl transition-all ${activeTab === 'budget' ? 'bg-cyan-500/10 text-cyan-400' : 'text-gray-500 group-hover:text-gray-300'}`}>
-                            <Icons.Budget size={24} />
-                        </div>
-                        <span className={`text-[10px] font-black uppercase tracking-widest ${activeTab === 'budget' ? 'text-cyan-400' : 'text-gray-500'}`}>Budget</span>
-                    </button>
-                </div>
-
-                {/* FAB (Center) */}
-                <div className="relative -top-8">
-                    <button
-                        onMouseDown={() => {
-                            const timer = setTimeout(() => {
-                                triggerHaptic('heavy');
-                                openTransactionModal(undefined, undefined, { voice: true });
-                            }, 600);
-                            (window as any).longPressTimer = timer;
+                        onClick={() => {
+                            triggerHaptic('heavy');
+                            openTransactionModal();
                         }}
-                        onMouseUp={() => {
-                            if ((window as any).longPressTimer) {
-                                clearTimeout((window as any).longPressTimer);
-                                (window as any).longPressTimer = null;
-                            }
-                        }}
-                        onTouchStart={() => {
-                            const timer = setTimeout(() => {
-                                triggerHaptic('heavy');
-                                openTransactionModal(undefined, undefined, { voice: true });
-                                (window as any).longPressTriggered = true;
-                            }, 600);
-                            (window as any).longPressTimer = timer;
-                            (window as any).longPressTriggered = false;
-                        }}
-                        onTouchEnd={(e) => {
-                            if ((window as any).longPressTimer) {
-                                clearTimeout((window as any).longPressTimer);
-                            }
-                            if (!(window as any).longPressTriggered) {
-                                openTransactionModal();
-                            }
-                            e.preventDefault();
-                        }}
-                        className="w-16 h-16 rounded-full bg-cyan-500 flex items-center justify-center shadow-[0_0_20px_rgba(6,182,212,0.5)] border-4 border-theme-main active:scale-90 transition-transform group relative overflow-hidden"
+                        className="flex flex-col items-center justify-center gap-1 w-14 group -mt-1"
                     >
-                        <Icons.Plus size={32} className="text-white relative z-10" />
-                        <div className="absolute inset-0 bg-gradient-to-tr from-cyan-600 to-blue-400 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                    </button>
-                </div>
-
-                {/* Right Side */}
-                <div className="flex gap-8">
-                    <button
-                        onClick={() => setActiveTab('goals')}
-                        className="flex flex-col items-center gap-1 group"
-                    >
-                        <div className={`p-2 rounded-xl transition-all ${activeTab === 'goals' ? 'bg-cyan-500/10 text-cyan-400' : 'text-gray-500 group-hover:text-gray-300'}`}>
-                            <Icons.Goals size={24} />
+                        <div className="w-11 h-11 rounded-full bg-primary text-white flex items-center justify-center shadow-glow group-hover:scale-110 transition-transform">
+                            <Icons.Plus size={28} strokeWidth={2.5} />
                         </div>
-                        <span className={`text-[10px] font-black uppercase tracking-widest ${activeTab === 'goals' ? 'text-cyan-400' : 'text-gray-500'}`}>Goals</span>
                     </button>
-
-                    <button
-                        onClick={() => setActiveTab('ai')}
-                        className="flex flex-col items-center gap-1 group"
-                    >
-                        <div className={`p-2 rounded-xl transition-all ${activeTab === 'ai' ? 'bg-cyan-500/10 text-cyan-400' : 'text-gray-500 group-hover:text-gray-300'}`}>
-                            <Icons.AI size={24} />
-                        </div>
-                        <span className={`text-[10px] font-black uppercase tracking-widest ${activeTab === 'ai' ? 'text-cyan-400' : 'text-gray-500'}`}>Advisor</span>
-                    </button>
-                </div>
-
+                </nav>
             </div>
         </div>
     );

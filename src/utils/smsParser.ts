@@ -1,4 +1,5 @@
 import { Transaction } from "@/types";
+import { validateSMSParsingConsent } from "@/lib/supabase/data-service";
 
 interface ParsedSMS {
     amount: number;
@@ -98,4 +99,39 @@ const parseDate = (dateStr: string): string => {
         // ignore
     }
     return new Date().toISOString().split('T')[0];
+};
+
+/**
+ * GDPR-compliant SMS parsing with consent validation
+ */
+export const parseSMSWithConsent = async (text: string, userId?: string): Promise<{
+    success: boolean;
+    data?: ParsedSMS;
+    error?: string;
+    consentRequired?: boolean;
+}> => {
+    // If userId is provided, check consent first
+    if (userId) {
+        const hasConsent = await validateSMSParsingConsent(userId);
+        if (!hasConsent) {
+            return {
+                success: false,
+                error: 'SMS parsing consent not granted',
+                consentRequired: true
+            };
+        }
+    }
+
+    const parsedData = parseSMS(text);
+    if (parsedData) {
+        return {
+            success: true,
+            data: parsedData
+        };
+    } else {
+        return {
+            success: false,
+            error: 'Unable to parse SMS'
+        };
+    }
 };

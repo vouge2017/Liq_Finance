@@ -1,65 +1,69 @@
 import React from 'react';
 import { Icons } from '@/shared/components/Icons';
 import { useAppContext } from '@/context/AppContext';
+import CountUp from '@/shared/components/CountUp';
 
 export const BalanceCard: React.FC = () => {
-  const { state, isPrivacyMode, setActiveTab } = useAppContext();
+  const { state, isPrivacyMode } = useAppContext();
   const { totalBalance, totalIncome, totalExpense } = state;
 
   return (
-    <div className="balance-hero-card bg-gradient-to-br from-cyan-600 via-indigo-700 to-purple-800 rounded-[2rem] p-6 mb-8 relative overflow-hidden shadow-2xl shadow-indigo-500/30 group transform hover:scale-[1.02] transition-all duration-300 card-hover">
-      {/* Enhanced background decoration - animated blur orbs */}
-      <div className="absolute top-0 right-0 w-72 h-72 bg-purple-500/30 rounded-full blur-[80px] -mr-24 -mt-24 pointer-events-none animate-pulse-slow"></div>
-      <div className="absolute bottom-0 left-0 w-56 h-56 bg-cyan-400/20 rounded-full blur-[60px] -ml-16 -mb-16 pointer-events-none animate-pulse-slower"></div>
-      <div className="absolute top-1/2 right-1/4 w-32 h-32 bg-pink-500/15 rounded-full blur-[40px] pointer-events-none animate-float"></div>
-      {/* Glassmorphism overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none"></div>
-
+    <div className="w-full relative overflow-hidden bg-gradient-to-br from-primary to-[#052c78] rounded-[2rem] shadow-glow-lg p-6 group transition-transform duration-500 hover:scale-[1.01]">
+      {/* Dot Pattern Overlay */}
       <div
-        className="flex justify-between items-start mb-2 relative z-10 cursor-pointer"
-        onClick={() => setActiveTab('accounts')}
-      >
-        <div>
-          <h2 className="text-white/70 text-[10px] font-bold uppercase tracking-[0.2em] mb-2">Total Balance</h2>
-          <div className="flex items-baseline gap-1">
-            <span className="text-white/80 text-3xl font-bold">$</span>
-            <span className="text-white text-5xl font-extrabold tracking-tight" style={{ letterSpacing: '-0.02em' }}>
-              {isPrivacyMode ? '••••••' : totalBalance.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-            </span>
+        className="absolute inset-0 opacity-10 pointer-events-none"
+        style={{
+          backgroundImage: 'radial-gradient(#fff 1.5px, transparent 1.5px), radial-gradient(#fff 1.5px, transparent 1.5px)',
+          backgroundSize: '24px 24px',
+          backgroundPosition: '0 0, 12px 12px'
+        }}
+      />
+
+      {/* Blur Orbs */}
+      <div className="absolute -top-24 -right-24 w-64 h-64 bg-cyan-400/20 rounded-full blur-[80px] mix-blend-screen"></div>
+      <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-blue-600/40 rounded-full blur-[60px] mix-blend-overlay"></div>
+
+      <div className="relative z-10 flex flex-col gap-6">
+        {/* Header Row */}
+        <div className="flex justify-between items-start">
+          <div className="flex flex-col">
+            <p className="text-blue-100/90 text-sm font-bold tracking-wide">Total Balance</p>
+            <h1 className="text-[2.5rem] leading-tight font-black text-white tracking-tighter drop-shadow-md font-display mt-1">
+              <span className="text-xl align-top mr-0.5 font-bold text-cyan-200 opacity-90">ETB</span>
+              {isPrivacyMode ? '••••••' : (
+                <CountUp
+                  end={totalBalance}
+                  duration={1.5}
+                  decimals={2}
+                  separator=","
+                />
+              )}
+            </h1>
+          </div>
+          <div className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/10 shadow-sm text-cyan-200 cursor-pointer hover:bg-white/20 transition-colors">
+            <span className="text-xs font-semibold">Analytics</span>
+            <Icons.ChevronRight size={14} />
           </div>
         </div>
-        {/* Change indicator badge */}
-        <div className="bg-emerald-500/20 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-1.5 border border-emerald-400/20">
-          <Icons.TrendingUp size={14} className="text-emerald-400" />
-          <span className="text-xs font-bold text-emerald-400">+3.5%</span>
-        </div>
-      </div>
 
-      <p className="text-white/50 text-xs mb-6 relative z-10">Since last month</p>
-
-      <div className="flex justify-between items-center gap-3 relative z-10">
-        {/* Income */}
-        <div className="flex-1 flex items-center gap-3 bg-white/10 rounded-2xl p-3 backdrop-blur-md border border-white/10 hover:bg-white/15 transition-colors">
-          <div className="w-10 h-10 rounded-xl bg-emerald-500/25 flex items-center justify-center">
-            <Icons.ArrowDown size={18} className="text-emerald-400" />
-          </div>
-          <div>
-            <p className="text-white/50 text-[10px] font-semibold uppercase tracking-wider">Income</p>
-            <p className="text-white font-bold text-base">
-              {isPrivacyMode ? '••••' : `$${totalIncome.toLocaleString()}`}
+        {/* Income/Expense Grid */}
+        <div className="grid grid-cols-2 gap-3">
+          <div className="bg-surface-light/10 backdrop-blur-sm border border-white/5 p-3 rounded-xl flex flex-col justify-center">
+            <div className="flex items-center gap-2 mb-1">
+              <Icons.Check size={18} className="text-green-400" />
+              <span className="text-xs font-medium text-gray-200">Income</span>
+            </div>
+            <p className="text-lg font-bold text-white">
+              {isPrivacyMode ? '••••' : totalIncome.toLocaleString()}
             </p>
           </div>
-        </div>
-
-        {/* Expense */}
-        <div className="flex-1 flex items-center gap-3 bg-white/10 rounded-2xl p-3 backdrop-blur-md border border-white/10 hover:bg-white/15 transition-colors">
-          <div className="w-10 h-10 rounded-xl bg-rose-500/25 flex items-center justify-center">
-            <Icons.ArrowUp size={18} className="text-rose-400" />
-          </div>
-          <div>
-            <p className="text-white/50 text-[10px] font-semibold uppercase tracking-wider">Expense</p>
-            <p className="text-white font-bold text-base">
-              {isPrivacyMode ? '••••' : `$${totalExpense.toLocaleString()}`}
+          <div className="bg-surface-light/10 backdrop-blur-sm border border-white/5 p-3 rounded-xl flex flex-col justify-center">
+            <div className="flex items-center gap-2 mb-1">
+              <Icons.ArrowUpRight size={18} className="text-rose-400" />
+              <span className="text-xs font-medium text-gray-200">Expense</span>
+            </div>
+            <p className="text-lg font-bold text-white">
+              {isPrivacyMode ? '••••' : totalExpense.toLocaleString()}
             </p>
           </div>
         </div>
