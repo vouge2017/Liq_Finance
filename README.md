@@ -8,6 +8,17 @@
 
 > **No Google Play Store fee needed!** Share as a PWA directly with friends and colleagues.
 
+## 🚀 Quick Start - View the App NOW!
+
+```bash
+cd /home/engine/project
+pnpm dev
+```
+
+Then open http://localhost:3000/ in your browser!
+
+**📖 Detailed instructions:** See [VIEW_APP_NOW.md](./VIEW_APP_NOW.md) for complete guide.
+
 ## ✨ Features
 
 - 📊 **Expense Tracking** - Track income and expenses with categories
