@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+<<<<<<< HEAD
 import { Icons } from '@/shared/components/Icons';
 
 // Lazy-load canvas-confetti to reduce initial bundle size (~20-30 kB savings)
@@ -8,6 +9,11 @@ const loadConfetti = async () => {
   return confettiModule.default;
 };
 
+=======
+import confetti from 'canvas-confetti';
+import { Icons } from '@/shared/components/Icons';
+
+>>>>>>> d990df020acf2dbd0fd0e3232e7fc73bebed2318
 interface CelebrationOverlayProps {
     isVisible: boolean;
     onClose: () => void;
@@ -26,6 +32,7 @@ export const CelebrationOverlay: React.FC<CelebrationOverlayProps> = ({
     useEffect(() => {
         if (isVisible) {
             setShowModal(true);
+<<<<<<< HEAD
             // Trigger confetti (lazy-loaded)
             const duration = 3000;
             const end = Date.now() + duration;
@@ -57,6 +64,34 @@ export const CelebrationOverlay: React.FC<CelebrationOverlayProps> = ({
             };
 
             triggerConfetti();
+=======
+            // Trigger confetti
+            const duration = 3000;
+            const end = Date.now() + duration;
+
+            const frame = () => {
+                confetti({
+                    particleCount: 2,
+                    angle: 60,
+                    spread: 55,
+                    origin: { x: 0 },
+                    colors: ['#06B6D4', '#EC4899', '#10B981', '#F59E0B']
+                });
+                confetti({
+                    particleCount: 2,
+                    angle: 120,
+                    spread: 55,
+                    origin: { x: 1 },
+                    colors: ['#06B6D4', '#EC4899', '#10B981', '#F59E0B']
+                });
+
+                if (Date.now() < end) {
+                    requestAnimationFrame(frame);
+                }
+            };
+
+            frame();
+>>>>>>> d990df020acf2dbd0fd0e3232e7fc73bebed2318
         } else {
             setShowModal(false);
         }

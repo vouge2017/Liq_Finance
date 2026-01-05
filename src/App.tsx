@@ -1,10 +1,22 @@
 "use client"
 
+<<<<<<< HEAD
 import React, { useState, Suspense, lazy } from "react"
+=======
+import React, { useState } from "react"
+>>>>>>> d990df020acf2dbd0fd0e3232e7fc73bebed2318
 import { Icons } from "@/shared/components/Icons"
 import { BalanceCard } from "@/features/accounts/BalanceCard"
 import { TransactionList } from "@/features/budget/TransactionList"
 import { BottomNav } from "@/shared/components/BottomNav"
+<<<<<<< HEAD
+=======
+import { AIAdvisor } from "@/features/advisor/AIAdvisor"
+import { AccountsPage } from "@/features/accounts/AccountsPage"
+import { BudgetPage } from "@/features/budget/BudgetPage"
+import { GoalsPage } from "@/features/goals/GoalsPage"
+import { CommunityPage } from "@/features/community/CommunityPage"
+>>>>>>> d990df020acf2dbd0fd0e3232e7fc73bebed2318
 import { AppProvider, useAppContext } from "@/context/AppContext"
 import { AuthProvider } from "@/context/AuthContext"
 import { TransactionModal } from "@/features/budget/TransactionModal"
@@ -20,6 +32,7 @@ import { QuickActions } from "@/features/dashboard/QuickActions"
 import { AINotificationStack } from "@/shared/components/AINotificationBanner"
 import { SubscriptionModal } from "@/shared/components/SubscriptionModal"
 import { SubscriptionWidget } from "@/features/dashboard/SubscriptionWidget"
+<<<<<<< HEAD
 import { PageLoader } from "@/shared/components/PageLoader"
 
 // Lazy-loaded page components for code splitting
@@ -28,6 +41,8 @@ const AccountsPage = lazy(() => import("@/features/accounts/AccountsPage").then(
 const BudgetPage = lazy(() => import("@/features/budget/BudgetPage").then(module => ({ default: module.BudgetPage })))
 const GoalsPage = lazy(() => import("@/features/goals/GoalsPage").then(module => ({ default: module.GoalsPage })))
 const CommunityPage = lazy(() => import("@/features/community/CommunityPage").then(module => ({ default: module.CommunityPage })))
+=======
+>>>>>>> d990df020acf2dbd0fd0e3232e7fc73bebed2318
 
 // Global Notification Component
 const NotificationToast = () => {
@@ -178,6 +193,7 @@ function MainLayout() {
           </div>
         )}
 
+<<<<<<< HEAD
         {activeTab === "accounts" && (
           <Suspense fallback={<PageLoader />}>
             <AccountsPage />
@@ -207,6 +223,13 @@ function MainLayout() {
             <AIAdvisor />
           </Suspense>
         )}
+=======
+        {activeTab === "accounts" && <AccountsPage />}
+        {activeTab === "budget" && <BudgetPage />}
+        {activeTab === "goals" && <GoalsPage />}
+        {activeTab === "community" && <CommunityPage />}
+        {activeTab === "ai" && <AIAdvisor />}
+>>>>>>> d990df020acf2dbd0fd0e3232e7fc73bebed2318
       </main>
 
       {/* Navigation */}

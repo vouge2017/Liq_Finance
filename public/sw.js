@@ -1,4 +1,5 @@
 // Service Worker for FinEthio Planner PWA
+<<<<<<< HEAD
 const CACHE_NAME = 'finethio-v2' // Increment version for new caching strategy
 const RUNTIME_CACHE = 'finethio-runtime-v2'
 const STATIC_CACHE = 'finethio-static-v2'
@@ -46,6 +47,31 @@ self.addEventListener('install', (event) => {
         })
       })
     ]).then(() => self.skipWaiting())
+=======
+const CACHE_NAME = 'finethio-v1'
+const RUNTIME_CACHE = 'finethio-runtime-v1'
+
+// Assets to cache on install
+const PRECACHE_ASSETS = [
+  '/',
+  '/index.html',
+  '/index.css',
+  '/icon-light-32x32.png',
+  '/icon-dark-32x32.png',
+  '/apple-icon.png',
+  '/icon.svg'
+]
+
+// Install event - cache assets
+self.addEventListener('install', (event) => {
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then((cache) => {
+        console.log('[SW] Caching assets')
+        return cache.addAll(PRECACHE_ASSETS)
+      })
+      .then(() => self.skipWaiting())
+>>>>>>> d990df020acf2dbd0fd0e3232e7fc73bebed2318
   )
 })
 
@@ -56,10 +82,14 @@ self.addEventListener('activate', (event) => {
       return Promise.all(
         cacheNames
           .filter((cacheName) => {
+<<<<<<< HEAD
             // Keep only current cache versions
             return cacheName !== CACHE_NAME && 
                    cacheName !== RUNTIME_CACHE && 
                    cacheName !== STATIC_CACHE
+=======
+            return cacheName !== CACHE_NAME && cacheName !== RUNTIME_CACHE
+>>>>>>> d990df020acf2dbd0fd0e3232e7fc73bebed2318
           })
           .map((cacheName) => {
             console.log('[SW] Deleting old cache:', cacheName)
@@ -71,13 +101,18 @@ self.addEventListener('activate', (event) => {
   )
 })
 
+<<<<<<< HEAD
 // Fetch event - enhanced caching strategy
+=======
+// Fetch event - serve from cache, fallback to network
+>>>>>>> d990df020acf2dbd0fd0e3232e7fc73bebed2318
 self.addEventListener('fetch', (event) => {
   // Skip non-GET requests
   if (event.request.method !== 'GET') {
     return
   }
 
+<<<<<<< HEAD
   const url = new URL(event.request.url)
 
   // Skip API routes and external requests (no caching)
@@ -179,6 +214,58 @@ self.addEventListener('fetch', (event) => {
         return response
       })
       .catch(() => caches.match(event.request))
+=======
+  // Skip API routes and external requests
+  if (
+    event.request.url.includes('/api/') ||
+    event.request.url.startsWith('http://') ||
+    event.request.url.includes('supabase.co') ||
+    event.request.url.includes('googleapis.com') ||
+    event.request.url.includes('aistudiocdn.com')
+  ) {
+    return
+  }
+
+  event.respondWith(
+    caches.match(event.request)
+      .then((cachedResponse) => {
+        if (cachedResponse) {
+          return cachedResponse
+        }
+
+        return fetch(event.request)
+          .then((response) => {
+            // Don't cache if not a valid response
+            if (!response || response.status !== 200 || response.type !== 'basic') {
+              return response
+            }
+
+            // Clone the response
+            const responseToCache = response.clone()
+
+            // Cache the response (skip chrome-extension and other unsupported schemes)
+            const url = new URL(event.request.url)
+            if (url.protocol === 'http:' || url.protocol === 'https:') {
+              caches.open(RUNTIME_CACHE)
+                .then((cache) => {
+                  cache.put(event.request, responseToCache)
+                })
+                .catch((err) => {
+                  // Silently ignore cache errors
+                  console.debug('Cache put failed:', err)
+                })
+            }
+
+            return response
+          })
+          .catch(() => {
+            // Return offline page if available
+            if (event.request.destination === 'document') {
+              return caches.match('/index.html')
+            }
+          })
+      })
+>>>>>>> d990df020acf2dbd0fd0e3232e7fc73bebed2318
   )
 })
 

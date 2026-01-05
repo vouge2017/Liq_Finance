@@ -30,6 +30,7 @@ export default defineConfig(({ mode }) => {
     build: {
       rollupOptions: {
         output: {
+<<<<<<< HEAD
           manualChunks: (id) => {
             // React core
             if (id.includes('node_modules/react') || id.includes('node_modules/react-dom')) {
@@ -75,6 +76,11 @@ export default defineConfig(({ mode }) => {
             if (id.includes('node_modules')) {
               return 'vendor';
             }
+=======
+          manualChunks: {
+            'react-vendor': ['react', 'react-dom'],
+            'ui-vendor': ['lucide-react'],
+>>>>>>> d990df020acf2dbd0fd0e3232e7fc73bebed2318
           }
         }
       }

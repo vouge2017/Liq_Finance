@@ -19,9 +19,15 @@ export const BalanceCard: React.FC = () => {
         }}
       />
 
+<<<<<<< HEAD
       {/* Gradient Orbs - GPU-cheap alternative to blur */}
       <div className="absolute -top-24 -right-24 w-64 h-64 bg-cyan-400/10 rounded-full opacity-50"></div>
       <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-blue-600/20 rounded-full opacity-50"></div>
+=======
+      {/* Blur Orbs */}
+      <div className="absolute -top-24 -right-24 w-64 h-64 bg-cyan-400/20 rounded-full blur-[80px] mix-blend-screen"></div>
+      <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-blue-600/40 rounded-full blur-[60px] mix-blend-overlay"></div>
+>>>>>>> d990df020acf2dbd0fd0e3232e7fc73bebed2318
 
       <div className="relative z-10 flex flex-col gap-6">
         {/* Header Row */}
@@ -40,7 +46,11 @@ export const BalanceCard: React.FC = () => {
               )}
             </h1>
           </div>
+<<<<<<< HEAD
           <div className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white/15 border border-white/20 shadow-sm text-cyan-200 cursor-pointer hover:bg-white/25 transition-colors">
+=======
+          <div className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/10 shadow-sm text-cyan-200 cursor-pointer hover:bg-white/20 transition-colors">
+>>>>>>> d990df020acf2dbd0fd0e3232e7fc73bebed2318
             <span className="text-xs font-semibold">Analytics</span>
             <Icons.ChevronRight size={14} />
           </div>
@@ -48,7 +58,11 @@ export const BalanceCard: React.FC = () => {
 
         {/* Income/Expense Grid */}
         <div className="grid grid-cols-2 gap-3">
+<<<<<<< HEAD
           <div className="bg-white/10 border border-white/10 p-3 rounded-xl flex flex-col justify-center">
+=======
+          <div className="bg-surface-light/10 backdrop-blur-sm border border-white/5 p-3 rounded-xl flex flex-col justify-center">
+>>>>>>> d990df020acf2dbd0fd0e3232e7fc73bebed2318
             <div className="flex items-center gap-2 mb-1">
               <Icons.Check size={18} className="text-green-400" />
               <span className="text-xs font-medium text-gray-200">Income</span>
@@ -57,7 +71,11 @@ export const BalanceCard: React.FC = () => {
               {isPrivacyMode ? '••••' : totalIncome.toLocaleString()}
             </p>
           </div>
+<<<<<<< HEAD
           <div className="bg-white/10 border border-white/10 p-3 rounded-xl flex flex-col justify-center">
+=======
+          <div className="bg-surface-light/10 backdrop-blur-sm border border-white/5 p-3 rounded-xl flex flex-col justify-center">
+>>>>>>> d990df020acf2dbd0fd0e3232e7fc73bebed2318
             <div className="flex items-center gap-2 mb-1">
               <Icons.ArrowUpRight size={18} className="text-rose-400" />
               <span className="text-xs font-medium text-gray-200">Expense</span>

@@ -1,15 +1,25 @@
+<<<<<<< HEAD
 import React, { useRef, useState, useEffect } from 'react';
+=======
+import React, { useRef } from 'react';
+>>>>>>> d990df020acf2dbd0fd0e3232e7fc73bebed2318
 import { Icons } from '@/shared/components/Icons';
 import { useAppContext } from '@/context/AppContext';
 import { useAuth } from '@/context/AuthContext';
 import { EmptyState } from '@/shared/components/EmptyState';
 import { SignInPrompt } from '@/shared/components/SignInPrompt';
+<<<<<<< HEAD
 import type { Transaction } from '@/types';
+=======
+>>>>>>> d990df020acf2dbd0fd0e3232e7fc73bebed2318
 
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { PullToRefreshIndicator } from '@/shared/components/PullToRefreshIndicator';
 import { SwipeableItem } from '@/shared/components/SwipeableItem';
+<<<<<<< HEAD
 import { TransactionListSkeleton } from '@/shared/components/OptimizedSkeletons';
+=======
+>>>>>>> d990df020acf2dbd0fd0e3232e7fc73bebed2318
 
 // Category icon and color mapping
 const CATEGORY_STYLES: Record<string, { icon: React.ElementType; bgColor: string; textColor: string }> = {
@@ -49,9 +59,14 @@ export const TransactionList: React.FC = () => {
 
   if (loading) {
     return (
+<<<<<<< HEAD
       <div className="w-full mb-24">
         <h3 className="text-lg font-bold text-[#111318] dark:text-white mb-4">Recent Transactions</h3>
         <TransactionListSkeleton count={5} />
+=======
+      <div className="flex justify-center py-12">
+        <Icons.Loader className="animate-spin text-primary" size={32} />
+>>>>>>> d990df020acf2dbd0fd0e3232e7fc73bebed2318
       </div>
     );
   }
@@ -97,6 +112,7 @@ export const TransactionList: React.FC = () => {
       {/* Section Header */}
       <h3 className="text-lg font-bold text-[#111318] dark:text-white mb-4">Recent Transactions</h3>
 
+<<<<<<< HEAD
       {/* Transaction List - Virtualized for performance */}
       {transactions.length === 0 ? (
         <EmptyState
@@ -203,6 +219,27 @@ const VirtualizedTransactionList: React.FC<{
         {transactions.map((tx) => {
           const style = getCategoryStyle(tx);
           const IconComponent = style.icon;
+=======
+      {/* Transaction List */}
+      <div className="flex flex-col gap-3">
+        {loading ? (
+          Array.from({ length: 3 }, (_, index) => (
+            <div key={index} className="bg-surface-light dark:bg-surface-dark p-4 rounded-2xl shadow-sm flex items-center justify-between border border-gray-100 dark:border-gray-800">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-full bg-gray-100 animate-pulse"></div>
+                <div className="space-y-2">
+                  <div className="h-4 w-24 bg-gray-100 rounded animate-pulse"></div>
+                  <div className="h-3 w-16 bg-gray-100 rounded animate-pulse"></div>
+                </div>
+              </div>
+              <div className="h-4 w-20 bg-gray-100 rounded animate-pulse"></div>
+            </div>
+          ))
+        ) : transactions.slice(0, 5).map((tx) => {
+          const style = getCategoryStyle(tx);
+          const IconComponent = style.icon;
+
+>>>>>>> d990df020acf2dbd0fd0e3232e7fc73bebed2318
           return (
             <SwipeableItem
               key={tx.id}
@@ -214,6 +251,10 @@ const VirtualizedTransactionList: React.FC<{
                 className="bg-surface-light dark:bg-surface-dark p-4 rounded-2xl shadow-sm flex items-center justify-between border border-gray-100 dark:border-gray-800 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
               >
                 <div className="flex items-center gap-4">
+<<<<<<< HEAD
+=======
+                  {/* Colored Icon Circle */}
+>>>>>>> d990df020acf2dbd0fd0e3232e7fc73bebed2318
                   <div className={`w-12 h-12 rounded-full ${style.bgColor} flex items-center justify-center ${style.textColor}`}>
                     <IconComponent size={20} />
                   </div>
@@ -227,6 +268,10 @@ const VirtualizedTransactionList: React.FC<{
                         const yesterday = new Date(now);
                         yesterday.setDate(now.getDate() - 1);
                         const isYesterday = d.toDateString() === yesterday.toDateString();
+<<<<<<< HEAD
+=======
+
+>>>>>>> d990df020acf2dbd0fd0e3232e7fc73bebed2318
                         const time = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
                         if (isToday) return `Today, ${time}`;
                         if (isYesterday) return `Yesterday`;
@@ -235,6 +280,10 @@ const VirtualizedTransactionList: React.FC<{
                     </p>
                   </div>
                 </div>
+<<<<<<< HEAD
+=======
+                {/* Amount */}
+>>>>>>> d990df020acf2dbd0fd0e3232e7fc73bebed2318
                 <p className="font-bold text-[#111318] dark:text-white">
                   {isPrivacyMode ? '••••' : (
                     <>
@@ -246,6 +295,7 @@ const VirtualizedTransactionList: React.FC<{
             </SwipeableItem>
           );
         })}
+<<<<<<< HEAD
       </div>
     );
   }
@@ -310,6 +360,22 @@ const VirtualizedTransactionList: React.FC<{
               );
             }}
       </FixedSizeList>
+=======
+
+        {transactions.length === 0 && (
+          <EmptyState
+            icon={<Icons.Shopping size={32} />}
+            title="No transactions yet"
+            description="Start tracking your expenses by adding your first transaction."
+            action={{
+              label: "Add Transaction",
+              onClick: () => openTransactionModal(),
+              icon: <Icons.Plus size={18} />
+            }}
+          />
+        )}
+      </div>
+>>>>>>> d990df020acf2dbd0fd0e3232e7fc73bebed2318
     </div>
   );
 };

@@ -47,7 +47,10 @@
     "@sentry/tracing": "^7.120.4",
     "@supabase/supabase-js": "latest",
     "@types/canvas-confetti": "^1.9.0",
+<<<<<<< HEAD
     "@types/react-window": "^1.8.8",
+=======
+>>>>>>> d990df020acf2dbd0fd0e3232e7fc73bebed2318
     "ai": "latest",
     "canvas-confetti": "^1.9.4",
     "class-variance-authority": "^0.7.1",
@@ -69,7 +72,10 @@
     "react-hook-form": "latest",
     "react-i18next": "^16.4.0",
     "react-resizable-panels": "latest",
+<<<<<<< HEAD
     "react-window": "^2.2.3",
+=======
+>>>>>>> d990df020acf2dbd0fd0e3232e7fc73bebed2318
     "recharts": "latest",
     "sonner": "latest",
     "stylus": "latest",
