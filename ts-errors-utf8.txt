@@ -1,0 +1,37 @@
+﻿node.exe : npm info using 
+npm@10.9.2
+At D:\Program 
+Files\nodejs\npx.ps1:29 char:3
++   & $NODE_EXE $NPX_CLI_JS 
+$args
++   
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : 
+    NotSpecified: (npm info   
+  using npm@10.9.2:String)    
+ [], RemoteException
+    + FullyQualifiedErrorId : 
+    NativeCommandError
+ 
+npm info using node@v22.17.0
+src/features/accounts/AccountsPage.tsx(384,33): error TS2657: JSX expressions must have one parent element.
+src/features/accounts/AccountsPage.tsx(408,21): error TS1005: ')' expected.
+src/features/accounts/AccountsPage.tsx(409,19): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/features/accounts/AccountsPage.tsx(411,9): error TS1005: ')' expected.
+src/features/accounts/AccountsPage.tsx(423,11): error TS17002: Expected corresponding JSX closing tag for 'main'.
+src/features/accounts/AccountsPage.tsx(425,5): error TS1005: ')' expected.
+src/features/accounts/AccountsPage.tsx(426,37): error TS2657: JSX expressions must have one parent element.
+src/features/accounts/AccountsPage.tsx(453,33): error TS1128: Declaration or statement expected.
+src/features/accounts/AccountsPage.tsx(454,29): error TS1109: Expression expected.
+src/features/accounts/AccountsPage.tsx(454,30): error TS1128: Declaration or statement expected.
+src/features/accounts/AccountsPage.tsx(454,31): error TS1128: Declaration or statement expected.
+src/features/accounts/AccountsPage.tsx(455,25): error TS1128: Declaration or statement expected.
+src/features/accounts/AccountsPage.tsx(456,21): error TS1109: Expression expected.
+src/features/accounts/AccountsPage.tsx(457,17): error TS1109: Expression expected.
+src/features/accounts/AccountsPage.tsx(457,18): error TS1128: Declaration or statement expected.
+src/features/accounts/AccountsPage.tsx(457,19): error TS1128: Declaration or statement expected.
+src/features/accounts/AccountsPage.tsx(469,13): error TS1128: Declaration or statement expected.
+src/features/accounts/AccountsPage.tsx(1002,9): error TS1128: Declaration or statement expected.
+src/features/accounts/AccountsPage.tsx(1003,5): error TS1109: Expression expected.
+src/features/accounts/AccountsPage.tsx(1004,1): error TS1128: Declaration or statement expected.
+

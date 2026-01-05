@@ -1,0 +1,32 @@
+
+> finethio-planner@0.0.0 build
+> vite build
+
+vite v5.4.21 building for production...
+transforming...
+Ô£ô 2281 modules transformed.
+rendering chunks...
+[plugin:vite:reporter] [plugin vite:reporter] 
+(!) D:/New folder/Liq_Finance/src/lib/supabase/client.ts is dynamically imported by D:/New folder/Liq_Finance/src/context/AppContext.tsx but also statically imported by D:/New folder/Liq_Finance/src/context/AuthContext.tsx, D:/New folder/Liq_Finance/src/lib/supabase/data-service.ts, D:/New folder/Liq_Finance/src/services/consent-service.ts, D:/New folder/Liq_Finance/src/services/gemini.ts, D:/New folder/Liq_Finance/src/shared/components/FeedbackModal.tsx, dynamic import will not move module into another chunk.
+
+[plugin:vite:reporter] [plugin vite:reporter] 
+(!) D:/New folder/Liq_Finance/src/lib/supabase/data-service.ts is dynamically imported by D:/New folder/Liq_Finance/src/lib/offline-sync.ts but also statically imported by D:/New folder/Liq_Finance/src/context/AppContext.tsx, D:/New folder/Liq_Finance/src/context/AuthContext.tsx, D:/New folder/Liq_Finance/src/services/gemini.ts, D:/New folder/Liq_Finance/src/utils/smsParser.ts, dynamic import will not move module into another chunk.
+
+computing gzip size...
+dist/index.html                          2.18 kB Ôöé gzip:   0.93 kB
+dist/assets/index-BcEKSJCb.css          72.07 kB Ôöé gzip:  12.65 kB
+dist/assets/proactive-ai-CWZtcBkV.js     2.67 kB Ôöé gzip:   1.04 kB
+dist/assets/CommunityPage-DaE0gyd-.js    7.85 kB Ôöé gzip:   2.37 kB
+dist/assets/react-vendor-DPwtEHlA.js    12.23 kB Ôöé gzip:   4.31 kB
+dist/assets/BudgetPage-D2xUvrwM.js      18.89 kB Ôöé gzip:   5.46 kB
+dist/assets/GoalsPage-K-2T2NwR.js       25.43 kB Ôöé gzip:   8.69 kB
+dist/assets/AccountsPage-DHpjTSPo.js    28.77 kB Ôöé gzip:   6.19 kB
+dist/assets/ui-vendor-BQncUhyV.js       48.50 kB Ôöé gzip:   9.75 kB
+dist/assets/AIAdvisor-BXpEMwdM.js       97.05 kB Ôöé gzip:  28.67 kB
+dist/assets/index-DEHlSVQu.js          887.59 kB Ôöé gzip: 267.98 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+Ô£ô built in 10.35s
