@@ -941,14 +941,90 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children, initialData,
     checkStreak()
   }, [])
 
-  // Generate Proactive Notifications
+  // ============ GOAL AUTOMATION ============
+
+  // Helper: Find most frequent account for defaults
+  const mostFrequentAccountId = useMemo(() => {
+    if (!fullState.transactions || fullState.transactions.length === 0) return fullState.accounts[0]?.id
+    try {
+      const counts: Record<string, number> = {}
+      fullState.transactions.forEach(t => {
+        if (t.accountId) {
+          counts[t.accountId] = (counts[t.accountId] || 0) + 1
+        }
+      })
+      const keys = Object.keys(counts)
+      if (keys.length === 0) return fullState.accounts[0]?.id
+      return keys.reduce((a, b) => counts[a] > counts[b] ? a : b)
+    } catch (e) {
+      console.error("Error calculating most frequent account", e)
+      return fullState.accounts[0]?.id
+    }
+  }, [fullState.transactions, fullState.accounts])
+
+  const processRecurringGoalContributions = useCallback(async () => {
+    if (!userId) return
+
+    const today = new Date().toISOString().split("T")[0]
+    const goalsToUpdate: SavingsGoal[] = []
+
+    for (const goal of fullState.savingsGoals) {
+      if (!goal.recurringAmount || !goal.recurringFrequency) continue
+
+      const lastDate = goal.lastContributionDate ? new Date(goal.lastContributionDate) : new Date(0)
+      const diffDays = Math.floor((new Date(today).getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24))
+
+      let isDue = false
+      if (goal.recurringFrequency === 'daily' && diffDays >= 1) isDue = true
+      if (goal.recurringFrequency === 'weekly' && diffDays >= 7) isDue = true
+      if (goal.recurringFrequency === 'monthly' && diffDays >= 30) isDue = true
+
+      if (isDue) {
+        const fromAccountId = goal.defaultAccountId || fullState.defaultAccountId || mostFrequentAccountId
+        if (fromAccountId) {
+          // We use the existing contributeToGoal logic but in a batch-friendly way if needed
+          // For now, we'll just call it directly for each goal
+          await contributeToGoal(goal.id, goal.recurringAmount, fromAccountId)
+
+          // Update the goal's lastContributionDate locally so we don't repeat it in this session
+          goalsToUpdate.push({ ...goal, lastContributionDate: today })
+        }
+      }
+    }
+
+    if (goalsToUpdate.length > 0) {
+      setFullState(prev => ({
+        ...prev,
+        savingsGoals: prev.savingsGoals.map(g => {
+          const updated = goalsToUpdate.find(ug => ug.id === g.id)
+          return updated ? { ...g, lastContributionDate: today } : g
+        })
+      }))
+    }
+  }, [userId, fullState.savingsGoals, fullState.defaultAccountId, mostFrequentAccountId, contributeToGoal])
+
+  // Run goal automation on load
   useEffect(() => {
-    // Lazy load the service to avoid circular dependencies if any
-    import("@/services/proactive-ai").then(({ generateProactiveNotifications }) => {
-      const notifications = generateProactiveNotifications(fullState)
-      notifications.forEach(addAINotification)
+    if (userId && fullState.savingsGoals.length > 0) {
+      processRecurringGoalContributions()
+    }
+  }, [userId, fullState.savingsGoals.length > 0]) // Only run once when goals are loaded
+
+  // Generate Proactive Notifications & Guidance Signals
+  useEffect(() => {
+    // Lazy load services to avoid circular dependencies
+    Promise.all([
+      import("@/services/proactive-ai"),
+      import("@/lib/guidance-engine")
+    ]).then(([{ generateProactiveNotifications }, { checkFinancialHealth }]) => {
+      const aiNotifications = generateProactiveNotifications(fullState)
+      const guidanceSignals = checkFinancialHealth(fullState)
+
+      // Merge and add all notifications
+      const allNotifications = [...aiNotifications, ...guidanceSignals]
+      allNotifications.forEach(addAINotification)
     })
-  }, [fullState.transactions, fullState.savingsGoals, fullState.iqubs, addAINotification])
+  }, [fullState.transactions, fullState.savingsGoals, fullState.iqubs, fullState.accounts, fullState.budgetCategories, addAINotification])
 
   // ============ IDDIR CRUD ============
 
@@ -1219,14 +1295,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children, initialData,
     return Array.from(uniqueTitles)
   }, [fullState.transactions])
 
-  const mostFrequentAccountId = useMemo(() => {
-    const counts: Record<string, number> = {}
-    fullState.transactions.forEach((t) => {
-      if (t.accountId) counts[t.accountId] = (counts[t.accountId] || 0) + 1
-    })
-    const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1])
-    return sorted.length > 0 ? sorted[0][0] : fullState.accounts[0]?.id
-  }, [fullState.transactions, fullState.accounts])
+
 
   // ============ BUDGET SPENT CALCULATION ============
 

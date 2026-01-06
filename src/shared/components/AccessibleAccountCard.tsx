@@ -3,6 +3,7 @@ import { Icons } from '@/shared/components/Icons'
 import { EthiopianNumericKeypad } from './EthiopianNumericKeypad'
 import { useHaptic } from '@/hooks/useHaptic'
 import { Account } from '@/types'
+import { calculateLoanAmortization } from '@/lib/loan-utils'
 
 interface AccessibleAccountCardProps {
     account: Account
@@ -34,6 +35,7 @@ export const AccessibleAccountCard: React.FC<AccessibleAccountCardProps> = ({
     const [showKeypad, setShowKeypad] = useState(false)
     const [transactionType, setTransactionType] = useState<'income' | 'expense'>('expense')
     const [showActions, setShowActions] = useState(false)
+    const [showBreakdown, setShowBreakdown] = useState(false)
     const cardRef = useRef<HTMLDivElement>(null)
     const { triggerHaptic } = useHaptic()
 
@@ -136,10 +138,22 @@ export const AccessibleAccountCard: React.FC<AccessibleAccountCardProps> = ({
             `}>
                             {account.type}
                         </span>
+                        <span className="text-[10px] px-2 py-1 rounded-md font-bold bg-emerald-500/10 text-emerald-400 flex items-center gap-1">
+                            <Icons.Shield size={10} />
+                            Encrypted
+                        </span>
                         {account.type === 'Loan' && account.loanDetails && (
-                            <span className="text-[10px] text-amber-600 dark:text-amber-400 font-medium">
-                                Due: {account.loanDetails.dueDate}
-                            </span>
+                            <div className="flex flex-col gap-1">
+                                <span className="text-[10px] text-amber-600 dark:text-amber-400 font-medium">
+                                    Due: {account.loanDetails.dueDate}
+                                </span>
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); setShowBreakdown(true); }}
+                                    className="text-[10px] text-cyan-500 font-bold hover:underline text-left"
+                                >
+                                    View Breakdown
+                                </button>
+                            </div>
                         )}
                     </div>
                 </div>
@@ -259,6 +273,91 @@ export const AccessibleAccountCard: React.FC<AccessibleAccountCardProps> = ({
                                 View all {accountTransactions.length} transactions
                             </button>
                         )}
+                    </div>
+                </div>
+            )}
+
+            {/* Loan Breakdown Modal */}
+            {showBreakdown && account.type === 'Loan' && account.loanDetails && (
+                <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 sm:p-6">
+                    <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowBreakdown(false)} />
+                    <div className="bg-white dark:bg-[#101622] w-full max-w-lg rounded-[2.5rem] p-8 animate-dialog relative z-10 shadow-2xl border border-white/20 dark:border-white/5 max-h-[80vh] flex flex-col">
+                        <div className="flex justify-between items-center mb-6">
+                            <div>
+                                <h3 className="text-2xl font-black text-gray-900 dark:text-white">Loan Breakdown</h3>
+                                <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">{account.name} • {account.loanDetails.provider}</p>
+                            </div>
+                            <button onClick={() => setShowBreakdown(false)} className="w-10 h-10 rounded-full bg-gray-100 dark:bg-white/5 flex items-center justify-center text-gray-500">
+                                <Icons.Close size={20} />
+                            </button>
+                        </div>
+
+                        <div className="grid grid-cols-3 gap-4 mb-8">
+                            <div className="p-4 bg-gray-50 dark:bg-white/5 rounded-2xl">
+                                <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">Principal</p>
+                                <p className="text-lg font-black text-gray-900 dark:text-white">{(account.loanDetails.principal || 0).toLocaleString()}</p>
+                            </div>
+                            <div className="p-4 bg-gray-50 dark:bg-white/5 rounded-2xl">
+                                <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">Rate</p>
+                                <p className="text-lg font-black text-gray-900 dark:text-white">{account.loanDetails.interestRate || 0}%</p>
+                            </div>
+                            <div className="p-4 bg-gray-50 dark:bg-white/5 rounded-2xl">
+                                <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">Term</p>
+                                <p className="text-lg font-black text-gray-900 dark:text-white">{account.loanDetails.termMonths || 0} Mo</p>
+                            </div>
+                        </div>
+
+                        <div className="flex-1 overflow-y-auto no-scrollbar pr-2">
+                            <table className="w-full text-left">
+                                <thead className="sticky top-0 bg-white dark:bg-[#101622] z-10">
+                                    <tr className="text-[10px] text-gray-400 font-black uppercase tracking-widest border-b border-gray-100 dark:border-white/5">
+                                        <th className="pb-4">No.</th>
+                                        <th className="pb-4">Date</th>
+                                        <th className="pb-4">Payment</th>
+                                        <th className="pb-4">Principal</th>
+                                        <th className="pb-4">Interest</th>
+                                        <th className="pb-4 text-right">Balance</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-50 dark:divide-white/5">
+                                    {calculateLoanAmortization(
+                                        account.loanDetails.principal || 0,
+                                        account.loanDetails.interestRate || 0,
+                                        account.loanDetails.termMonths || 0
+                                    ).map((item) => (
+                                        <tr key={item.period} className="text-sm">
+                                            <td className="py-4 font-bold text-gray-400">{item.period}</td>
+                                            <td className="py-4 font-bold text-gray-900 dark:text-white">{new Date(item.date).toLocaleDateString(undefined, { month: 'short', year: '2-digit' })}</td>
+                                            <td className="py-4 font-black text-gray-900 dark:text-white">{Math.round(item.payment).toLocaleString()}</td>
+                                            <td className="py-4 text-gray-500">{Math.round(item.principal).toLocaleString()}</td>
+                                            <td className="py-4 text-amber-500">{Math.round(item.interest).toLocaleString()}</td>
+                                            <td className="py-4 text-right font-bold text-gray-900 dark:text-white">{Math.round(item.remainingBalance).toLocaleString()}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div className="mt-8 pt-6 border-t border-gray-100 dark:border-white/5 flex justify-between items-center">
+                            <div>
+                                <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">Total Interest</p>
+                                <p className="text-xl font-black text-amber-500">
+                                    {Math.round(
+                                        calculateLoanAmortization(
+                                            account.loanDetails.principal || 0,
+                                            account.loanDetails.interestRate || 0,
+                                            account.loanDetails.termMonths || 0
+                                        ).reduce((sum, item) => sum + item.interest, 0)
+                                    ).toLocaleString()} ETB
+                                </p>
+                            </div>
+                            <button
+                                onClick={() => setShowBreakdown(false)}
+                                className="px-8 py-4 bg-gray-900 dark:bg-white text-white dark:text-black rounded-2xl font-bold text-sm"
+                            >
+                                Close
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}

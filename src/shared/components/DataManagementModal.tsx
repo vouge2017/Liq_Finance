@@ -4,8 +4,9 @@ import type React from "react"
 import { useState, useRef } from "react"
 import { Icons } from "@/shared/components/Icons"
 import { useAppContext } from "@/context/AppContext"
+import { SyncStatusIndicator } from "./SyncStatusIndicator"
 import { useConsent } from "@/hooks/useConsent"
-import { Shield, AlertTriangle, CheckCircle, XCircle, Info } from "lucide-react"
+import { Shield, AlertTriangle, CheckCircle, XCircle, Info, RefreshCw } from "lucide-react"
 import type { AppState } from "@/types"
 
 interface DataManagementModalProps {
@@ -14,9 +15,9 @@ interface DataManagementModalProps {
 }
 
 export const DataManagementModal: React.FC<DataManagementModalProps> = ({ isOpen, onClose }) => {
-    const { state, restoreData } = useAppContext()
+    const { state, restoreData, addTransaction, addAccount } = useAppContext()
     const { consents, consentTypes, hasConsent, updateConsent, loading, refreshConsents } = useConsent()
-    const [activeTab, setActiveTab] = useState<'export' | 'import' | 'consent'>('export')
+    const [activeTab, setActiveTab] = useState<'export' | 'import' | 'consent' | 'sync' | 'security'>('export')
 
     // Export State
     const [isExporting, setIsExporting] = useState(false)
@@ -30,6 +31,11 @@ export const DataManagementModal: React.FC<DataManagementModalProps> = ({ isOpen
 
     // Consent State
     const [consentLoading, setConsentLoading] = useState<string | null>(null)
+
+    // Delete State
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+    const [deleteConfirmText, setDeleteConfirmText] = useState("")
+    const [isDeleting, setIsDeleting] = useState(false)
 
     const exportData = () => {
         setIsExporting(true)
@@ -140,6 +146,48 @@ export const DataManagementModal: React.FC<DataManagementModalProps> = ({ isOpen
         }
     }
 
+    const handleDeleteAllData = async () => {
+        if (deleteConfirmText !== "DELETE") return
+
+        setIsDeleting(true)
+        try {
+            // Clear all data from AppState
+            const emptyState: AppState = {
+                ...state,
+                totalBalance: 0,
+                totalIncome: 0,
+                totalExpense: 0,
+                transactions: [],
+                savingsGoals: [],
+                iqubs: [],
+                iddirs: [],
+                recurringTransactions: [],
+                expenseCategories: [],
+                budgetCategories: state.budgetCategories.map(c => ({ ...c, spent: 0 })),
+                incomeSources: [],
+                accounts: [],
+                achievements: {
+                    savingsStreak: 0,
+                    totalSaved: 0,
+                    goalsCompleted: 0,
+                    iqubsWon: 0,
+                    badges: []
+                }
+            }
+
+            restoreData(emptyState)
+
+            setTimeout(() => {
+                setIsDeleting(false)
+                setShowDeleteConfirm(false)
+                onClose()
+            }, 1500)
+        } catch (error) {
+            console.error("Delete error:", error)
+            setIsDeleting(false)
+        }
+    }
+
     if (!isOpen) return null
 
     return (
@@ -161,22 +209,34 @@ export const DataManagementModal: React.FC<DataManagementModalProps> = ({ isOpen
                 </div>
 
                 {/* Tabs */}
-                <div className="flex p-1 bg-gray-800 rounded-xl mb-6">
+                <div className="flex p-1 bg-gray-800 rounded-xl mb-6 overflow-x-auto no-scrollbar">
                     <button
                         onClick={() => setActiveTab('export')}
-                        className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${activeTab === 'export' ? 'bg-gray-700 text-white shadow-sm' : 'text-gray-400 hover:text-gray-300'}`}
+                        className={`flex-1 py-2 px-3 text-xs font-bold rounded-lg transition-all whitespace-nowrap ${activeTab === 'export' ? 'bg-gray-700 text-white shadow-sm' : 'text-gray-400 hover:text-gray-300'}`}
                     >
                         Export
                     </button>
                     <button
                         onClick={() => setActiveTab('import')}
-                        className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${activeTab === 'import' ? 'bg-gray-700 text-white shadow-sm' : 'text-gray-400 hover:text-gray-300'}`}
+                        className={`flex-1 py-2 px-3 text-xs font-bold rounded-lg transition-all whitespace-nowrap ${activeTab === 'import' ? 'bg-gray-700 text-white shadow-sm' : 'text-gray-400 hover:text-gray-300'}`}
                     >
                         Import
                     </button>
                     <button
+                        onClick={() => setActiveTab('sync')}
+                        className={`flex-1 py-2 px-3 text-xs font-bold rounded-lg transition-all whitespace-nowrap ${activeTab === 'sync' ? 'bg-gray-700 text-white shadow-sm' : 'text-gray-400 hover:text-gray-300'}`}
+                    >
+                        Sync
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('security')}
+                        className={`flex-1 py-2 px-3 text-xs font-bold rounded-lg transition-all whitespace-nowrap ${activeTab === 'security' ? 'bg-gray-700 text-white shadow-sm' : 'text-gray-400 hover:text-gray-300'}`}
+                    >
+                        Security
+                    </button>
+                    <button
                         onClick={() => setActiveTab('consent')}
-                        className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${activeTab === 'consent' ? 'bg-gray-700 text-white shadow-sm' : 'text-gray-400 hover:text-gray-300'}`}
+                        className={`flex-1 py-2 px-3 text-xs font-bold rounded-lg transition-all whitespace-nowrap ${activeTab === 'consent' ? 'bg-gray-700 text-white shadow-sm' : 'text-gray-400 hover:text-gray-300'}`}
                     >
                         Consent
                     </button>
@@ -218,6 +278,35 @@ export const DataManagementModal: React.FC<DataManagementModalProps> = ({ isOpen
                             {exportFormat === "csv" && <Icons.CheckCircle size={20} className="text-cyan-400" />}
                         </button>
                     </div>
+                ) : activeTab === 'sync' ? (
+                    <div className="space-y-4 mb-6 animate-fade-in">
+                        <div className="text-center mb-6">
+                            <div className="w-16 h-16 rounded-full bg-cyan-500/10 flex items-center justify-center mx-auto mb-3 border border-cyan-500/20">
+                                <RefreshCw size={28} className="text-cyan-400" />
+                            </div>
+                            <h3 className="text-lg font-bold text-white mb-2">Offline Sync</h3>
+                            <p className="text-sm text-gray-400">
+                                Manage your data synchronization across devices
+                            </p>
+                        </div>
+
+                        <SyncStatusIndicator
+                            userId={state.userPhone || 'anonymous'}
+                            clientId="web-client"
+                            compact={false}
+                            className="border border-gray-800"
+                        />
+
+                        <div className="bg-cyan-500/10 border border-cyan-500/20 p-4 rounded-xl">
+                            <div className="flex items-start gap-3">
+                                <Info size={16} className="text-cyan-400 mt-0.5" />
+                                <div className="text-xs text-cyan-200">
+                                    <p className="font-bold mb-1">Advisor Mode Philosophy</p>
+                                    <p>Liq_Finance is a mirror, not a gatekeeper. We show you the future so you can decide. Your data is always saved locally first.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 ) : activeTab === 'consent' ? (
                     <div className="space-y-4 mb-6 animate-fade-in">
                         {/* Consent Header */}
@@ -247,14 +336,14 @@ export const DataManagementModal: React.FC<DataManagementModalProps> = ({ isOpen
                                         <div
                                             key={type.id}
                                             className={`p-4 rounded-xl border transition-all ${hasUserConsent
-                                                    ? 'bg-emerald-500/10 border-emerald-500/30'
-                                                    : 'bg-gray-800/50 border-gray-700'
+                                                ? 'bg-emerald-500/10 border-emerald-500/30'
+                                                : 'bg-gray-800/50 border-gray-700'
                                                 }`}
                                         >
                                             <div className="flex items-start gap-3">
                                                 <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center mt-0.5 ${hasUserConsent
-                                                        ? 'bg-emerald-500 border-emerald-500'
-                                                        : 'border-gray-500'
+                                                    ? 'bg-emerald-500 border-emerald-500'
+                                                    : 'border-gray-500'
                                                     }`}>
                                                     {hasUserConsent ? (
                                                         <CheckCircle size={14} className="text-white" />
@@ -285,8 +374,8 @@ export const DataManagementModal: React.FC<DataManagementModalProps> = ({ isOpen
                                                         }}
                                                         disabled={consentLoading === type.code}
                                                         className={`px-3 py-1 rounded-lg text-xs font-bold transition-all disabled:opacity-50 ${hasUserConsent
-                                                                ? 'bg-rose-500/20 text-rose-400 hover:bg-rose-500/30'
-                                                                : 'bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30'
+                                                            ? 'bg-rose-500/20 text-rose-400 hover:bg-rose-500/30'
+                                                            : 'bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30'
                                                             }`}
                                                     >
                                                         {consentLoading === type.code ? (
@@ -328,6 +417,50 @@ export const DataManagementModal: React.FC<DataManagementModalProps> = ({ isOpen
                             </div>
                         </div>
                     </div>
+                ) : activeTab === 'security' ? (
+                    <div className="space-y-4 mb-6 animate-fade-in">
+                        <div className="text-center mb-6">
+                            <div className="w-16 h-16 rounded-full bg-emerald-500/10 flex items-center justify-center mx-auto mb-3 border border-emerald-500/20">
+                                <Shield size={28} className="text-emerald-400" />
+                            </div>
+                            <h3 className="text-lg font-bold text-white mb-2">Security & Privacy</h3>
+                            <p className="text-sm text-gray-400">
+                                Honest transparency about your data
+                            </p>
+                        </div>
+
+                        <div className="space-y-3">
+                            <div className="p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/10">
+                                <div className="flex items-start gap-3">
+                                    <CheckCircle size={16} className="text-emerald-400 mt-0.5" />
+                                    <div className="text-xs text-emerald-200">
+                                        <p className="font-bold mb-1">Local Encryption</p>
+                                        <p>Your financial data (balances, amounts) is encrypted on this device using AES-256 before being saved to IndexedDB.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="p-4 rounded-xl bg-blue-500/5 border border-blue-500/10">
+                                <div className="flex items-start gap-3">
+                                    <Info size={16} className="text-blue-400 mt-0.5" />
+                                    <div className="text-xs text-blue-200">
+                                        <p className="font-bold mb-1">Honest Limitations</p>
+                                        <p>Transaction names and category titles are NOT encrypted to allow for fast local searching and filtering.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="pt-4 border-t border-gray-800">
+                                <button
+                                    onClick={() => setShowDeleteConfirm(true)}
+                                    className="w-full py-3 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 text-rose-500 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2"
+                                >
+                                    <Icons.Delete size={14} />
+                                    Delete All Data
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 ) : (
                     <div className="space-y-4 mb-6 animate-fade-in">
                         <div
@@ -361,6 +494,58 @@ export const DataManagementModal: React.FC<DataManagementModalProps> = ({ isOpen
                             <p className="text-xs text-yellow-200 text-center">
                                 Warning: Importing will replace all current data.
                             </p>
+                        </div>
+                    </div>
+                )}
+
+                {/* Delete All Data Confirmation Modal */}
+                {showDeleteConfirm && (
+                    <div className="absolute inset-0 z-[200] bg-gray-900/95 backdrop-blur-md flex flex-col items-center justify-center p-8 text-center animate-dialog rounded-3xl">
+                        <div className="w-16 h-16 bg-rose-500/10 rounded-full flex items-center justify-center mb-4 text-rose-500 border border-rose-500/20">
+                            <Icons.Delete size={32} />
+                        </div>
+                        <h4 className="text-lg font-bold text-white mb-2">Delete All Data?</h4>
+                        <p className="text-xs text-gray-400 mb-6 leading-relaxed">
+                            This will permanently erase all transactions, accounts, and goals from this device and the cloud. This action <span className="text-rose-500 font-bold underline">cannot be undone</span>.
+                        </p>
+
+                        <div className="w-full space-y-4">
+                            <div className="space-y-2 text-left">
+                                <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest ml-1">Type "DELETE" to confirm</label>
+                                <input
+                                    type="text"
+                                    value={deleteConfirmText}
+                                    onChange={(e) => setDeleteConfirmText(e.target.value.toUpperCase())}
+                                    placeholder="DELETE"
+                                    className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white font-bold placeholder-gray-600 outline-none focus:border-rose-500/50 transition-colors"
+                                />
+                            </div>
+
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={() => {
+                                        setShowDeleteConfirm(false)
+                                        setDeleteConfirmText("")
+                                    }}
+                                    className="flex-1 py-3 bg-gray-800 rounded-xl font-bold text-gray-400 hover:text-white transition-colors"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={handleDeleteAllData}
+                                    disabled={deleteConfirmText !== "DELETE" || isDeleting}
+                                    className="flex-1 py-3 bg-rose-500 rounded-xl font-bold text-white shadow-lg shadow-rose-500/20 hover:bg-rose-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                >
+                                    {isDeleting ? (
+                                        <>
+                                            <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                            Deleting...
+                                        </>
+                                    ) : (
+                                        "Delete Everything"
+                                    )}
+                                </button>
+                            </div>
                         </div>
                     </div>
                 )}

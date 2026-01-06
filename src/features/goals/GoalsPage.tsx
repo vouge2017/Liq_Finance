@@ -70,6 +70,8 @@ export const GoalsPage: React.FC = () => {
     const [newGoalIcon, setNewGoalIcon] = useState('car');
     const [newGoalColor, setNewGoalColor] = useState('cyan');
     const [newGoalAccount, setNewGoalAccount] = useState('');
+    const [newGoalRecurringAmount, setNewGoalRecurringAmount] = useState('');
+    const [newGoalRecurringFreq, setNewGoalRecurringFreq] = useState<'daily' | 'weekly' | 'monthly' | ''>('');
     const [goalErrors, setGoalErrors] = useState({ title: false, target: false });
 
     // Detail Modal State
@@ -141,6 +143,8 @@ export const GoalsPage: React.FC = () => {
             setNewGoalIcon(goal.icon);
             setNewGoalColor(goal.color);
             setNewGoalAccount(goal.defaultAccountId || accounts[0]?.id || '');
+            setNewGoalRecurringAmount(goal.recurringAmount ? goal.recurringAmount.toLocaleString() : '');
+            setNewGoalRecurringFreq(goal.recurringFrequency || '');
         } else {
             setEditingGoal(null);
             resetGoalForm();
@@ -170,7 +174,9 @@ export const GoalsPage: React.FC = () => {
             roundUpEnabled: editingGoal ? editingGoal.roundUpEnabled : false,
             profile: activeProfile === 'All' ? 'Personal' : activeProfile,
             deadline: newGoalDeadline,
-            defaultAccountId: newGoalAccount
+            defaultAccountId: newGoalAccount,
+            recurringAmount: newGoalRecurringAmount ? getRawNumber(newGoalRecurringAmount) : undefined,
+            recurringFrequency: newGoalRecurringFreq || undefined
         };
 
         if (editingGoal) {
@@ -333,7 +339,9 @@ export const GoalsPage: React.FC = () => {
     }
 
     const resetGoalForm = () => {
-        setNewGoalTitle(''); setNewGoalTarget(''); setNewGoalDeadline(''); setNewGoalAccount(''); setNewGoalIcon('car'); setGoalErrors({ title: false, target: false });
+        setNewGoalTitle(''); setNewGoalTarget(''); setNewGoalDeadline(''); setNewGoalAccount(''); setNewGoalIcon('car');
+        setNewGoalRecurringAmount(''); setNewGoalRecurringFreq('');
+        setGoalErrors({ title: false, target: false });
     };
     const resetIqubForm = () => {
         setNewIqubTitle(''); setNewIqubAmount(''); setNewIqubMembers(''); setNewIqubPurpose(''); setNewIqubStartDate(''); setIqubErrors({ title: false, amount: false, members: false });
@@ -354,7 +362,7 @@ export const GoalsPage: React.FC = () => {
                     onClick={() => setAppActiveTab('dashboard')}
                     className="w-12 h-12 rounded-full bg-white dark:bg-white/5 flex items-center justify-center shadow-sm border border-white/20 dark:border-white/5 active:scale-90 transition-all"
                 >
-                    <Icons.ArrowLeft size={20} className="text-gray-900 dark:text-white" />
+                    <Icons.ChevronLeft size={20} className="text-gray-900 dark:text-white" />
                 </button>
                 <div className="text-center">
                     <h1 className="text-xl font-black text-gray-900 dark:text-white tracking-tight">{t('goals.title')}</h1>
@@ -503,9 +511,9 @@ export const GoalsPage: React.FC = () => {
                                             <div
                                                 key={idx}
                                                 className={`w-10 h-14 rounded-xl shrink-0 flex flex-col items-center justify-center text-[10px] font-bold border transition-all ${isWinRound ? 'bg-yellow-500 border-yellow-400 text-black shadow-lg shadow-yellow-500/30 scale-110 z-10' :
-                                                        isPaid ? 'bg-emerald-500 border-emerald-400 text-white' :
-                                                            isCurrent ? 'bg-white dark:bg-white/10 border-indigo-500 text-indigo-500 ring-2 ring-indigo-500/20' :
-                                                                'bg-gray-50 dark:bg-white/5 border-gray-100 dark:border-white/10 text-gray-300'
+                                                    isPaid ? 'bg-emerald-500 border-emerald-400 text-white' :
+                                                        isCurrent ? 'bg-white dark:bg-white/10 border-indigo-500 text-indigo-500 ring-2 ring-indigo-500/20' :
+                                                            'bg-gray-50 dark:bg-white/5 border-gray-100 dark:border-white/10 text-gray-300'
                                                     }`}
                                             >
                                                 <span className="mb-1">R{roundNum}</span>
@@ -585,6 +593,302 @@ export const GoalsPage: React.FC = () => {
                     </div>
                 )}
             </div>
+
+            {/* Add/Edit Goal Modal */}
+            {showAddGoal && (
+                <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-4 sm:p-6">
+                    <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowAddGoal(false)} />
+                    <div className="bg-white dark:bg-[#101622] w-full max-w-md rounded-t-[2.5rem] sm:rounded-[2.5rem] p-8 animate-slide-up relative z-10 shadow-2xl border border-white/20 dark:border-white/5 max-h-[90vh] overflow-y-auto no-scrollbar">
+                        <div className="flex justify-between items-center mb-8">
+                            <h3 className="text-2xl font-black text-gray-900 dark:text-white">
+                                {editingGoal ? 'Edit Goal' : 'New Goal'}
+                            </h3>
+                            <button onClick={() => setShowAddGoal(false)} className="w-10 h-10 rounded-full bg-gray-100 dark:bg-white/5 flex items-center justify-center text-gray-500">
+                                <Icons.Close size={20} />
+                            </button>
+                        </div>
+
+                        <div className="space-y-6">
+                            <div>
+                                <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 ml-1">Goal Name</label>
+                                <input
+                                    type="text"
+                                    value={newGoalTitle}
+                                    onChange={(e) => setNewGoalTitle(e.target.value)}
+                                    placeholder="e.g. New Car, Emergency Fund"
+                                    className={`w-full bg-gray-50 dark:bg-white/5 border ${goalErrors.title ? 'border-rose-500' : 'border-transparent'} rounded-2xl px-6 py-4 text-gray-900 dark:text-white font-bold outline-none focus:ring-2 ring-primary/20 transition-all`}
+                                />
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 ml-1">Target Amount</label>
+                                    <div className="relative">
+                                        <input
+                                            type="text"
+                                            value={newGoalTarget}
+                                            onChange={(e) => {
+                                                const val = e.target.value.replace(/,/g, '');
+                                                if (/^\d*$/.test(val)) setNewGoalTarget(val.replace(/\B(?=(\d{3})+(?!\d))/g, ','));
+                                            }}
+                                            placeholder="0"
+                                            className={`w-full bg-gray-50 dark:bg-white/5 border ${goalErrors.target ? 'border-rose-500' : 'border-transparent'} rounded-2xl px-6 py-4 text-gray-900 dark:text-white font-bold outline-none focus:ring-2 ring-primary/20 transition-all pr-12`}
+                                        />
+                                        <span className="absolute right-6 top-1/2 -translate-y-1/2 text-xs font-black text-gray-400">ETB</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 ml-1">Deadline</label>
+                                    <input
+                                        type="date"
+                                        value={newGoalDeadline}
+                                        onChange={(e) => setNewGoalDeadline(e.target.value)}
+                                        className="w-full bg-gray-50 dark:bg-white/5 border border-transparent rounded-2xl px-6 py-4 text-gray-900 dark:text-white font-bold outline-none focus:ring-2 ring-primary/20 transition-all"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Recurring Contribution Section */}
+                            <div className="p-6 bg-primary/5 rounded-[2rem] border border-primary/10 space-y-4">
+                                <div className="flex items-center gap-3 mb-2">
+                                    <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                                        <Icons.Recurring size={20} />
+                                    </div>
+                                    <div>
+                                        <h4 className="text-sm font-black text-gray-900 dark:text-white">Auto-Save</h4>
+                                        <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Recurring Contribution</p>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 ml-1">Amount</label>
+                                        <input
+                                            type="text"
+                                            value={newGoalRecurringAmount}
+                                            onChange={(e) => {
+                                                const val = e.target.value.replace(/,/g, '');
+                                                if (/^\d*$/.test(val)) setNewGoalRecurringAmount(val.replace(/\B(?=(\d{3})+(?!\d))/g, ','));
+                                            }}
+                                            placeholder="Optional"
+                                            className="w-full bg-white dark:bg-white/5 border border-transparent rounded-xl px-4 py-3 text-sm text-gray-900 dark:text-white font-bold outline-none"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 ml-1">Frequency</label>
+                                        <select
+                                            value={newGoalRecurringFreq}
+                                            onChange={(e) => setNewGoalRecurringFreq(e.target.value as any)}
+                                            className="w-full bg-white dark:bg-white/5 border border-transparent rounded-xl px-4 py-3 text-sm text-gray-900 dark:text-white font-bold outline-none appearance-none"
+                                        >
+                                            <option value="">None</option>
+                                            <option value="daily">Daily</option>
+                                            <option value="weekly">Weekly</option>
+                                            <option value="monthly">Monthly</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-4 ml-1">Select Icon</label>
+                                <div className="grid grid-cols-5 gap-3">
+                                    {GOAL_ICONS.map((item) => (
+                                        <button
+                                            key={item.id}
+                                            onClick={() => {
+                                                setNewGoalIcon(item.id);
+                                                setNewGoalColor(item.color.split(' ')[1].replace('to-', '').split('-')[0]); // Extract color name
+                                            }}
+                                            className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${newGoalIcon === item.id ? `bg-gradient-to-br ${item.color} text-white shadow-lg scale-110` : 'bg-gray-50 dark:bg-white/5 text-gray-400 hover:text-gray-900 dark:hover:text-white'}`}
+                                        >
+                                            <item.icon size={20} />
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <button
+                                onClick={handleSaveGoal}
+                                className="w-full py-5 bg-primary text-white rounded-[1.5rem] font-black text-lg shadow-glow active:scale-[0.98] transition-all mt-4"
+                            >
+                                {editingGoal ? 'Update Goal' : 'Create Goal'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Add/Edit Iqub Modal */}
+            {showAddIqub && (
+                <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-4 sm:p-6">
+                    <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowAddIqub(false)} />
+                    <div className="bg-white dark:bg-[#101622] w-full max-w-md rounded-t-[2.5rem] sm:rounded-[2.5rem] p-8 animate-slide-up relative z-10 shadow-2xl border border-white/20 dark:border-white/5 max-h-[90vh] overflow-y-auto no-scrollbar">
+                        <div className="flex justify-between items-center mb-8">
+                            <h3 className="text-2xl font-black text-gray-900 dark:text-white">
+                                {editingIqub ? 'Edit Iqub' : 'New Iqub'}
+                            </h3>
+                            <button onClick={() => setShowAddIqub(false)} className="w-10 h-10 rounded-full bg-gray-100 dark:bg-white/5 flex items-center justify-center text-gray-500">
+                                <Icons.Close size={20} />
+                            </button>
+                        </div>
+
+                        <div className="space-y-6">
+                            <div>
+                                <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 ml-1">Iqub Name</label>
+                                <input
+                                    type="text"
+                                    value={newIqubTitle}
+                                    onChange={(e) => setNewIqubTitle(e.target.value)}
+                                    placeholder="e.g. Family Iqub, Office Iqub"
+                                    className={`w-full bg-gray-50 dark:bg-white/5 border ${iqubErrors.title ? 'border-rose-500' : 'border-transparent'} rounded-2xl px-6 py-4 text-gray-900 dark:text-white font-bold outline-none focus:ring-2 ring-primary/20 transition-all`}
+                                />
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 ml-1">Round Amount</label>
+                                    <div className="relative">
+                                        <input
+                                            type="text"
+                                            value={newIqubAmount}
+                                            onChange={(e) => {
+                                                const val = e.target.value.replace(/,/g, '');
+                                                if (/^\d*$/.test(val)) setNewIqubAmount(val.replace(/\B(?=(\d{3})+(?!\d))/g, ','));
+                                            }}
+                                            placeholder="0"
+                                            className={`w-full bg-gray-50 dark:bg-white/5 border ${iqubErrors.amount ? 'border-rose-500' : 'border-transparent'} rounded-2xl px-6 py-4 text-gray-900 dark:text-white font-bold outline-none focus:ring-2 ring-primary/20 transition-all pr-12`}
+                                        />
+                                        <span className="absolute right-6 top-1/2 -translate-y-1/2 text-xs font-black text-gray-400">ETB</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 ml-1">Members</label>
+                                    <input
+                                        type="number"
+                                        value={newIqubMembers}
+                                        onChange={(e) => setNewIqubMembers(e.target.value)}
+                                        placeholder="e.g. 12"
+                                        className={`w-full bg-gray-50 dark:bg-white/5 border ${iqubErrors.members ? 'border-rose-500' : 'border-transparent'} rounded-2xl px-6 py-4 text-gray-900 dark:text-white font-bold outline-none focus:ring-2 ring-primary/20 transition-all`}
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 ml-1">Frequency</label>
+                                    <select
+                                        value={newIqubFreq}
+                                        onChange={(e) => setNewIqubFreq(e.target.value as any)}
+                                        className="w-full bg-gray-50 dark:bg-white/5 border border-transparent rounded-2xl px-6 py-4 text-gray-900 dark:text-white font-bold outline-none appearance-none"
+                                    >
+                                        <option value="Daily">Daily</option>
+                                        <option value="Weekly">Weekly</option>
+                                        <option value="Monthly">Monthly</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 ml-1">Start Date</label>
+                                    <input
+                                        type="date"
+                                        value={newIqubStartDate}
+                                        onChange={(e) => setNewIqubStartDate(e.target.value)}
+                                        className="w-full bg-gray-50 dark:bg-white/5 border border-transparent rounded-2xl px-6 py-4 text-gray-900 dark:text-white font-bold outline-none focus:ring-2 ring-primary/20 transition-all"
+                                    />
+                                </div>
+                            </div>
+
+                            <button
+                                onClick={handleSaveIqub}
+                                className="w-full py-5 bg-indigo-600 text-white rounded-[1.5rem] font-black text-lg shadow-lg shadow-indigo-600/20 active:scale-[0.98] transition-all mt-4"
+                            >
+                                {editingIqub ? 'Update Iqub' : 'Create Iqub'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Add/Edit Iddir Modal */}
+            {showAddIddir && (
+                <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-4 sm:p-6">
+                    <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowAddIddir(false)} />
+                    <div className="bg-white dark:bg-[#101622] w-full max-w-md rounded-t-[2.5rem] sm:rounded-[2.5rem] p-8 animate-slide-up relative z-10 shadow-2xl border border-white/20 dark:border-white/5 max-h-[90vh] overflow-y-auto no-scrollbar">
+                        <div className="flex justify-between items-center mb-8">
+                            <h3 className="text-2xl font-black text-gray-900 dark:text-white">
+                                {editingIddir ? 'Edit Iddir' : 'New Iddir'}
+                            </h3>
+                            <button onClick={() => setShowAddIddir(false)} className="w-10 h-10 rounded-full bg-gray-100 dark:bg-white/5 flex items-center justify-center text-gray-500">
+                                <Icons.Close size={20} />
+                            </button>
+                        </div>
+
+                        <div className="space-y-6">
+                            <div>
+                                <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 ml-1">Iddir Name</label>
+                                <input
+                                    type="text"
+                                    value={newIddirName}
+                                    onChange={(e) => setNewIddirName(e.target.value)}
+                                    placeholder="e.g. Neighborhood Iddir"
+                                    className={`w-full bg-gray-50 dark:bg-white/5 border ${iddirErrors.name ? 'border-rose-500' : 'border-transparent'} rounded-2xl px-6 py-4 text-gray-900 dark:text-white font-bold outline-none focus:ring-2 ring-primary/20 transition-all`}
+                                />
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 ml-1">Monthly Fee</label>
+                                    <div className="relative">
+                                        <input
+                                            type="text"
+                                            value={newIddirFee}
+                                            onChange={(e) => {
+                                                const val = e.target.value.replace(/,/g, '');
+                                                if (/^\d*$/.test(val)) setNewIddirFee(val.replace(/\B(?=(\d{3})+(?!\d))/g, ','));
+                                            }}
+                                            placeholder="0"
+                                            className={`w-full bg-gray-50 dark:bg-white/5 border ${iddirErrors.fee ? 'border-rose-500' : 'border-transparent'} rounded-2xl px-6 py-4 text-gray-900 dark:text-white font-bold outline-none focus:ring-2 ring-primary/20 transition-all pr-12`}
+                                        />
+                                        <span className="absolute right-6 top-1/2 -translate-y-1/2 text-xs font-black text-gray-400">ETB</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 ml-1">Payment Day</label>
+                                    <select
+                                        value={newIddirDate}
+                                        onChange={(e) => setNewIddirDate(e.target.value)}
+                                        className="w-full bg-gray-50 dark:bg-white/5 border border-transparent rounded-2xl px-6 py-4 text-gray-900 dark:text-white font-bold outline-none appearance-none"
+                                    >
+                                        {Array.from({ length: 31 }).map((_, i) => (
+                                            <option key={i + 1} value={i + 1}>Day {i + 1}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-white/5 rounded-2xl">
+                                <div>
+                                    <p className="text-sm font-bold text-gray-900 dark:text-white">Enable Reminders</p>
+                                    <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Get notified before due date</p>
+                                </div>
+                                <button
+                                    onClick={() => setNewIddirRemind(!newIddirRemind)}
+                                    className={`w-12 h-6 rounded-full transition-all relative ${newIddirRemind ? 'bg-primary' : 'bg-gray-300 dark:bg-white/10'}`}
+                                >
+                                    <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all ${newIddirRemind ? 'left-7' : 'left-1'}`} />
+                                </button>
+                            </div>
+
+                            <button
+                                onClick={handleSaveIddir}
+                                className="w-full py-5 bg-rose-500 text-white rounded-[1.5rem] font-black text-lg shadow-lg shadow-rose-500/20 active:scale-[0.98] transition-all mt-4"
+                            >
+                                {editingIddir ? 'Update Iddir' : 'Create Iddir'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Success Modal */}
             {showGoalSuccess && (

@@ -2,7 +2,7 @@ import { AppState, IncomeSource } from '@/types';
 
 export interface AINotification {
     id: string;
-    type: 'bill-reminder' | 'budget-warning' | 'goal-milestone' | 'weekly-summary' | 'iqub-reminder' | 'tip';
+    type: 'bill-reminder' | 'budget-warning' | 'goal-milestone' | 'weekly-summary' | 'iqub-reminder' | 'tip' | 'cash-risk' | 'payment-risk' | 'goal-delay' | 'community-risk';
     title: string;
     message: string;
     icon: string;

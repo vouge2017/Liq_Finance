@@ -14,6 +14,11 @@ export const am = {
             loading: "በመጫን ላይ...",
             error: "ስህተት",
             success: "ተሳክቷል",
+            next: "ቀጥል",
+            back: "ተመለስ",
+            done: "ጨርስ",
+            today: "ዛሬ",
+            yesterday: "ትናንት",
         },
         dashboard: {
             greeting: "ሰላም, {{name}}!",
@@ -25,6 +30,15 @@ export const am = {
             remaining: "የቀረው",
             recoverPlan: "ምክር: በቀን {{amount}} ብር በመቆጠብ ማስተካከል ይችላሉ።",
             fixBudget: "በጀት አስተካክል",
+            recentActivity: "የቅርብ ጊዜ እንቅስቃሴዎች",
+            viewAll: "ሁሉንም ይመልከቱ",
+            syncStatus: {
+                online: "መስመር ላይ",
+                offline: "ከመስመር ውጭ",
+                syncing: "በማመሳሰል ላይ...",
+                synced: "ተመሳስሏል",
+                error: "የማመሳሰል ስህተት"
+            }
         },
         transaction: {
             newTransaction: "አዲስ ወጪ/ገቢ",
@@ -41,8 +55,14 @@ export const am = {
             recurring: "ተደጋጋሚ",
             scanReceipt: "ደረሰኝ ፎቶ",
             voiceInput: "በድምጽ",
+            impact: {
+                safe: "ይህ ወጪ በጀትዎን አይጎዳውም።",
+                warning: "ይህ ወጪ የቀን ገደብዎን ያልፋል።",
+                danger: "ይህ ወጪ በጀትዎን ያዛባል።"
+            }
         },
         goals: {
+            title: "የፋይናንስ ግቦች",
             myGoals: "የእኔ ግቦች",
             savings: "ቁጠባ",
             iqub: "እቁብ",
@@ -56,6 +76,11 @@ export const am = {
             startJourney: "መንገዚዎን ያስጀምሩ",
             setFinancialGoals: "ለጋብቻዎች፣ ለረሃብ ቀናት፣ ወይም ለመጀመሪያ ቤትዎ የገንዘብ ግቦች ያውቁ",
             createPersonalGoal: "ግብ ይፍጠሩ",
+            autoSave: "ራስ-ሰር ቁጠባ",
+            frequency: "ድግግሞሽ",
+            daily: "በየቀኑ",
+            weekly: "በየሳምንቱ",
+            monthly: "በየወሩ",
         },
         accounts: {
             myAccounts: "የእኔ ሂሳቦች",
@@ -65,6 +90,11 @@ export const am = {
             mobileMoney: "ሞባይል ገንዘብ",
             loan: "ብድር",
             addAccount: "ሂሳብ ጨምር",
+            loanBreakdown: "የብድር ዝርዝር",
+            principal: "ዋና ገንዘብ",
+            interest: "ወለድ",
+            term: "ጊዜ",
+            dueDate: "የክፍያ ቀን"
         },
         auth: {
             goalSelection: {

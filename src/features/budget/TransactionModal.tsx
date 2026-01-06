@@ -19,6 +19,8 @@ import { SimpleTransactionForm } from "@/features/budget/components/SimpleTransa
 import { AdvancedTransactionDetails } from "@/features/budget/components/AdvancedTransactionDetails"
 import { getSmartSuggestions, SmartSuggestion } from "@/utils/smartSuggestions"
 import { analyzeReceiptImage } from "@/services/gemini"
+import { simulateTransaction, ImpactSummary } from "@/lib/guidance-engine"
+import { ImpactPreview } from "@/features/budget/components/ImpactPreview"
 
 // Ethiopian Income Types for Contextual Selection
 const INCOME_CATEGORIES = [
@@ -80,6 +82,25 @@ export const TransactionModal: React.FC = () => {
 
   // Validation State
   const [errors, setErrors] = useState({ amount: false, title: false, account: false })
+
+  // Impact Simulation State
+  const [impactSummary, setImpactSummary] = useState<ImpactSummary | null>(null)
+
+  // Run simulation when key fields change
+  useEffect(() => {
+    const rawAmount = getRawAmount()
+    if (rawAmount > 0 && type && category) {
+      const summary = simulateTransaction(state, {
+        amount: rawAmount,
+        type,
+        category,
+        date: new Date(date).toISOString()
+      })
+      setImpactSummary(summary)
+    } else {
+      setImpactSummary(null)
+    }
+  }, [amount, type, category, date, state])
 
   // Input Ref
   const amountInputRef = useRef<HTMLInputElement>(null!)
@@ -665,6 +686,11 @@ export const TransactionModal: React.FC = () => {
               isEditing={!!editingTransaction}
               INCOME_CATEGORIES={INCOME_CATEGORIES}
             />
+
+            {/* Impact Preview */}
+            {impactSummary && (
+              <ImpactPreview summary={impactSummary} className="mt-2" />
+            )}
 
             {/* Toggle Advanced Details */}
             <div className="flex justify-center py-2">

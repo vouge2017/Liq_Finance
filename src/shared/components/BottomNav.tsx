@@ -17,11 +17,7 @@ export const BottomNav: React.FC = () => {
     return (
         <div className="fixed bottom-6 left-0 right-0 z-50 flex justify-center items-end pointer-events-none pb-[env(safe-area-inset-bottom)]">
             <div className="relative w-full max-w-sm px-6 flex justify-center pointer-events-auto">
-<<<<<<< HEAD
                 <nav className="h-16 w-full bg-surface-light dark:bg-surface-dark rounded-[2rem] shadow-elevation-3 border border-gray-200 dark:border-gray-700 flex items-center justify-around px-2 relative z-50">
-=======
-                <nav className="h-16 w-full bg-surface-light/90 dark:bg-surface-dark/95 backdrop-blur-xl rounded-[2rem] shadow-[0_8px_32px_rgba(0,0,0,0.12)] border border-white/20 dark:border-gray-700 flex items-center justify-around px-2 relative z-50">
->>>>>>> d990df020acf2dbd0fd0e3232e7fc73bebed2318
                     {tabs.map((tab) => (
                         <button
                             key={tab.id}

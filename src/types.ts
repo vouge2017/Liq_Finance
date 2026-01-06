@@ -95,6 +95,9 @@ export interface SavingsGoal {
   profile: UserProfile;
   deadline?: string; // ISO Date string
   defaultAccountId?: string; // The preferred account for contributions
+  recurringAmount?: number; // New: Automated contribution amount
+  recurringFrequency?: 'daily' | 'weekly' | 'monthly'; // New: Frequency
+  lastContributionDate?: string; // New: Track last automated payment
 }
 
 export interface Iqub {
@@ -157,6 +160,7 @@ export interface Account {
     dueDate?: string;
     interestRate?: number;
     principal?: number;
+    termMonths?: number;
   };
   balance: number;
   accountNumber?: string;

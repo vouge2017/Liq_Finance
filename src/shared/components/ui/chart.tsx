@@ -1,7 +1,6 @@
 'use client'
 
 import * as React from 'react'
-<<<<<<< HEAD
 import { cn } from '@/lib/utils'
 
 // Lazy-load Recharts to reduce initial bundle size (~150-200 kB savings)
@@ -14,13 +13,6 @@ const loadRecharts = async () => {
   }
   return RechartsPrimitive
 }
-
-=======
-import * as RechartsPrimitive from 'recharts'
-
-import { cn } from '@/lib/utils'
-
->>>>>>> d990df020acf2dbd0fd0e3232e7fc73bebed2318
 // Format: { THEME_NAME: CSS_SELECTOR }
 const THEMES = { light: '', dark: '.dark' } as const
 
@@ -58,7 +50,6 @@ function ChartContainer({
   ...props
 }: React.ComponentProps<'div'> & {
   config: ChartConfig
-<<<<<<< HEAD
   children: React.ReactNode
 }) {
   const uniqueId = React.useId()
@@ -83,14 +74,6 @@ function ChartContainer({
       </div>
     )
   }
-=======
-  children: React.ComponentProps<
-    typeof RechartsPrimitive.ResponsiveContainer
-  >['children']
-}) {
-  const uniqueId = React.useId()
-  const chartId = `chart-${id || uniqueId.replace(/:/g, '')}`
->>>>>>> d990df020acf2dbd0fd0e3232e7fc73bebed2318
 
   return (
     <ChartContext.Provider value={{ config }}>
@@ -104,15 +87,9 @@ function ChartContainer({
         {...props}
       >
         <ChartStyle id={chartId} config={config} />
-<<<<<<< HEAD
         <recharts.ResponsiveContainer>
           {children}
         </recharts.ResponsiveContainer>
-=======
-        <RechartsPrimitive.ResponsiveContainer>
-          {children}
-        </RechartsPrimitive.ResponsiveContainer>
->>>>>>> d990df020acf2dbd0fd0e3232e7fc73bebed2318
       </div>
     </ChartContext.Provider>
   )
@@ -151,7 +128,6 @@ ${colorConfig
   )
 }
 
-<<<<<<< HEAD
 // ChartTooltip - lazy-loaded wrapper (only loads Recharts when used)
 const ChartTooltip = React.forwardRef<any, any>((props, ref) => {
   const [RechartsTooltip, setRechartsTooltip] = React.useState<React.ComponentType<any> | null>(null)
@@ -172,9 +148,6 @@ const ChartTooltip = React.forwardRef<any, any>((props, ref) => {
 })
 
 ChartTooltip.displayName = 'ChartTooltip'
-=======
-const ChartTooltip = RechartsPrimitive.Tooltip
->>>>>>> d990df020acf2dbd0fd0e3232e7fc73bebed2318
 
 function ChartTooltipContent({
   active,
@@ -190,7 +163,6 @@ function ChartTooltipContent({
   color,
   nameKey,
   labelKey,
-<<<<<<< HEAD
 }: {
   active?: boolean
   payload?: any[]
@@ -206,9 +178,6 @@ function ChartTooltipContent({
   nameKey?: string
   labelKey?: string
 } &
-=======
-}: React.ComponentProps<typeof RechartsPrimitive.Tooltip> &
->>>>>>> d990df020acf2dbd0fd0e3232e7fc73bebed2318
   React.ComponentProps<'div'> & {
     hideLabel?: boolean
     hideIndicator?: boolean
@@ -338,7 +307,6 @@ function ChartTooltipContent({
   )
 }
 
-<<<<<<< HEAD
 // ChartLegend - lazy-loaded wrapper (only loads Recharts when used)
 const ChartLegend = React.forwardRef<any, any>((props, ref) => {
   const [RechartsLegend, setRechartsLegend] = React.useState<React.ComponentType<any> | null>(null)
@@ -359,9 +327,6 @@ const ChartLegend = React.forwardRef<any, any>((props, ref) => {
 })
 
 ChartLegend.displayName = 'ChartLegend'
-=======
-const ChartLegend = RechartsPrimitive.Legend
->>>>>>> d990df020acf2dbd0fd0e3232e7fc73bebed2318
 
 function ChartLegendContent({
   className,
@@ -369,18 +334,13 @@ function ChartLegendContent({
   payload,
   verticalAlign = 'bottom',
   nameKey,
-<<<<<<< HEAD
 }: React.ComponentProps<'div'> & {
   payload?: any[]
   verticalAlign?: 'top' | 'bottom'
 } & {
-=======
-}: React.ComponentProps<'div'> &
-  Pick<RechartsPrimitive.LegendProps, 'payload' | 'verticalAlign'> & {
->>>>>>> d990df020acf2dbd0fd0e3232e7fc73bebed2318
-    hideIcon?: boolean
-    nameKey?: string
-  }) {
+  hideIcon?: boolean
+  nameKey?: string
+}) {
   const { config } = useChart()
 
   if (!(payload as any[])?.length) {

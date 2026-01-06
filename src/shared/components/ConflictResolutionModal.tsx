@@ -1,240 +1,147 @@
 /**
- * Conflict Resolution Modal Component
- * Provides UI for resolving offline sync conflicts
+ * ConflictResolutionModal - UI for manual conflict resolution
+ * 
+ * Allows users to choose between local changes and server state
+ * when a conflict is detected during sync.
  */
 
-import React, { useState } from 'react'
-import { AlertTriangle, CheckCircle, X, Clock, User } from 'lucide-react'
-
-interface ConflictInfo {
-    changeId: string
-    timestamp: number
-    data: any
-    userId: string
-    clientId: string
-    conflictType: 'create_create' | 'update_update' | 'create_update' | 'delete_update'
-}
+import React, { useState, useEffect } from 'react';
+import { Icons } from './Icons';
+import { OfflineSyncManager, ConflictInfo } from '@/lib/offline-sync';
 
 interface ConflictResolutionModalProps {
-    isOpen: boolean
-    onClose: () => void
-    conflicts: Array<{ entityId: string; conflicts: ConflictInfo[] }>
-    onResolve: (entityId: string, resolution: 'keep_local' | 'keep_server' | 'merge') => void
-    entityType: string
+    isOpen: boolean;
+    onClose: () => void;
+    syncManager: OfflineSyncManager;
+    userId: string;
 }
 
 export const ConflictResolutionModal: React.FC<ConflictResolutionModalProps> = ({
     isOpen,
     onClose,
-    conflicts,
-    onResolve,
-    entityType
+    syncManager,
+    userId
 }) => {
-    const [selectedConflicts, setSelectedConflicts] = useState<Record<string, 'keep_local' | 'keep_server' | 'merge'>>({})
+    const [conflicts, setConflicts] = useState<Array<{ entityId: string; conflicts: ConflictInfo[] }>>([]);
+    const [currentIndex, setCurrentIndex] = useState(0);
+    const [resolving, setResolving] = useState(false);
 
-    if (!isOpen) return null
-
-    const formatTimestamp = (timestamp: number) => {
-        return new Date(timestamp).toLocaleString()
-    }
-
-    const getConflictTypeLabel = (type: ConflictInfo['conflictType']) => {
-        switch (type) {
-            case 'create_create':
-                return 'Multiple users created this item'
-            case 'update_update':
-                return 'Multiple users updated this item'
-            case 'create_update':
-                return 'One user created while another updated'
-            case 'delete_update':
-                return 'One user deleted while another updated'
-            default:
-                return 'Unknown conflict'
+    // Load conflicts when modal opens
+    useEffect(() => {
+        if (isOpen) {
+            setConflicts(syncManager.getPendingConflicts());
+            setCurrentIndex(0);
         }
-    }
+    }, [isOpen, syncManager]);
 
-    const handleResolve = (entityId: string) => {
-        const resolution = selectedConflicts[entityId]
-        if (resolution) {
-            onResolve(entityId, resolution)
-            // Remove from selected conflicts
-            const newSelected = { ...selectedConflicts }
-            delete newSelected[entityId]
-            setSelectedConflicts(newSelected)
+    if (!isOpen || conflicts.length === 0) return null;
+
+    const currentConflict = conflicts[currentIndex];
+    const conflictInfo = currentConflict.conflicts[0]; // Take the first conflict for this entity
+
+    const handleResolve = async (resolution: 'local' | 'server') => {
+        setResolving(true);
+        try {
+            await syncManager.resolveConflict(currentConflict.entityId, resolution);
+
+            // Move to next conflict or close if done
+            const remaining = syncManager.getPendingConflicts();
+            if (remaining.length > 0) {
+                setConflicts(remaining);
+                setCurrentIndex(Math.min(currentIndex, remaining.length - 1));
+            } else {
+                onClose();
+            }
+        } catch (error) {
+            console.error('[ConflictResolution] Failed to resolve:', error);
+        } finally {
+            setResolving(false);
         }
-    }
+    };
 
-    const getDataPreview = (data: any) => {
-        if (!data) return 'No data'
+    const formatData = (data: any) => {
+        if (!data) return 'No data';
+        // Simple formatting for common fields
+        const fields = [];
+        if (data.title) fields.push(`Title: ${data.title}`);
+        if (data.amount !== undefined) fields.push(`Amount: ${data.amount} ETB`);
+        if (data.name) fields.push(`Name: ${data.name}`);
+        if (data.balance !== undefined) fields.push(`Balance: ${data.balance} ETB`);
 
-        if (entityType === 'transaction') {
-            return `${data.title} - ${data.amount?.toLocaleString()} ETB`
-        } else if (entityType === 'account') {
-            return `${data.name} - ${data.balance?.toLocaleString()} ETB`
-        } else if (entityType === 'savingsGoal') {
-            return `${data.title} - ${data.currentAmount?.toLocaleString()}/${data.targetAmount?.toLocaleString()} ETB`
-        } else if (entityType === 'iqub') {
-            return `${data.title} - ${data.amount?.toLocaleString()} ETB (Round ${data.currentRound}/${data.members})`
-        } else if (entityType === 'iddir') {
-            return `${data.name} - ${data.monthlyContribution?.toLocaleString()} ETB/month`
-        }
-
-        return JSON.stringify(data, null, 2).substring(0, 100) + '...'
-    }
+        return fields.length > 0 ? fields.join('\n') : JSON.stringify(data, null, 2);
+    };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-            <div className="bg-gray-900 border border-gray-700 rounded-2xl p-6 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto">
-                {/* Header */}
-                <div className="flex items-center justify-between mb-6">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-orange-500/20 flex items-center justify-center">
-                            <AlertTriangle className="text-orange-400" size={20} />
-                        </div>
-                        <div>
-                            <h2 className="text-xl font-bold text-white">Sync Conflicts Detected</h2>
-                            <p className="text-sm text-gray-400">
-                                {conflicts.length} conflict{conflicts.length !== 1 ? 's' : ''} need resolution
-                            </p>
-                        </div>
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-6">
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
+
+            <div className="relative w-full max-w-md bg-white dark:bg-gray-900 rounded-3xl p-6 shadow-2xl animate-dialog border border-gray-100 dark:border-gray-800">
+                <div className="text-center mb-6">
+                    <div className="w-16 h-16 rounded-full bg-rose-500/10 flex items-center justify-center mx-auto mb-4 border border-rose-500/20">
+                        <Icons.Alert size={28} className="text-rose-500" />
                     </div>
+                    <h2 className="text-xl font-bold text-gray-900 dark:text-white">Data Conflict Detected</h2>
+                    <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
+                        Conflict {currentIndex + 1} of {conflicts.length}
+                    </p>
+                </div>
+
+                <div className="space-y-4 mb-8">
+                    <p className="text-sm text-gray-600 dark:text-gray-300 text-center px-4">
+                        Changes were made on another device or by another user. Which version should we keep?
+                    </p>
+
+                    <div className="grid grid-cols-1 gap-3">
+                        {/* Local Version */}
+                        <button
+                            onClick={() => handleResolve('local')}
+                            disabled={resolving}
+                            className="p-4 rounded-2xl border-2 border-cyan-500/30 bg-cyan-500/5 hover:bg-cyan-500/10 transition-all text-left group"
+                        >
+                            <div className="flex items-center justify-between mb-2">
+                                <span className="text-xs font-bold uppercase tracking-wider text-cyan-600 dark:text-cyan-400">Your Version (Local)</span>
+                                <Icons.Phone size={16} className="text-cyan-500" />
+                            </div>
+                            <pre className="text-sm font-medium text-gray-800 dark:text-gray-200 whitespace-pre-wrap">
+                                {formatData(conflictInfo.data)}
+                            </pre>
+                            <p className="text-[10px] text-gray-500 mt-2 italic">
+                                Last edited: {new Date(conflictInfo.timestamp).toLocaleString()}
+                            </p>
+                        </button>
+
+                        <div className="flex items-center justify-center">
+                            <div className="h-px flex-1 bg-gray-200 dark:bg-gray-800" />
+                            <span className="px-3 text-[10px] font-bold text-gray-400 uppercase">OR</span>
+                            <div className="h-px flex-1 bg-gray-200 dark:bg-gray-800" />
+                        </div>
+
+                        {/* Server Version */}
+                        <button
+                            onClick={() => handleResolve('server')}
+                            disabled={resolving}
+                            className="p-4 rounded-2xl border-2 border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all text-left group"
+                        >
+                            <div className="flex items-center justify-between mb-2">
+                                <span className="text-xs font-bold uppercase tracking-wider text-gray-500">Server Version</span>
+                                <Icons.Globe size={16} className="text-gray-400" />
+                            </div>
+                            <p className="text-sm text-gray-500 dark:text-gray-400 italic">
+                                The version currently saved on the server. Choosing this will discard your local changes.
+                            </p>
+                        </button>
+                    </div>
+                </div>
+
+                <div className="flex gap-3">
                     <button
                         onClick={onClose}
-                        className="p-2 rounded-full bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-white transition-colors"
+                        className="flex-1 py-4 bg-gray-100 dark:bg-gray-800 rounded-2xl font-bold text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white transition-colors"
                     >
-                        <X size={20} />
+                        Resolve Later
                     </button>
-                </div>
-
-                {/* Conflict List */}
-                <div className="space-y-4 mb-6">
-                    {conflicts.map(({ entityId, conflicts: entityConflicts }) => (
-                        <div key={entityId} className="bg-gray-800 rounded-xl p-4 border border-gray-700">
-                            <div className="flex items-center justify-between mb-3">
-                                <h3 className="font-semibold text-white">
-                                    {entityType.charAt(0).toUpperCase() + entityType.slice(1)}: {entityId}
-                                </h3>
-                                <span className="text-xs bg-orange-500/20 text-orange-400 px-2 py-1 rounded-full">
-                                    {entityConflicts.length} conflict{entityConflicts.length !== 1 ? 's' : ''}
-                                </span>
-                            </div>
-
-                            {/* Conflict Details */}
-                            <div className="space-y-2 mb-4">
-                                {entityConflicts.map((conflict, index) => (
-                                    <div key={conflict.changeId} className="bg-gray-700/50 rounded-lg p-3">
-                                        <div className="flex items-center gap-2 mb-2">
-                                            <Clock size={14} className="text-gray-400" />
-                                            <span className="text-sm text-gray-300">{formatTimestamp(conflict.timestamp)}</span>
-                                            <span className="text-xs bg-gray-600 text-gray-200 px-2 py-1 rounded">
-                                                {conflict.conflictType.replace('_', ' ')}
-                                            </span>
-                                        </div>
-                                        <p className="text-sm text-gray-400 mb-2">
-                                            {getConflictTypeLabel(conflict.conflictType)}
-                                        </p>
-                                        <div className="bg-gray-600 rounded p-2">
-                                            <pre className="text-xs text-gray-200 whitespace-pre-wrap">
-                                                {getDataPreview(conflict.data)}
-                                            </pre>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-
-                            {/* Resolution Options */}
-                            <div className="border-t border-gray-700 pt-3">
-                                <p className="text-sm text-gray-300 mb-3">How would you like to resolve this conflict?</p>
-                                <div className="grid grid-cols-1 gap-2">
-                                    <button
-                                        onClick={() => setSelectedConflicts(prev => ({ ...prev, [entityId]: 'keep_local' }))}
-                                        className={`flex items-center gap-3 p-3 rounded-lg border transition-all ${selectedConflicts[entityId] === 'keep_local'
-                                                ? 'border-cyan-500 bg-cyan-500/10 text-cyan-400'
-                                                : 'border-gray-600 bg-gray-700/50 text-gray-300 hover:border-gray-500'
-                                            }`}
-                                    >
-                                        <CheckCircle size={18} />
-                                        <div className="text-left">
-                                            <div className="font-medium">Keep Local Changes</div>
-                                            <div className="text-xs opacity-80">Use the most recent local changes</div>
-                                        </div>
-                                    </button>
-
-                                    <button
-                                        onClick={() => setSelectedConflicts(prev => ({ ...prev, [entityId]: 'keep_server' }))}
-                                        className={`flex items-center gap-3 p-3 rounded-lg border transition-all ${selectedConflicts[entityId] === 'keep_server'
-                                                ? 'border-cyan-500 bg-cyan-500/10 text-cyan-400'
-                                                : 'border-gray-600 bg-gray-700/50 text-gray-300 hover:border-gray-500'
-                                            }`}
-                                    >
-                                        <User size={18} />
-                                        <div className="text-left">
-                                            <div className="font-medium">Keep Server Changes</div>
-                                            <div className="text-xs opacity-80">Use the server version</div>
-                                        </div>
-                                    </button>
-
-                                    <button
-                                        onClick={() => setSelectedConflicts(prev => ({ ...prev, [entityId]: 'merge' }))}
-                                        className={`flex items-center gap-3 p-3 rounded-lg border transition-all ${selectedConflicts[entityId] === 'merge'
-                                                ? 'border-cyan-500 bg-cyan-500/10 text-cyan-400'
-                                                : 'border-gray-600 bg-gray-700/50 text-gray-300 hover:border-gray-500'
-                                            }`}
-                                    >
-                                        <AlertTriangle size={18} />
-                                        <div className="text-left">
-                                            <div className="font-medium">Smart Merge</div>
-                                            <div className="text-xs opacity-80">Intelligently combine changes</div>
-                                        </div>
-                                    </button>
-                                </div>
-
-                                {/* Resolve Button */}
-                                {selectedConflicts[entityId] && (
-                                    <button
-                                        onClick={() => handleResolve(entityId)}
-                                        className="w-full mt-3 py-2 bg-cyan-600 hover:bg-cyan-500 text-white font-medium rounded-lg transition-colors"
-                                    >
-                                        Resolve This Conflict
-                                    </button>
-                                )}
-                            </div>
-                        </div>
-                    ))}
-                </div>
-
-                {/* Footer Actions */}
-                <div className="flex justify-between items-center pt-4 border-t border-gray-700">
-                    <div className="text-sm text-gray-400">
-                        {Object.keys(selectedConflicts).length > 0 && (
-                            <span>{Object.keys(selectedConflicts).length} conflict(s) selected for resolution</span>
-                        )}
-                    </div>
-                    <div className="flex gap-3">
-                        <button
-                            onClick={onClose}
-                            className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg transition-colors"
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            onClick={() => {
-                                // Resolve all conflicts with default strategy
-                                conflicts.forEach(({ entityId }) => {
-                                    if (selectedConflicts[entityId]) {
-                                        onResolve(entityId, selectedConflicts[entityId])
-                                    }
-                                })
-                                onClose()
-                            }}
-                            disabled={Object.keys(selectedConflicts).length === 0}
-                            className="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded-lg transition-colors"
-                        >
-                            Resolve All Selected
-                        </button>
-                    </div>
                 </div>
             </div>
         </div>
-    )
-}
+    );
+};
