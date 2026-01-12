@@ -8,6 +8,7 @@ import {
   User,
   ArrowDown,
   ArrowUp,
+  ArrowLeft,
   ChevronDown,
   ChevronRight,
   ChevronLeft,
@@ -75,7 +76,7 @@ import {
   Tv,
   FileText,
   Info,
-  ImageIcon,
+  Image as ImageIcon,
   ScanLine,
   Store,
   Globe,
@@ -108,6 +109,9 @@ import {
   Minus,
   ArrowUpRight,
   ArrowDownRight,
+  Paperclip,
+  UserPlus,
+  Fingerprint,
 } from "lucide-react"
 
 export const Icons = {
@@ -133,6 +137,7 @@ export const Icons = {
   Phone: Smartphone,
   Cash: Banknote,
   More: MoreHorizontal,
+  MoreHorizontal: MoreHorizontal,
   Transfer: ArrowRightLeft,
   Delete: Trash2,
   Edit: Edit2,
@@ -210,6 +215,7 @@ export const Icons = {
   Feedback: MessageSquare,
   Shield: Shield,
   Help: HelpCircle,
+  HelpCircle: HelpCircle,
   Loader: Loader2,
   ChevronDown: ChevronDown,
   FileText: FileText,
@@ -228,4 +234,8 @@ export const Icons = {
   AlertTriangle: AlertTriangle,
   ArrowUpRight: ArrowUpRight,
   ArrowDownRight: ArrowDownRight,
+  ArrowLeft: ArrowLeft,
+  Paperclip: Paperclip,
+  UserPlus: UserPlus,
+  Fingerprint: Fingerprint,
 }

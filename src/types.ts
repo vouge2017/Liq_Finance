@@ -198,6 +198,7 @@ export interface AppState {
   userName: string; // New: Personalization
   userPhone?: string; // New: Identity
   userGoal?: string; // New: Main financial focus
+  userPassword?: string; // New: Simple password/PIN
   totalBalance: number;
   totalIncome: number;
   totalExpense: number;
@@ -247,6 +248,7 @@ export interface AppContextType {
   setUserName: (name: string) => void;
   setUserPhone: (phone: string) => void; // New
   setUserGoal: (goal: string) => void;
+  setUserPassword: (password: string) => void; // New
   setBudgetStartDate: (day: number) => void; // New: Flexible Pay Day
 
   addAccount: (account: Account) => void;
@@ -333,6 +335,11 @@ export interface AppContextType {
   logout: () => void;
   restoreData: (data: AppState) => void;
   refreshTransactions?: () => Promise<void>;
+
+  // Offline Sync
+  syncOfflineChanges: () => Promise<{ success: boolean; conflicts: number; errors: string[] } | undefined>;
+  getSyncStatus: () => { queued: number; conflicts: number; online: boolean };
+  getPendingConflicts: () => Array<{ entityId: string; conflicts: any[] }>;
 
   // Proactive AI
   aiNotifications: any[];

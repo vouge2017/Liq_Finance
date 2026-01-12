@@ -146,7 +146,7 @@ export function validatePasswordStrength(
 /**
  * Rate limiting storage interface
  */
-interface RateLimitStore {
+export interface RateLimitStore {
     getAttempts(key: string): Promise<number>;
     setAttempts(key: string, attempts: number, expiry: number): Promise<void>;
     incrementAttempts(key: string, windowMs: number): Promise<number>;

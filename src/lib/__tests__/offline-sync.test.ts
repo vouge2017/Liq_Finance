@@ -23,14 +23,19 @@ describe('OfflineSyncManager', () => {
     beforeEach(() => {
         vi.clearAllMocks()
 
-        // @ts-ignore
-        global.indexedDB = {
-            open: vi.fn(() => ({
+        // Mock indexedDB with simple object (not using vi.fn to avoid type issues)
+        // This is sufficient for the unit tests which don't test actual IndexedDB operations
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const mockIDB: any = {
+            open: () => ({
                 onsuccess: null,
                 onupgradeneeded: null,
-                onerror: null
-            }))
+                onerror: null,
+                result: {},
+            })
         }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        ;(global as any).indexedDB = mockIDB
 
         manager = new OfflineSyncManager(userId, clientId)
     })

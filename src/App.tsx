@@ -9,6 +9,7 @@ import { AppProvider, useAppContext } from "@/context/AppContext"
 import { AuthProvider } from "@/context/AuthContext"
 import { TransactionModal } from "@/features/budget/TransactionModal"
 import { Onboarding } from "@/features/auth/Onboarding"
+import { LandingPage } from "@/features/auth/LandingPage"
 import { FinancialProfileModal } from "@/features/auth/FinancialProfileModal"
 import { FeedbackModal } from "@/shared/components/FeedbackModal"
 import { DataManagementModal } from "@/shared/components/DataManagementModal"
@@ -27,7 +28,6 @@ const AIAdvisor = lazy(() => import("@/features/advisor/AIAdvisor").then(module 
 const AccountsPage = lazy(() => import("@/features/accounts/AccountsPage").then(module => ({ default: module.AccountsPage })))
 const BudgetPage = lazy(() => import("@/features/budget/BudgetPage").then(module => ({ default: module.BudgetPage })))
 const GoalsPage = lazy(() => import("@/features/goals/GoalsPage").then(module => ({ default: module.GoalsPage })))
-const CommunityPage = lazy(() => import("@/features/community/CommunityPage").then(module => ({ default: module.CommunityPage })))
 
 // Global Notification Component
 const NotificationToast = () => {
@@ -96,7 +96,7 @@ function MainLayout() {
 
   // Show Onboarding if not completed
   if (!hasOnboarded) {
-    return <Onboarding />
+    return <LandingPage />
   }
 
   return (
@@ -150,12 +150,6 @@ function MainLayout() {
         {activeTab === "goals" && (
           <Suspense fallback={<PageLoader />}>
             <GoalsPage />
-          </Suspense>
-        )}
-
-        {activeTab === "community" && (
-          <Suspense fallback={<PageLoader />}>
-            <CommunityPage />
           </Suspense>
         )}
 

@@ -22,7 +22,7 @@ interface Props {
 
 export const FinancialProfileModal: React.FC<Props> = ({ onClose }) => {
     const { state, addIncomeSource, updateIncomeSource, deleteIncomeSource, setActiveTab, openTransactionModal, formatDate, setBudgetStartDate, setUserName } = useAppContext();
-    const { incomeSources, accounts, transactions, userProfile } = state;
+    const { incomeSources, accounts, transactions } = state;
 
     const [isAdding, setIsAdding] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
@@ -209,8 +209,8 @@ export const FinancialProfileModal: React.FC<Props> = ({ onClose }) => {
                             <Icons.Edit size={12} className="text-gray-600 dark:text-gray-400" />
                         </div>
                     </div>
-                    <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-1">{userProfile.name || 'User'}</h2>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">+251 {userProfile.phone?.replace(/^0/, '') || '--- --- ---'}</p>
+                    <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-1">{state.userName || 'User'}</h2>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">+251 {state.userPhone?.replace(/^0/, '') || '--- --- ---'}</p>
                 </div>
 
                 {/* Income Sources Section */}

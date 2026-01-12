@@ -1,316 +1,287 @@
-import React, { useRef, useState, useEffect } from 'react';
-import { Icons } from '@/shared/components/Icons';
-import { useAppContext } from '@/context/AppContext';
-import { useAuth } from '@/context/AuthContext';
-import { EmptyState } from '@/shared/components/EmptyState';
-import { SignInPrompt } from '@/shared/components/SignInPrompt';
-import type { Transaction } from '@/types';
+"use client"
 
-import { usePullToRefresh } from '@/hooks/usePullToRefresh';
-import { PullToRefreshIndicator } from '@/shared/components/PullToRefreshIndicator';
-import { SwipeableItem } from '@/shared/components/SwipeableItem';
-import { TransactionListSkeleton } from '@/shared/components/OptimizedSkeletons';
-
-// Category icon and color mapping
-const CATEGORY_STYLES: Record<string, { icon: React.ElementType; bgColor: string; textColor: string }> = {
-  transport: { icon: Icons.Car, bgColor: 'bg-slate-100 dark:bg-slate-800', textColor: 'text-slate-600 dark:text-slate-400' },
-  food: { icon: Icons.Coffee, bgColor: 'bg-orange-50 dark:bg-orange-900/20', textColor: 'text-orange-600 dark:text-orange-400' },
-  shopping: { icon: Icons.Shopping, bgColor: 'bg-pink-50 dark:bg-pink-900/20', textColor: 'text-pink-600 dark:text-pink-400' },
-  utilities: { icon: Icons.Zap, bgColor: 'bg-blue-50 dark:bg-blue-900/20', textColor: 'text-blue-600 dark:text-blue-400' },
-  income: { icon: Icons.Wallet, bgColor: 'bg-emerald-50 dark:bg-emerald-900/20', textColor: 'text-emerald-600 dark:text-emerald-400' },
-  transfer: { icon: Icons.Transfer, bgColor: 'bg-cyan-50 dark:bg-cyan-900/20', textColor: 'text-cyan-600 dark:text-cyan-400' },
-  default: { icon: Icons.CreditCard, bgColor: 'bg-gray-100 dark:bg-gray-800', textColor: 'text-gray-600 dark:text-gray-400' },
-};
+import React, { useRef, useState, useEffect, useCallback } from 'react'
+import { Icons } from '@/shared/components/Icons'
+import { useAppContext } from '@/context/AppContext'
+import { useAuth } from '@/context/AuthContext'
+import { EmptyState } from '@/shared/components/EmptyState'
+import type { Transaction } from '@/types'
+import { usePullToRefresh } from '@/hooks/usePullToRefresh'
+import { PullToRefreshIndicator } from '@/shared/components/PullToRefreshIndicator'
+import { TransactionListSkeleton } from '@/shared/components/OptimizedSkeletons'
+import { TransactionItem } from './components/TransactionItem'
 
 export const TransactionList: React.FC = () => {
-  const { user, loading } = useAuth();
-  const { state, formatDate, isPrivacyMode, setActiveTab, openTransactionModal, setScannedImage, showNotification, refreshTransactions, deleteTransaction } = useAppContext();
-  const { transactions } = state;
-  const fileInputRef = useRef<HTMLInputElement>(null);
+    const { user, loading: authLoading } = useAuth()
+    const {
+        state,
+        formatDate,
+        isPrivacyMode,
+        openTransactionModal,
+        setScannedImage,
+        showNotification,
+        refreshTransactions,
+        deleteTransaction
+    } = useAppContext()
+    const { transactions } = state
+    const fileInputRef = useRef<HTMLInputElement>(null)
+    
+    const [filterType, setFilterType] = useState<'all' | 'income' | 'expense'>('all')
+    const [timeRange, setTimeRange] = useState<'week' | 'month' | 'all'>('month')
+    const [sortBy, setSortBy] = useState<'date' | 'amount'>('date')
 
-  const { containerRef, isRefreshing, pullProgress } = usePullToRefresh({
-    onRefresh: async () => {
-      if (refreshTransactions) {
-        await refreshTransactions();
-        await new Promise(resolve => setTimeout(resolve, 800));
-      }
-    }
-  });
+    const { containerRef, isRefreshing, pullProgress } = usePullToRefresh({
+        onRefresh: async () => {
+            if (refreshTransactions) {
+                await refreshTransactions()
+                await new Promise(resolve => setTimeout(resolve, 800))
+            }
+        }
+    })
 
-  const getCategoryStyle = (tx: typeof transactions[0]) => {
-    if (tx.type === 'transfer') return CATEGORY_STYLES.transfer;
-    if (tx.type === 'income') return CATEGORY_STYLES.income;
-    if (tx.category?.toLowerCase().includes('transport') || tx.title?.toLowerCase().includes('uber')) return CATEGORY_STYLES.transport;
-    if (tx.category?.toLowerCase().includes('food') || tx.title?.toLowerCase().includes('coffee')) return CATEGORY_STYLES.food;
-    if (tx.category?.toLowerCase().includes('shopping')) return CATEGORY_STYLES.shopping;
-    if (tx.category?.toLowerCase().includes('utilities') || tx.title?.toLowerCase().includes('telecom')) return CATEGORY_STYLES.utilities;
-    return CATEGORY_STYLES.default;
-  };
+    const handleScanClick = useCallback(() => {
+        fileInputRef.current?.click()
+    }, [])
 
-  if (loading) {
-    return (
-      <div className="w-full mb-24">
-        <h3 className="text-lg font-bold text-[#111318] dark:text-white mb-4">Recent Transactions</h3>
-        <TransactionListSkeleton count={5} />
-      </div>
-    );
-  }
+    const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+        if (!file) return
 
-  if (!user) {
-    return <div className="mb-24 text-center py-8 text-gray-400 text-sm">Sign in to view transactions</div>;
-  }
+        const reader = new FileReader()
+        reader.onloadend = () => {
+            const base64String = reader.result as string
+            setScannedImage(base64String)
+            openTransactionModal()
+        }
+        reader.onerror = () => {
+            showNotification("Error reading file", "error")
+        }
+        reader.readAsDataURL(file)
 
-  const handleScanClick = () => {
-    fileInputRef.current?.click();
-  };
+        if (fileInputRef.current) fileInputRef.current.value = ''
+    }, [setScannedImage, openTransactionModal, showNotification])
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const base64String = reader.result as string;
-      setScannedImage(base64String);
-      openTransactionModal();
-    };
-    reader.onerror = () => {
-      showNotification("Error reading file", "error");
-    };
-    reader.readAsDataURL(file);
-
-    if (fileInputRef.current) fileInputRef.current.value = '';
-  };
-
-  return (
-    <div className="w-full mb-24 relative" ref={containerRef}>
-      <PullToRefreshIndicator isRefreshing={isRefreshing} pullProgress={pullProgress} />
-
-      <input
-        type="file"
-        accept="image/*"
-        ref={fileInputRef}
-        onChange={handleFileChange}
-        className="hidden"
-      />
-
-      {/* Section Header */}
-      <h3 className="text-lg font-bold text-[#111318] dark:text-white mb-4">Recent Transactions</h3>
-
-      {/* Transaction List - Virtualized for performance */}
-      {transactions.length === 0 ? (
-        <EmptyState
-          icon={<Icons.Shopping size={32} />}
-          title="No transactions yet"
-          description="Start tracking your expenses by adding your first transaction."
-          action={{
-            label: "Add Transaction",
-            onClick: () => openTransactionModal(),
-            icon: <Icons.Plus size={18} />
-          }}
-        />
-      ) : transactions.length <= 10 ? (
-        // For small lists (< 10 items), use regular rendering (better for SwipeableItem)
-        <div className="flex flex-col gap-3">
-          {transactions.map((tx) => {
-            const style = getCategoryStyle(tx);
-            const IconComponent = style.icon;
-
-            return (
-              <SwipeableItem
-                key={tx.id}
-                onDelete={() => deleteTransaction(tx.id)}
-                onEdit={() => openTransactionModal(tx)}
-              >
-                <div
-                  onClick={() => openTransactionModal(tx)}
-                  className="bg-surface-light dark:bg-surface-dark p-4 rounded-2xl shadow-sm flex items-center justify-between border border-gray-100 dark:border-gray-800 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className={`w-12 h-12 rounded-full ${style.bgColor} flex items-center justify-center ${style.textColor}`}>
-                      <IconComponent size={20} />
-                    </div>
-                    <div>
-                      <p className="font-bold text-[#111318] dark:text-white text-sm">{tx.title}</p>
-                      <p className="text-xs text-gray-500">
-                        {(() => {
-                          const d = new Date(tx.date);
-                          const now = new Date();
-                          const isToday = d.toDateString() === now.toDateString();
-                          const yesterday = new Date(now);
-                          yesterday.setDate(now.getDate() - 1);
-                          const isYesterday = d.toDateString() === yesterday.toDateString();
-                          const time = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                          if (isToday) return `Today, ${time}`;
-                          if (isYesterday) return `Yesterday`;
-                          return formatDate(tx.date);
-                        })()}
-                      </p>
-                    </div>
-                  </div>
-                  <p className="font-bold text-[#111318] dark:text-white">
-                    {isPrivacyMode ? '••••' : (
-                      <>
-                        {tx.type === 'income' ? '+ ' : '- '}ETB {tx.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                      </>
-                    )}
-                  </p>
-                </div>
-              </SwipeableItem>
-            );
-          })}
-        </div>
-      ) : (
-        // For large lists (> 10 items), use virtualization (lazy-loaded)
-        <VirtualizedTransactionList
-          transactions={transactions}
-          getCategoryStyle={getCategoryStyle}
-          formatDate={formatDate}
-          isPrivacyMode={isPrivacyMode}
-          deleteTransaction={deleteTransaction}
-          openTransactionModal={openTransactionModal}
-        />
-      )}
-    </div>
-  );
-};
-
-// Lazy-loaded virtualized list component (only loads react-window when needed)
-const VirtualizedTransactionList: React.FC<{
-  transactions: Transaction[];
-  getCategoryStyle: (tx: Transaction) => { icon: React.ElementType; bgColor: string; textColor: string };
-  formatDate: (date: string) => string;
-  isPrivacyMode: boolean;
-  deleteTransaction: (id: string) => void;
-  openTransactionModal: (tx?: Transaction) => void;
-}> = ({ transactions, getCategoryStyle, formatDate, isPrivacyMode, deleteTransaction, openTransactionModal }) => {
-  const [FixedSizeList, setFixedSizeList] = useState<React.ComponentType<any> | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    // Dynamically import react-window only when needed
-    import('react-window').then((module) => {
-      // react-window exports FixedSizeList as a named export
-      setFixedSizeList(() => (module as any).FixedSizeList);
-      setLoading(false);
-    });
-  }, []);
-
-  if (loading || !FixedSizeList) {
-    // Fallback to regular rendering while loading
-    return (
-      <div className="flex flex-col gap-3">
-        {transactions.map((tx) => {
-          const style = getCategoryStyle(tx);
-          const IconComponent = style.icon;
-
-          return (
-            <SwipeableItem
-              key={tx.id}
-              onDelete={() => deleteTransaction(tx.id)}
-              onEdit={() => openTransactionModal(tx)}
-            >
-              <div
-                onClick={() => openTransactionModal(tx)}
-                className="bg-surface-light dark:bg-surface-dark p-4 rounded-2xl shadow-sm flex items-center justify-between border border-gray-100 dark:border-gray-800 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-              >
-                <div className="flex items-center gap-4">
-                  <div className={`w-12 h-12 rounded-full ${style.bgColor} flex items-center justify-center ${style.textColor}`}>
-                    <IconComponent size={20} />
-                  </div>
-                  <div>
-                    <p className="font-bold text-[#111318] dark:text-white text-sm">{tx.title}</p>
-                    <p className="text-xs text-gray-500">
-                      {(() => {
-                        const d = new Date(tx.date);
-                        const now = new Date();
-                        const isToday = d.toDateString() === now.toDateString();
-                        const yesterday = new Date(now);
-                        yesterday.setDate(now.getDate() - 1);
-                        const isYesterday = d.toDateString() === yesterday.toDateString();
-                        const time = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                        if (isToday) return `Today, ${time}`;
-                        if (isYesterday) return `Yesterday`;
-                        return formatDate(tx.date);
-                      })()}
-                    </p>
-                  </div>
-                </div>
-                <p className="font-bold text-[#111318] dark:text-white">
-                  {isPrivacyMode ? '••••' : (
-                    <>
-                      {tx.type === 'income' ? '+ ' : '- '}ETB {tx.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                    </>
-                  )}
-                </p>
-              </div>
-            </SwipeableItem>
-          );
-        })}
-      </div>
-    );
-  }
-
-  return (
-    <div style={{ height: Math.min(transactions.length * 88, 600) }}>
-      <FixedSizeList
-        height={Math.min(transactions.length * 88, 600)}
-        itemCount={transactions.length}
-        itemSize={88}
-        width="100%"
-        className="scrollbar-thin"
-      >
-        {({ index, style: itemStyle }: { index: number; style: React.CSSProperties }) => {
-          const tx = transactions[index];
-          const style = getCategoryStyle(tx);
-          const IconComponent = style.icon;
-
-          return (
-            <div style={{ ...itemStyle, paddingBottom: '12px' }}>
-              <SwipeableItem
-                key={tx.id}
-                onDelete={() => deleteTransaction(tx.id)}
-                onEdit={() => openTransactionModal(tx)}
-              >
-                <div
-                  onClick={() => openTransactionModal(tx)}
-                  className="bg-surface-light dark:bg-surface-dark p-4 rounded-2xl shadow-sm flex items-center justify-between border border-gray-100 dark:border-gray-800 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className={`w-12 h-12 rounded-full ${style.bgColor} flex items-center justify-center ${style.textColor}`}>
-                      <IconComponent size={20} />
-                    </div>
-                    <div>
-                      <p className="font-bold text-[#111318] dark:text-white text-sm">{tx.title}</p>
-                      <p className="text-xs text-gray-500">
-                        {(() => {
-                          const d = new Date(tx.date);
-                          const now = new Date();
-                          const isToday = d.toDateString() === now.toDateString();
-                          const yesterday = new Date(now);
-                          yesterday.setDate(now.getDate() - 1);
-                          const isYesterday = d.toDateString() === yesterday.toDateString();
-                          const time = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                          if (isToday) return `Today, ${time}`;
-                          if (isYesterday) return `Yesterday`;
-                          return formatDate(tx.date);
-                        })()}
-                      </p>
-                    </div>
-                  </div>
-                  <p className="font-bold text-[#111318] dark:text-white">
-                    {isPrivacyMode ? '••••' : (
-                      <>
-                        {tx.type === 'income' ? '+ ' : '- '}ETB {tx.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                      </>
-                    )}
-                  </p>
-                </div>
-              </SwipeableItem>
+    if (authLoading) {
+        return (
+            <div className="w-full mb-24">
+                <h3 className="text-lg font-bold text-[#111318] dark:text-white mb-4">Recent Transactions</h3>
+                <TransactionListSkeleton count={5} />
             </div>
-          );
-        }}
-      </FixedSizeList>
-    </div>
-  );
-};
+        )
+    }
+
+    if (!user) {
+        return <div className="mb-24 text-center py-8 text-gray-400 text-sm">Sign in to view transactions</div>
+    }
+
+    const handleEdit = (tx: Transaction) => openTransactionModal(tx)
+    const handleDelete = (id: string) => deleteTransaction(id)
+    const handleItemClick = (tx: Transaction) => openTransactionModal(tx)
+
+    return (
+        <div className="w-full mb-24 relative" ref={containerRef}>
+            <PullToRefreshIndicator isRefreshing={isRefreshing} pullProgress={pullProgress} />
+
+            <input
+                type="file"
+                accept="image/*"
+                ref={fileInputRef}
+                onChange={handleFileChange}
+                className="hidden"
+            />
+
+            <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-bold text-[#111318] dark:text-white mb-2">Recent Transactions</h3>
+            </div>
+
+            <div className="flex gap-2 mb-4 overflow-x-auto pb-2">
+                <button
+                    onClick={() => setFilterType('all')}
+                    className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                        filterType === 'all' 
+                            ? 'bg-[#1B4D3E] text-white shadow-md' 
+                            : 'bg-white text-[#2C2416] border border-gray-200 hover:border-[#1B4D3E]/30'
+                    }`}
+                >
+                    All
+                </button>
+                <button
+                    onClick={() => setFilterType('income')}
+                    className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                        filterType === 'income' 
+                            ? 'bg-emerald-500 text-white shadow-md' 
+                            : 'bg-white text-[#2C2416] border border-gray-200 hover:border-emerald-500/30'
+                    }`}
+                >
+                    <Icons.TrendingUp size={14} />
+                    Income
+                </button>
+                <button
+                    onClick={() => setFilterType('expense')}
+                    className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                        filterType === 'expense' 
+                            ? 'bg-rose-500 text-white shadow-md' 
+                            : 'bg-white text-[#2C2416] border border-gray-200 hover:border-rose-500/30'
+                    }`}
+                >
+                    <Icons.ArrowDown size={14} />
+                    Expense
+                </button>
+            </div>
+
+            <div className="flex gap-2 mb-4 overflow-x-auto pb-2">
+                <button
+                    onClick={() => setTimeRange('week')}
+                    className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                        timeRange === 'week' 
+                            ? 'bg-[#1B4D3E] text-white shadow-md' 
+                            : 'bg-white text-[#2C2416] border border-gray-200 hover:border-[#1B4D3E]/30'
+                    }`}
+                >
+                    7 Days
+                </button>
+                <button
+                    onClick={() => setTimeRange('month')}
+                    className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                        timeRange === 'month' 
+                            ? 'bg-[#1B4D3E] text-white shadow-md' 
+                            : 'bg-white text-[#2C2416] border border-gray-200 hover:border-[#1B4D3E]/30'
+                    }`}
+                >
+                    30 Days
+                </button>
+                <button
+                    onClick={() => setTimeRange('all')}
+                    className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                        timeRange === 'all' 
+                            ? 'bg-[#1B4D3E] text-white shadow-md' 
+                            : 'bg-white text-[#2C2416] border border-gray-200 hover:border-[#1B4D3E]/30'
+                    }`}
+                >
+                    All Time
+                </button>
+            </div>
+
+            {transactions.length > 0 && (
+                <span className="text-xs font-bold text-gray-400 uppercase tracking-wider bg-gray-100 dark:bg-white/5 px-3 py-1 rounded-lg">
+                    {transactions.filter(t => {
+                        if (filterType === 'all') return true
+                        return t.type === filterType
+                    }).length} items
+                </span>
+            )}
+
+            {transactions.length === 0 ? (
+                <EmptyState
+                    icon={<Icons.Shopping size={32} />}
+                    title="No transactions yet"
+                    description="Start tracking your expenses by adding your first transaction."
+                    action={{
+                        label: "Add Transaction",
+                        onClick: () => openTransactionModal(),
+                        icon: <Icons.Plus size={18} />
+                    }}
+                />
+            ) : transactions.length <= 10 ? (
+                <div className="flex flex-col gap-3">
+                    {transactions.map((tx) => (
+                        <TransactionItem
+                            key={tx.id}
+                            transaction={tx}
+                            formatDate={formatDate}
+                            isPrivacyMode={isPrivacyMode}
+                            onEdit={handleEdit}
+                            onDelete={handleDelete}
+                            onClick={handleItemClick}
+                        />
+                    ))}
+                </div>
+            ) : (
+                <VirtualizedTransactionList
+                    transactions={transactions}
+                    formatDate={formatDate}
+                    isPrivacyMode={isPrivacyMode}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                    onItemClick={handleItemClick}
+                />
+            )}
+        </div>
+    )
+}
+
+interface VirtualizedTransactionListProps {
+    transactions: Transaction[]
+    formatDate: (dateStr: string) => string
+    isPrivacyMode: boolean
+    onEdit: (tx: Transaction) => void
+    onDelete: (id: string) => void
+    onItemClick: (tx: Transaction) => void
+}
+
+const VirtualizedTransactionList: React.FC<VirtualizedTransactionListProps> = ({
+    transactions,
+    formatDate,
+    isPrivacyMode,
+    onEdit,
+    onDelete,
+    onItemClick
+}) => {
+    const [FixedSizeList, setFixedSizeList] = useState<React.ComponentType<any> | null>(null)
+    const [loading, setLoading] = useState(true)
+
+    useEffect(() => {
+        import('react-window').then((module) => {
+            setFixedSizeList(() => (module as any).FixedSizeList)
+            setLoading(false)
+        })
+    }, [])
+
+    if (loading || !FixedSizeList) {
+        return (
+            <div className="flex flex-col gap-3">
+                {transactions.slice(0, 10).map((tx) => (
+                    <TransactionItem
+                        key={tx.id}
+                        transaction={tx}
+                        formatDate={formatDate}
+                        isPrivacyMode={isPrivacyMode}
+                        onEdit={onEdit}
+                        onDelete={onDelete}
+                        onClick={onItemClick}
+                    />
+                ))}
+            </div>
+        )
+    }
+
+    const Row = ({ index, style }: { index: number; style: React.CSSProperties }) => {
+        const tx = transactions[index]
+        return (
+            <div style={{ ...style, paddingBottom: '12px' }}>
+                <TransactionItem
+                    transaction={tx}
+                    formatDate={formatDate}
+                    isPrivacyMode={isPrivacyMode}
+                    onEdit={onEdit}
+                    onDelete={onDelete}
+                    onClick={onItemClick}
+                />
+            </div>
+        )
+    }
+
+    return (
+        <div style={{ height: Math.min(transactions.length * 100, 600) }}>
+            <FixedSizeList
+                height={Math.min(transactions.length * 100, 600)}
+                itemCount={transactions.length}
+                itemSize={100}
+                width="100%"
+                className="scrollbar-thin"
+            >
+                {Row}
+            </FixedSizeList>
+        </div>
+    )
+}

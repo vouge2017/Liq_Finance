@@ -11,13 +11,8 @@ export interface RedisConfig {
     port: number;
     password?: string;
     db?: number;
-    retryDelayOnFailover?: number;
     maxRetriesPerRequest?: number;
     lazyConnect?: boolean;
-    keepAlive?: number;
-    family?: number;
-    connectTimeout?: number;
-    commandTimeout?: number;
 }
 
 export interface RedisHealth {
@@ -61,13 +56,8 @@ class RedisService {
                 port: this.config.port,
                 password: this.config.password,
                 db: this.config.db || 0,
-                retryDelayOnFailover: this.config.retryDelayOnFailover || 100,
                 maxRetriesPerRequest: this.config.maxRetriesPerRequest || 3,
                 lazyConnect: this.config.lazyConnect !== false,
-                keepAlive: this.config.keepAlive || 30000,
-                family: this.config.family || 4,
-                connectTimeout: this.config.connectTimeout || 10000,
-                commandTimeout: this.config.commandTimeout || 5000,
                 retryStrategy: (times: number) => {
                     const delay = Math.min(times * 50, 2000);
                     return delay;

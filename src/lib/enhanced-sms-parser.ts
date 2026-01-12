@@ -4,13 +4,74 @@
  */
 
 import { consentService } from '@/services/consent-service'
-import { parseBankSMS, type ParsedSMS } from './sms-parser'
+import { parseBankSMS, type ParsedSMS, getCategoryFromMerchant } from './sms-parser'
 
 export interface ConsentSMSParseResult {
     success: boolean
     data?: ParsedSMS
     error?: string
     consentRequired?: boolean
+}
+
+export interface ValidationResult {
+    isValid: boolean
+    issues: string[]
+    suggestions: string[]
+}
+
+// Re-export types from sms-parser for convenience
+export type EnhancedParsedSMS = ParsedSMS & { confidence?: number }
+
+/**
+ * Parse a bank SMS message and extract transaction details (enhanced version)
+ */
+export function parseEnhancedSMS(sms: string): EnhancedParsedSMS | null {
+    const result = parseBankSMS(sms)
+    if (result) {
+        return {
+            ...result,
+            confidence: 0.85
+        }
+    }
+    return null
+}
+
+/**
+ * Get suggested category based on merchant name (enhanced version)
+ */
+export function getEnhancedCategory(merchant: string): string {
+    return getCategoryFromMerchant(merchant)
+}
+
+/**
+ * Validate parsed SMS data
+ */
+export function validateParsedSMS(data: EnhancedParsedSMS): ValidationResult {
+    const issues: string[] = []
+    const suggestions: string[] = []
+
+    if (!data || typeof data.bank !== 'string') {
+        issues.push('Bank information not detected')
+    }
+    if (!data || typeof data.type !== 'string') {
+        issues.push('Transaction type not detected')
+    }
+    if (!data || typeof data.amount !== 'number' || data.amount <= 0) {
+        issues.push('Invalid or missing amount')
+    }
+
+    if (data.bank === 'Unknown') {
+        suggestions.push('Bank name could not be determined - consider checking the SMS format')
+    }
+    if (!data.merchant && data.type === 'expense') {
+        suggestions.push('Merchant name not detected - manual review may be needed')
+    }
+
+    return {
+        isValid: issues.length === 0,
+        issues,
+        suggestions
+    }
 }
 
 /**

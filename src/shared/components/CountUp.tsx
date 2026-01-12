@@ -26,8 +26,8 @@ export const CountUp: React.FC<CountUpProps> = ({
     const [count, setCount] = useState(start);
     const [isAnimating, setIsAnimating] = useState(false);
     const countRef = useRef<HTMLSpanElement>(null);
-    const startTimeRef = useRef<number>();
-    const animationFrameRef = useRef<number>();
+    const startTimeRef = useRef<number | null>(null);
+    const animationFrameRef = useRef<number | null>(null);
 
     useEffect(() => {
         if (count === end) return;

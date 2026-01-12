@@ -13,6 +13,8 @@ describe('Phase A Audit: Data Persistence & Logic', () => {
         initialState = {
             userName: 'Test User',
             totalBalance: 1000,
+            totalIncome: 0,
+            totalExpense: 0,
             accounts: [
                 { id: 'acc1', name: 'Bank', type: 'Bank', balance: 1000, color: 'blue', profile: 'Personal', institution: 'CBE' }
             ],
@@ -23,19 +25,20 @@ describe('Phase A Audit: Data Persistence & Logic', () => {
             savingsGoals: [],
             iqubs: [],
             iddirs: [],
-
-            budgets: [],
-            debts: [],
-            subscriptions: [],
-            notifications: [],
+            recurringTransactions: [],
+            expenseCategories: [],
             incomeSources: [],
-            financialProfile: {
-                monthlyIncome: 5000,
-                incomeFrequency: 'monthly',
-                dependents: 0,
-                riskTolerance: 'medium',
-                financialGoals: []
-            }
+            familyMembers: [],
+            invitations: [],
+            achievements: {
+                savingsStreak: 0,
+                totalSaved: 0,
+                goalsCompleted: 0,
+                iqubsWon: 0,
+                badges: []
+            },
+            aiNotifications: [],
+            budgetStartDate: 1,
         };
     });
 

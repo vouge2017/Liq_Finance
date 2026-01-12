@@ -231,55 +231,55 @@ describe('Auth Security Service', () => {
     // ============= RATE LIMITING TESTS =============
 
     describe('isRateLimited', () => {
-        it('should return not blocked for first attempt', () => {
-            const result = isRateLimited('test-user', 'LOGIN');
+        it('should return not blocked for first attempt', async () => {
+            const result = await isRateLimited('test-user', 'LOGIN');
             expect(result.blocked).toBe(false);
             expect(result.remaining).toBe(RATE_LIMITS.LOGIN.maxAttempts);
         });
 
-        it('should return remaining attempts count', () => {
-            const result = isRateLimited('test-user', 'LOGIN');
+        it('should return remaining attempts count', async () => {
+            const result = await isRateLimited('test-user', 'LOGIN');
             expect(result.remaining).toBe(RATE_LIMITS.LOGIN.maxAttempts);
         });
 
-        it('should return correct reset time', () => {
-            const result = isRateLimited('test-user', 'LOGIN');
+        it('should return correct reset time', async () => {
+            const result = await isRateLimited('test-user', 'LOGIN');
             expect(result.resetTime).toBeGreaterThan(Date.now());
         });
     });
 
     describe('recordFailedAttempt', () => {
-        it('should increment failed attempts', () => {
+        it('should increment failed attempts', async () => {
             const key = 'test-user-fail';
-            const result1 = recordFailedAttempt(key, 'LOGIN');
-            const result2 = recordFailedAttempt(key, 'LOGIN');
+            const result1 = await recordFailedAttempt(key, 'LOGIN');
+            const result2 = await recordFailedAttempt(key, 'LOGIN');
 
             expect(result2.remaining).toBe(result1.remaining - 1);
             expect(result2.remaining).toBe(RATE_LIMITS.LOGIN.maxAttempts - 2);
         });
 
-        it('should block user after max attempts', () => {
+        it('should block user after max attempts', async () => {
             const key = 'test-user-block';
 
             for (let i = 0; i < RATE_LIMITS.LOGIN.maxAttempts; i++) {
-                recordFailedAttempt(key, 'LOGIN');
+                await recordFailedAttempt(key, 'LOGIN');
             }
 
-            const result = recordFailedAttempt(key, 'LOGIN');
+            const result = await recordFailedAttempt(key, 'LOGIN');
             expect(result.blocked).toBe(true);
             expect(result.remaining).toBe(0);
             expect(result.nextAllowedTime).toBeDefined();
         });
 
-        it('should return blocked status when limit exceeded', () => {
+        it('should return blocked status when limit exceeded', async () => {
             const key = 'test-user-exceed';
 
             // Exceed the limit
             for (let i = 0; i <= RATE_LIMITS.LOGIN.maxAttempts; i++) {
-                recordFailedAttempt(key, 'LOGIN');
+                await recordFailedAttempt(key, 'LOGIN');
             }
 
-            const result = isRateLimited(key, 'LOGIN');
+            const result = await isRateLimited(key, 'LOGIN');
             expect(result.blocked).toBe(true);
         });
 
@@ -291,47 +291,48 @@ describe('Auth Security Service', () => {
             expect(RATE_LIMITS.LOGIN.windowMs).not.toBe(RATE_LIMITS.SIGNUP.windowMs);
         });
 
-        it('should track remaining attempts correctly', () => {
+        it('should track remaining attempts correctly', async () => {
             const key = 'test-user-track';
-            const initial = isRateLimited(key, 'LOGIN');
+            const initial = await isRateLimited(key, 'LOGIN');
 
-            recordFailedAttempt(key, 'LOGIN');
-            const afterOne = isRateLimited(key, 'LOGIN');
+            await recordFailedAttempt(key, 'LOGIN');
+            const afterOne = await isRateLimited(key, 'LOGIN');
 
             expect(afterOne.remaining).toBe(initial.remaining - 1);
         });
     });
 
     describe('resetRateLimit', () => {
-        it('should reset attempts after successful authentication', () => {
+        it('should reset attempts after successful authentication', async () => {
             const key = 'test-user-reset';
 
             // Make some failed attempts
-            recordFailedAttempt(key, 'LOGIN');
-            recordFailedAttempt(key, 'LOGIN');
+            await recordFailedAttempt(key, 'LOGIN');
+            await recordFailedAttempt(key, 'LOGIN');
 
             // Reset rate limit
-            resetRateLimit(key, 'LOGIN');
+            await resetRateLimit(key, 'LOGIN');
 
-            const result = isRateLimited(key, 'LOGIN');
+            const result = await isRateLimited(key, 'LOGIN');
             expect(result.remaining).toBe(RATE_LIMITS.LOGIN.maxAttempts);
             expect(result.blocked).toBe(false);
         });
 
-        it('should allow new attempts after reset', () => {
+        it('should allow new attempts after reset', async () => {
             const key = 'test-user-new';
 
             // Exhaust attempts
             for (let i = 0; i < RATE_LIMITS.LOGIN.maxAttempts; i++) {
-                recordFailedAttempt(key, 'LOGIN');
+                await recordFailedAttempt(key, 'LOGIN');
             }
 
-            expect(isRateLimited(key, 'LOGIN').blocked).toBe(true);
+            const blockedResult = await isRateLimited(key, 'LOGIN');
+            expect(blockedResult.blocked).toBe(true);
 
             // Reset
-            resetRateLimit(key, 'LOGIN');
+            await resetRateLimit(key, 'LOGIN');
 
-            const result = isRateLimited(key, 'LOGIN');
+            const result = await isRateLimited(key, 'LOGIN');
             expect(result.blocked).toBe(false);
             expect(result.remaining).toBe(RATE_LIMITS.LOGIN.maxAttempts);
         });
@@ -535,15 +536,17 @@ describe('Auth Security Service', () => {
         });
 
         describe('Rate Limiting Edge Cases', () => {
-            it('should handle different IP addresses separately', () => {
+            it('should handle different IP addresses separately', async () => {
                 const user1 = generateAuthKey('user123', 'LOGIN', '192.168.1.1');
                 const user2 = generateAuthKey('user123', 'LOGIN', '192.168.1.2');
 
-                recordFailedAttempt(user1, 'LOGIN');
-                recordFailedAttempt(user2, 'LOGIN');
+                await recordFailedAttempt(user1, 'LOGIN');
+                await recordFailedAttempt(user2, 'LOGIN');
 
-                expect(isRateLimited(user1, 'LOGIN').remaining).toBe(RATE_LIMITS.LOGIN.maxAttempts - 1);
-                expect(isRateLimited(user2, 'LOGIN').remaining).toBe(RATE_LIMITS.LOGIN.maxAttempts - 1);
+                const result1 = await isRateLimited(user1, 'LOGIN');
+                const result2 = await isRateLimited(user2, 'LOGIN');
+                expect(result1.remaining).toBe(RATE_LIMITS.LOGIN.maxAttempts - 1);
+                expect(result2.remaining).toBe(RATE_LIMITS.LOGIN.maxAttempts - 1);
             });
         });
 

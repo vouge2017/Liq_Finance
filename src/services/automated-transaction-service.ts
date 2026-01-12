@@ -144,10 +144,10 @@ export class AutomatedTransactionService {
             const result: TransactionProcessingResult = {
                 success: true,
                 transaction: processed,
-                confidence: parsed.confidence,
+                confidence: parsed.confidence ?? 0,
                 source: 'sms',
                 processingTime: performance.now() - startTime,
-                requiresReview: parsed.confidence < (0.7) || !validation.isValid
+                requiresReview: (parsed.confidence ?? 0) < 0.7 || !validation.isValid
             }
 
             this.addToHistory(result)
@@ -424,7 +424,7 @@ export class AutomatedTransactionService {
             reference: parsed.reference,
             balance: parsed.balance,
             category,
-            confidence: parsed.confidence,
+            confidence: parsed.confidence ?? 0,
             rawData: parsed
         }
     }

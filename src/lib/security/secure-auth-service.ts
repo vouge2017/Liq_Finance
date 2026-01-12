@@ -62,7 +62,7 @@ export class SecureAuthService {
                 options.ipAddress
             );
 
-            const rateLimitCheck = SecurityUtils.isRateLimited(authKey, 'SIGNUP');
+            const rateLimitCheck = await await SecurityUtils.isRateLimited(authKey, 'SIGNUP');
             if (rateLimitCheck.blocked) {
                 SecurityUtils.securityLogger.logEvent({
                     type: 'rate_limited',
@@ -201,7 +201,7 @@ export class SecureAuthService {
                 options.ipAddress
             );
 
-            const rateLimitCheck = SecurityUtils.isRateLimited(authKey, 'LOGIN');
+            const rateLimitCheck = await await SecurityUtils.isRateLimited(authKey, 'LOGIN');
             if (rateLimitCheck.blocked) {
                 SecurityUtils.securityLogger.logEvent({
                     type: 'rate_limited',
@@ -234,7 +234,7 @@ export class SecureAuthService {
 
             if (error) {
                 // Record failed attempt for rate limiting
-                const failedAttempt = SecurityUtils.recordFailedAttempt(authKey, 'LOGIN');
+                const failedAttempt = await SecurityUtils.recordFailedAttempt(authKey, 'LOGIN');
 
                 // Log failed login attempt
                 SecurityUtils.securityLogger.logEvent({
@@ -335,7 +335,7 @@ export class SecureAuthService {
                 options.ipAddress
             );
 
-            const rateLimitCheck = SecurityUtils.isRateLimited(authKey, 'PASSWORD_RESET');
+            const rateLimitCheck = await SecurityUtils.isRateLimited(authKey, 'PASSWORD_RESET');
             if (rateLimitCheck.blocked) {
                 return {
                     success: false,
@@ -357,7 +357,7 @@ export class SecureAuthService {
 
             if (error) {
                 // Record failed attempt
-                SecurityUtils.recordFailedAttempt(authKey, 'PASSWORD_RESET');
+                await SecurityUtils.recordFailedAttempt(authKey, 'PASSWORD_RESET');
 
                 // Log failed password reset attempt
                 SecurityUtils.securityLogger.logEvent({
@@ -416,7 +416,7 @@ export class SecureAuthService {
     /**
      * Check current rate limit status for an email
      */
-    getRateLimitStatus(
+    async getRateLimitStatus(
         email: string,
         operation: 'LOGIN' | 'SIGNUP' | 'PASSWORD_RESET',
         ipAddress?: string
@@ -427,7 +427,7 @@ export class SecureAuthService {
             ipAddress
         );
 
-        return SecurityUtils.isRateLimited(authKey, operation);
+        return await SecurityUtils.isRateLimited(authKey, operation);
     }
 
     /**

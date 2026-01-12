@@ -34,7 +34,7 @@ export const EmptyStateCard: React.FC<EmptyStateCardProps> = ({ onAddGoal }) => 
                 </p>
 
                 {/* Amharic Text */}
-                <p className="text-cyan-400/70 text-xs mb-8" style={{ fontFamily: 'Nyala, sans-serif' }}>
+                <p className="text-cyan-400/70 text-xs mb-8 ethiopic">
                     "ህልሜን የማግኘት ጊዜ"
                 </p>
 

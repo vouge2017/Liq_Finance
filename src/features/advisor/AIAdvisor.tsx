@@ -3,12 +3,31 @@
 import type React from "react"
 import { useState, useRef, useEffect } from "react"
 import { useChat } from "@ai-sdk/react"
-import { DefaultChatTransport } from "ai"
+import { DefaultChatTransport, type UIMessage } from "ai"
 import { Icons } from "@/shared/components/Icons"
 import { useAppContext } from "@/context/AppContext"
 import { useConsent } from "@/hooks/useConsent"
 import { buildCulturalFinancialContext, buildCulturalFinancialContext as buildContext } from "@/lib/ai-service"
 import { Lock, Sparkles, Send } from "lucide-react"
+import { AIOnboardingModal } from "./AIOnboardingModal"
+
+// Type guard to safely extract message content (handles SDK version differences)
+function getMessageContent(msg: UIMessage): string {
+  // @ai-sdk/react message structure varies - use type-safe access
+  const msgAny = msg as unknown as { content?: string | object }
+  if (msgAny.content !== undefined) {
+    return typeof msgAny.content === 'string'
+      ? msgAny.content
+      : JSON.stringify(msgAny.content)
+  }
+  return ''
+}
+
+// Type guard to check for spending pattern in message
+function hasSpendingPattern(msg: UIMessage): boolean {
+  const content = getMessageContent(msg)
+  return content.includes("15% less") || content.includes("expenses are 90%")
+}
 
 export const AIAdvisor: React.FC = () => {
   const { state, activeProfile, setActiveTab } = useAppContext()
@@ -57,7 +76,20 @@ export const AIAdvisor: React.FC = () => {
   } as any)
 
   const [input, setInput] = useState("")
+  const [showOnboarding, setShowOnboarding] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const hasSeenOnboarding = localStorage.getItem('liq_ai_onboarding_seen')
+    if (!hasSeenOnboarding && hasAIConsent) {
+      setShowOnboarding(true)
+    }
+  }, [hasAIConsent])
+
+  const handleOnboardingComplete = () => {
+    localStorage.setItem('liq_ai_onboarding_seen', 'true')
+    setShowOnboarding(false)
+  }
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -118,8 +150,6 @@ export const AIAdvisor: React.FC = () => {
 
         <button
           onClick={() => {
-            // Redirect to settings or trigger consent modal
-            // Ideally this would open a modal, but for now we'll just show a toast or similar
             alert("Please go to Settings > Privacy to enable AI Advisor.");
           }}
           className="w-full py-4 bg-primary rounded-[1.5rem] text-white font-bold text-lg shadow-glow hover:bg-primary-dark active:scale-95 transition-all relative z-10"
@@ -141,6 +171,7 @@ export const AIAdvisor: React.FC = () => {
   return (
     <div className="fixed inset-0 z-[60] bg-[#f6f6f8] dark:bg-[#101622] flex flex-col animate-fade-in">
       {/* Immersive Header */}
+      {showOnboarding && <AIOnboardingModal onComplete={handleOnboardingComplete} />}
       <div className="px-6 pt-6 pb-4 bg-[#f6f6f8]/80 dark:bg-[#101622]/80 backdrop-blur-xl flex justify-between items-center z-10 border-b border-white/20 dark:border-white/5 sticky top-0">
         <div className="flex items-center gap-4">
           <button
@@ -191,7 +222,7 @@ export const AIAdvisor: React.FC = () => {
                   }`}
               >
                 <div className="text-[14px] leading-relaxed font-medium">
-                  {msg.content}
+                  {getMessageContent(msg)}
                 </div>
               </div>
               {msg.role === "user" && (
@@ -199,7 +230,7 @@ export const AIAdvisor: React.FC = () => {
               )}
 
               {/* Demo: Weekly Spending Card inside Assistant Message */}
-              {msg.role === "assistant" && (msg.content.includes("15% less") || msg.content.includes("expenses are 90%")) && (
+              {msg.role === "assistant" && hasSpendingPattern(msg) && (
                 <div className="mt-3 bg-white dark:bg-white/5 rounded-[2rem] p-5 border border-white/20 dark:border-white/5 shadow-sm flex items-center justify-between cursor-pointer hover:bg-gray-50 dark:hover:bg-white/10 transition-colors">
                   <div>
                     <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Weekly Spending</p>

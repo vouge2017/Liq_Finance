@@ -135,6 +135,8 @@ const defaultAccounts: Account[] = [
 const emptyState: AppState = {
   userName: "",
   userPhone: "",
+  userPassword: "",
+  userGoal: "",
   totalBalance: 0,
   totalIncome: 0,
   totalExpense: 0,
@@ -211,6 +213,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children, initialData,
       userName: initialData.profile?.full_name || "",
       userPhone: initialData.profile?.phone || "",
       userGoal: initialData.profile?.financial_goal || "",
+      userPassword: "",
       totalBalance,
       totalIncome,
       totalExpense,
@@ -246,10 +249,11 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children, initialData,
   }, [initialData, buildInitialState])
 
   // Theme and preferences from profile
-  const [theme, setThemeState] = useState<ThemeMode>((initialData?.profile?.theme as ThemeMode) || "dark")
+  const [theme, setThemeState] = useState<ThemeMode>((initialData?.profile?.theme as ThemeMode) || "light")
   const [calendarMode, setCalendarModeState] = useState<CalendarMode>(
     (initialData?.profile?.calendar_mode as CalendarMode) || "gregorian",
   )
+
   const [activeProfile, setActiveProfile] = useState<UserProfile>("Personal")
   const [activeTab, setActiveTab] = useState<string>("dashboard")
   const [isPrivacyMode, setIsPrivacyMode] = useState(initialData?.profile?.privacy_mode || false)
@@ -414,6 +418,13 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children, initialData,
     [userId],
   )
 
+  const setUserPassword = useCallback(
+    (password: string) => {
+      setFullState((prev) => ({ ...prev, userPassword: password }))
+    },
+    [],
+  )
+
   const setBudgetStartDate = useCallback(
     (day: number) => {
       setFullState((prev) => ({ ...prev, budgetStartDate: day }))
@@ -483,22 +494,12 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children, initialData,
   const addTransaction = useCallback(
     async (transaction: Transaction) => {
       const isIncome = transaction.type === "income"
-      let newTx: Transaction | null = null
 
-      // Try to save to DB if user exists
-      if (userId) {
-        newTx = await dataService.createTransaction(userId, transaction)
-      } else {
-        // Generate a local ID if offline/guest
-        newTx = { ...transaction, id: Date.now().toString() }
-      }
+      // Generate client-side ID for the transaction
+      const txId = transaction.id || Date.now().toString()
+      const txWithId = { ...transaction, id: txId }
 
-      if (!newTx) {
-        // Fallback for DB failure
-        newTx = { ...transaction, id: Date.now().toString() }
-      }
-
-      // Update local state and account balance
+      // Update local state immediately for optimistic UI
       setFullState((prev) => {
         let newAccounts = prev.accounts
 
@@ -506,8 +507,6 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children, initialData,
           newAccounts = prev.accounts.map((acc) => {
             if (acc.id === transaction.accountId) {
               const newBalance = acc.balance + (isIncome ? transaction.amount : -transaction.amount)
-              // Also update in DB if user exists
-              if (userId) dataService.updateAccount({ ...acc, balance: newBalance })
               return { ...acc, balance: newBalance }
             }
             return acc
@@ -516,7 +515,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children, initialData,
 
         return {
           ...prev,
-          transactions: [newTx!, ...prev.transactions],
+          transactions: [txWithId, ...prev.transactions],
           accounts: newAccounts,
           totalIncome: isIncome ? prev.totalIncome + transaction.amount : prev.totalIncome,
           totalExpense: !isIncome ? prev.totalExpense + transaction.amount : prev.totalExpense,
@@ -524,19 +523,44 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children, initialData,
         }
       })
 
-      showNotification("Transaction added", "success")
+      // Try to queue through OfflineSyncManager for encryption + queue + conflict resolution
+      if (offlineSyncManager && userId) {
+        try {
+          await offlineSyncManager.queueChange({
+            type: 'create',
+            entityType: 'transaction',
+            entityId: txId,
+            data: txWithId,
+          })
+          showNotification("Transaction saved locally", "info")
+        } catch (error) {
+          console.error('Failed to queue transaction:', error)
+          showNotification("Transaction saved but sync failed", "error")
+        }
+      } else {
+        // Fallback: direct write when no sync manager available
+        // This path should rarely be hit in production
+        if (userId) {
+          try {
+            const newTx = await dataService.createTransaction(userId, txWithId)
+            if (newTx) {
+              showNotification("Transaction saved", "success")
+            }
+          } catch (error) {
+            console.error('Failed to save transaction:', error)
+            showNotification("Failed to save transaction", "error")
+          }
+        } else {
+          showNotification("Transaction saved locally", "info")
+        }
+      }
     },
-    [userId, showNotification],
+    [userId, offlineSyncManager, showNotification],
   )
 
   const updateTransaction = useCallback(
     async (updatedTx: Transaction) => {
-      const success = await dataService.updateTransaction(updatedTx)
-      if (!success) {
-        showNotification("Failed to update transaction", "error")
-        return
-      }
-
+      // Update local state immediately for optimistic UI
       setFullState((prev) => {
         const oldTx = prev.transactions.find((t) => t.id === updatedTx.id)
         if (!oldTx) return prev
@@ -559,9 +583,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children, initialData,
           const newIsIncome = updatedTx.type === "income"
           newAccounts = newAccounts.map((acc) => {
             if (acc.id === updatedTx.accountId) {
-              const newAcc = { ...acc, balance: acc.balance + (newIsIncome ? updatedTx.amount : -updatedTx.amount) }
-              dataService.updateAccount(newAcc)
-              return newAcc
+              return { ...acc, balance: acc.balance + (newIsIncome ? updatedTx.amount : -updatedTx.amount) }
             }
             return acc
           })
@@ -574,29 +596,49 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children, initialData,
         }
       })
 
-      showNotification("Transaction updated", "success")
+      // Try to queue through OfflineSyncManager for encryption + queue + conflict resolution
+      if (offlineSyncManager && userId) {
+        try {
+          await offlineSyncManager.queueChange({
+            type: 'update',
+            entityType: 'transaction',
+            entityId: updatedTx.id,
+            data: updatedTx,
+          })
+          showNotification("Transaction updated locally", "info")
+        } catch (error) {
+          console.error('Failed to queue transaction update:', error)
+          showNotification("Update saved but sync failed", "error")
+        }
+      } else {
+        // Fallback: direct write
+        const success = await dataService.updateTransaction(updatedTx)
+        if (success) {
+          showNotification("Transaction updated", "success")
+        } else {
+          showNotification("Failed to update transaction", "error")
+        }
+      }
     },
-    [showNotification],
+    [userId, offlineSyncManager, showNotification],
   )
 
   const deleteTransaction = useCallback(
     async (id: string) => {
-      const success = await dataService.deleteTransaction(id)
-      if (!success) {
-        showNotification("Failed to delete transaction", "error")
+      // Get the transaction before deleting for state update
+      const tx = fullState.transactions.find((t) => t.id === id)
+      if (!tx) {
+        showNotification("Transaction not found", "error")
         return
       }
 
+      // Update local state immediately for optimistic UI
       setFullState((prev) => {
-        const tx = prev.transactions.find((t) => t.id === id)
-        if (!tx) return prev
-
         let newAccounts = prev.accounts
         if (tx.accountId) {
           newAccounts = newAccounts.map((acc) => {
             if (acc.id === tx.accountId) {
               const newAcc = { ...acc, balance: acc.balance - (tx.type === "income" ? tx.amount : -tx.amount) }
-              dataService.updateAccount(newAcc)
               return newAcc
             }
             return acc
@@ -606,9 +648,31 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children, initialData,
         return { ...prev, accounts: newAccounts, transactions: prev.transactions.filter((t) => t.id !== id) }
       })
 
-      showNotification("Transaction deleted", "info")
+      // Try to queue through OfflineSyncManager for encryption + queue + conflict resolution
+      if (offlineSyncManager && userId) {
+        try {
+          await offlineSyncManager.queueChange({
+            type: 'delete',
+            entityType: 'transaction',
+            entityId: id,
+            data: { id, deletedAt: Date.now() },
+          })
+          showNotification("Transaction deleted locally", "info")
+        } catch (error) {
+          console.error('Failed to queue transaction delete:', error)
+          showNotification("Delete saved but sync failed", "error")
+        }
+      } else {
+        // Fallback: direct write
+        const success = await dataService.deleteTransaction(id)
+        if (success) {
+          showNotification("Transaction deleted", "info")
+        } else {
+          showNotification("Failed to delete transaction", "error")
+        }
+      }
     },
-    [showNotification],
+    [userId, offlineSyncManager, fullState.transactions, showNotification],
   )
 
   const transferFunds = useCallback(
@@ -1510,6 +1574,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children, initialData,
       setUserName: (name: string) => setFullState((prev) => ({ ...prev, userName: name })),
       setUserPhone: (phone: string) => setFullState((prev) => ({ ...prev, userPhone: phone })),
       setUserGoal: (goal: string) => setFullState((prev) => ({ ...prev, userGoal: goal })),
+      setUserPassword,
       setBudgetStartDate,
       addAccount,
       updateAccount,
@@ -1647,6 +1712,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children, initialData,
       getUserConsents,
       updateConsent,
       validateConsent,
+      setUserPassword,
     ],
   )
 

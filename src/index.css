@@ -1,6 +1,16 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  --color-ethiopic-green: #1B4D3E;
+  --color-ethiopian-green-light: #2D6A5A;
+  --color-gold: #C5A059;
+  --color-gold-light: #D4B76A;
+  --color-parchment: #F9F7F2;
+  --color-coffee-brown: #2C2416;
+  --color-landing-secondary: #6B5D4D;
+  --font-display: "Playfair Display", serif;
+  --font-body: "Inter", sans-serif;
+}
 
 
 /* Custom theme variables for Liq - Stitch Design System */
@@ -798,9 +808,7 @@ textarea:focus {
 .btn-icon {
   width: 44px;
   height: 44px;
-  border-radius: 8px;
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -808,8 +816,7 @@ textarea:focus {
 }
 
 .btn-icon:hover {
-  background: var(--bg-elevated);
-  transform: translateY(-1px);
+  background-color: var(--border-color);
 }
 
 .btn-link {

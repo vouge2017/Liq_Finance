@@ -65,7 +65,7 @@ interface SecureAuthContextType {
     // Security utilities
     validatePassword: (password: string) => PasswordStrength;
     validateEmail: (email: string) => { valid: boolean; error?: string };
-    getRateLimitStatus: (email: string, operation: 'LOGIN' | 'SIGNUP' | 'PASSWORD_RESET') => RateLimitInfo;
+    getRateLimitStatus: (email: string, operation: 'LOGIN' | 'SIGNUP' | 'PASSWORD_RESET') => Promise<RateLimitInfo>;
     getSecurityEvents: () => any[];
 
     // Preferences
@@ -313,11 +313,11 @@ export const SecureAuthProvider: React.FC<SecureAuthProviderProps> = ({ children
         return SecurityUtils.validateEmail(email);
     }, []);
 
-    const getRateLimitStatus = useCallback((
+    const getRateLimitStatus = useCallback(async (
         email: string,
         operation: 'LOGIN' | 'SIGNUP' | 'PASSWORD_RESET'
-    ) => {
-        const status = secureAuthService.getRateLimitStatus(email, operation, clientInfo.ipAddress);
+    ): Promise<{ blocked: boolean; remaining: number; resetTime: number }> => {
+        const status = await secureAuthService.getRateLimitStatus(email, operation, clientInfo.ipAddress);
         return {
             blocked: status.blocked,
             remaining: status.remaining,

@@ -4,28 +4,89 @@ import type React from "react"
 import { useState } from "react"
 import { Icons } from "@/shared/components/Icons"
 import { useAppContext } from "@/context/AppContext"
-import { ConsentBanner } from "@/components/ConsentBanner"
+
+interface Goal {
+  id: string
+  title: string
+  titleAm?: string
+  desc: string
+  descAm?: string
+  iconType: 'savings' | 'shield' | 'payments' | 'home' | 'visibility' | 'edit' | 'show_chart'
+}
 
 export const Onboarding: React.FC = () => {
   const { completeOnboarding, setUserName, setUserPhone, setUserGoal } = useAppContext()
   const [step, setStep] = useState(0)
+  const [language, setLanguage] = useState<'en' | 'am'>('en')
 
   // Form State
   const [phone, setPhone] = useState("")
-  const [name, setNameInput] = useState("")
+  const [firstName, setFirstName] = useState("")
+  const [lastName, setLastName] = useState("")
   const [selectedGoals, setSelectedGoals] = useState<string[]>([])
   const [otherGoal, setOtherGoal] = useState("")
   const [phoneError, setPhoneError] = useState("")
 
-  const goals = [
-    { id: "save", label: "Build Savings", icon: <Icons.PiggyBank size={28} />, color: "cyan" },
-    { id: "debt", label: "Pay Off Debt", icon: <Icons.CreditCard size={28} />, color: "cyan" },
-    { id: "budget", label: "Track Spending", icon: <Icons.TrendingUp size={28} />, color: "cyan" },
-    { id: "advisor", label: "AI Finance Advisory", icon: <Icons.AI size={28} />, color: "cyan" },
+  const t = {
+    en: {
+      welcome: "Welcome to Liq.!",
+      welcomeDesc: "Your journey to financial confidence starts here.",
+      features: "What Liq. can do for you",
+      feat1Title: "Track your spending",
+      feat1Desc: "See where your money goes",
+      feat2Title: "Build your savings",
+      feat2Desc: "Save for what matters most",
+      feat3Title: "Join Iqub & Iddir",
+      feat3Desc: "Community savings made easy",
+      goalsTitle: "What's your goal?",
+      goalsDesc: "Select one or more (optional)",
+      detailsTitle: "Almost done!",
+      detailsDesc: "Enter your details to get started",
+      labelFirstname: "First Name",
+      labelLastname: "Father's Name",
+      labelPhone: "Phone Number",
+      phoneInfo: "Your phone number will be your account number. It's safe and private.",
+      btnNext: "Continue",
+      btnBack: "Back",
+      btnFinish: "Get Started",
+    },
+    am: {
+      welcome: "ወደ ሊቅ እንኳን ደህና መጡ!",
+      welcomeDesc: "የገንዘብ መታመን ጉዞዎ ከእዚህ ይጀምራል።",
+      features: "ሊቅ ምን ያደርጋል?",
+      feat1Title: "ወጪዎን ይምሩ",
+      feat1Desc: "ገንዘብዎ የት እንደሚሄድ ያውቁ",
+      feat2Title: "ቁጠባዎን ያሳድጉ",
+      feat2Desc: "ለሚፈልጉት ነገር ያስቆጥሩ",
+      feat3Title: "ከእቁብ እና እድር ጋር",
+      feat3Desc: "የማህበረሰብ ቁጠባ ቀላል ተደርጎ ተዘጋጀ",
+      goalsTitle: "የእርስዎ ግብ ምንድነው?",
+      goalsDesc: "አንድ ወይም ብዙ ይምረጡ (አማማኝ)",
+      detailsTitle: "ሙሉ ሆኖ ተዘጋጅተዋል!",
+      detailsDesc: "ለመጀመሪያ ዝርዝሮችዎን ያስገቡ",
+      labelFirstname: "ሥም",
+      labelLastname: "የአባት ሥም",
+      labelPhone: "ስልክ ቁጥር",
+      phoneInfo: "ስልክዎ የሂሳብዎ ቁጥር ይሆናል። ሚስጢር ነው።",
+      btnNext: "ቀጥል",
+      btnBack: "ተመለስ",
+      btnFinish: "ጀምር",
+    }
+  }
+
+  const goals: Goal[] = [
+    { id: 'budget', title: 'Budget Tracking', titleAm: 'የበጀት መምራት', desc: 'Know where your money goes', descAm: 'ገንዘብዎ የት እንደሚሄድ ያውቁ', iconType: 'show_chart' },
+    { id: 'emergency', title: 'Emergency Fund', titleAm: 'የአደጋ ጊዜ ቁጠባ', desc: 'Prepare for the unexpected', descAm: 'ለማይተነፈስ ዝግጁ ይሁኑ', iconType: 'shield' },
+    { id: 'debt', title: 'Debt Free', titleAm: 'ከብድር ነጻ', desc: 'Pay off loans faster', descAm: 'ብድርዎን በፍጥነት ክፈት', iconType: 'payments' },
+    { id: 'purchase', title: 'Big Purchase', titleAm: 'ትልቅ ግዢ', desc: 'Save for a home, car, or wedding', descAm: 'ለቤት፣ ለመኪና ወይም ለሥጋወደሙ ያስቆጥሩ', iconType: 'home' },
+    { id: 'exploring', title: 'Just Exploring', titleAm: 'ብቻዬን እጠይቃለሁ', desc: 'I want to look around first', descAm: 'አስቀድሜ መመርመር እፈልጋለሁ', iconType: 'visibility' },
+    { id: 'other', title: 'Other', titleAm: 'ሌላ', desc: 'Create my own goal', descAm: 'የራሴን ግብ እፈጥራለሁ', iconType: 'edit' },
   ]
 
   const toggleGoal = (id: string) => {
-    setSelectedGoals((prev) => (prev.includes(id) ? prev.filter((g) => g !== id) : [...prev, id]))
+    setSelectedGoals((prev) => 
+      prev.includes(id) ? prev.filter((g) => g !== id) : [...prev, id]
+    )
   }
 
   const normalizePhoneInput = (p: string): string => {
@@ -41,43 +102,62 @@ export const Onboarding: React.FC = () => {
   }
 
   const handleNext = () => {
+    const tt = t[language]
+
     if (step === 1) {
       // Goal step - no validation needed
     }
+    
     if (step === 2) {
+      // Phone step
+      const cleanPhone = normalizePhoneInput(phone)
       if (!phone.trim()) {
-        setPhoneError("Phone number is required")
+        setPhoneError(language === 'en' ? "Phone number is required" : "ስልክ ቁጥር ያስገቡ")
         return
       }
-      if (!validatePhone(phone)) {
-        setPhoneError("Please enter a valid phone number")
+      if (!validatePhone(cleanPhone)) {
+        setPhoneError(language === 'en' ? "Must start with 7 or 9" : "ከ7 ወይም 9 ይጀምር")
         if (navigator.vibrate) navigator.vibrate(200)
         return
       }
       setPhoneError("")
     }
+
     if (step === 3) {
-      const nameParts = name.trim().split(/\s+/)
-      if (nameParts.length < 1) { // Relaxed to just one name based on "Display Name" label
-        setPhoneError("Please enter your name")
+      // Name step
+      if (!firstName.trim()) {
+        if (navigator.vibrate) navigator.vibrate(200)
+        return
+      }
+      if (!lastName.trim()) {
+        if (navigator.vibrate) navigator.vibrate(200)
         return
       }
       setPhoneError("")
     }
 
-    if (step < 4) {
+    if (step < 3) {
       setStep(step + 1)
     } else {
-      let normalizedPhone = phone.replace(/[\s-]/g, "")
-      if (normalizedPhone.startsWith("0")) normalizedPhone = normalizedPhone.substring(1)
-      normalizedPhone = "0" + normalizedPhone
+      // Complete onboarding
+      const normalizedPhone = phone.replace(/[\s-]/g, "")
+      const phoneWithPrefix = normalizedPhone.startsWith("0") 
+        ? normalizedPhone 
+        : "0" + normalizedPhone
 
-      setUserPhone(normalizedPhone)
-      setUserName(name)
+      setUserPhone(phoneWithPrefix)
+      setUserName(`${firstName} ${lastName}`)
 
-      let finalGoals = selectedGoals.map((id) => goals.find((g) => g.id === id)?.label).join(", ")
-      if (otherGoal.trim()) {
-        finalGoals = finalGoals ? `${finalGoals}, ${otherGoal}` : otherGoal
+      const selectedGoalLabels = selectedGoals
+        .map(id => goals.find(g => g.id === id))
+        .filter(Boolean)
+        .map(g => language === 'en' ? g!.title : g!.titleAm || g!.title)
+
+      let finalGoals = selectedGoalLabels.join(", ")
+      if (selectedGoals.includes('other') && otherGoal.trim()) {
+        finalGoals = finalGoals 
+          ? `${finalGoals}, ${otherGoal}` 
+          : otherGoal
       }
       setUserGoal(finalGoals)
 
@@ -85,115 +165,172 @@ export const Onboarding: React.FC = () => {
     }
   }
 
-  // --- RENDER HELPERS ---
-
-  const renderStepIndicator = () => (
-    <div className="flex items-center justify-center gap-1 mb-8">
-      {[1, 2, 3, 4].map((i) => (
-        <div key={i} className="flex items-center">
-          <div
-            className={`h-4 rounded-full transition-all duration-500 flex items-center justify-center ${i <= step
-                ? "w-4 bg-gradient-to-r from-cyan-400 to-blue-500 shadow-[0_0_10px_rgba(6,182,212,0.4)]"
-                : "w-4 bg-gray-200"
-              }`}
-          >
-            {/* Inner glow dot */}
-            {i <= step && <div className="w-1.5 h-1.5 bg-white rounded-full" />}
-          </div>
-          {i < 4 && (
-            <div
-              className={`h-1.5 w-8 rounded-full mx-[-2px] transition-colors duration-500 ${i < step ? "bg-gradient-to-r from-cyan-400 to-blue-500" : "bg-gray-200"
-                }`}
-            />
-          )}
-        </div>
-      ))}
-      <span className="ml-4 text-sm font-bold text-gray-400">{step}/4</span>
-    </div>
-  )
+  const getIcon = (iconType: string) => {
+    switch (iconType) {
+      case 'savings': return <Icons.PiggyBank size={20} />
+      case 'shield': return <Icons.Shield size={20} />
+      case 'payments': return <Icons.CreditCard size={20} />
+      case 'home': return <Icons.Home size={20} />
+      case 'visibility': return <Icons.Eye size={20} />
+      case 'edit': return <Icons.Edit size={20} />
+      case 'show_chart': return <Icons.TrendingUp size={20} />
+      default: return <Icons.Star size={20} />
+    }
+  }
 
   const renderContent = () => {
+    const tt = t[language]
+
     switch (step) {
       case 0: // WELCOME
         return (
-          <div className="flex flex-col items-center text-center animate-fade-in w-full max-w-md">
-            {/* Hero Illustration Placeholder */}
-            <div className="w-40 h-40 rounded-full bg-gradient-to-tr from-cyan-200 to-purple-200 flex items-center justify-center mb-8 shadow-[0_0_60px_rgba(168,85,247,0.3)] relative animate-float">
-              <div className="absolute inset-0 bg-white/30 rounded-full blur-xl"></div>
-              <Icons.Wallet size={64} className="text-gray-800 relative z-10" />
+          <div className="flex flex-col items-center text-center animate-fade-in w-full max-w-md mx-auto">
+            {/* Decorative */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+              <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-ethiopic-green/5 rounded-full blur-[80px]"></div>
+              <div className="absolute bottom-[-15%] right-[-10%] w-[45%] h-[40%] bg-gold/5 rounded-full blur-[60px]"></div>
             </div>
 
-            <h1 className="text-5xl font-black text-gray-900 mb-4 tracking-tighter">
-              Liq<span className="text-cyan-600">.</span>
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-ethiopic-green to-ethiopian-green-light flex items-center justify-center shadow-lg mb-6">
+              <Icons.Wallet size={32} className="text-white" />
+            </div>
+
+            <h1 className="font-display text-4xl font-bold text-coffee-brown mb-2">
+              {tt.welcome}
             </h1>
-            <p className="text-xl font-bold text-gray-800 mb-2">Master Your Money</p>
-            <p className="text-gray-500 text-sm max-w-xs leading-relaxed mb-10">
-              Your AI-powered financial expert. Plan, track, and grow with confidence.
+            <p className="text-text-secondary text-sm max-w-xs leading-relaxed mb-8">
+              {tt.welcomeDesc}
             </p>
+
+            {/* Features */}
+            <div className="w-full space-y-2 mb-8">
+              <h3 className="text-sm font-semibold text-coffee-brown mb-3">{tt.features}</h3>
+              
+              <div className="flex items-center gap-3 p-3 bg-white/60 rounded-xl border border-ethiopic-green/10">
+                <div className="w-9 h-9 rounded-lg bg-ethiopic-green/10 flex items-center justify-center">
+                  <Icons.TrendingUp size={18} className="text-ethiopic-green" />
+                </div>
+                <div className="flex-1 text-left">
+                  <div className="text-sm font-medium text-coffee-brown">{tt.feat1Title}</div>
+                  <div className="text-xs text-text-secondary">{tt.feat1Desc}</div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 p-3 bg-white/60 rounded-xl border border-gold/20">
+                <div className="w-9 h-9 rounded-lg bg-gold/10 flex items-center justify-center">
+                  <Icons.PiggyBank size={18} className="text-gold" />
+                </div>
+                <div className="flex-1 text-left">
+                  <div className="text-sm font-medium text-coffee-brown">{tt.feat2Title}</div>
+                  <div className="text-xs text-text-secondary">{tt.feat2Desc}</div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 p-3 bg-white/60 rounded-xl border border-ethiopic-green/10">
+                <div className="w-9 h-9 rounded-lg bg-ethiopic-green/10 flex items-center justify-center">
+                  <Icons.Users size={18} className="text-ethiopic-green" />
+                </div>
+                <div className="flex-1 text-left">
+                  <div className="text-sm font-medium text-coffee-brown">{tt.feat3Title}</div>
+                  <div className="text-xs text-text-secondary">{tt.feat3Desc}</div>
+                </div>
+              </div>
+            </div>
 
             <button
               onClick={() => setStep(1)}
-              className="w-full py-4 rounded-[2rem] font-bold text-lg text-white bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 transition-all shadow-xl shadow-cyan-500/20 active:scale-[0.98]"
+              className="w-full h-12 rounded-xl bg-ethiopic-green text-white font-semibold text-sm shadow-lg shadow-ethiopic-green/20 active:scale-[0.97] transition-all flex items-center justify-center gap-2"
             >
-              Get Started
+              {tt.btnNext}
+              <Icons.ChevronRight size={18} />
             </button>
-            <p className="mt-6 text-xs text-gray-400 font-medium">Already have an account? <span className="text-cyan-600 font-bold">Log in</span></p>
           </div>
         )
 
       case 1: // GOALS
         return (
           <>
-            <h2 className="text-3xl font-black text-gray-900 mb-8 text-center px-4 leading-tight">
-              What's your main<br />purpose?
+            <h2 className="font-display text-2xl font-bold text-coffee-brown text-center mb-1">
+              {tt.goalsTitle}
             </h2>
+            <p className="text-text-secondary text-xs text-center mb-4">{tt.goalsDesc}</p>
 
-            <div className="bg-white/60 backdrop-blur-xl border border-white/60 rounded-[2.5rem] p-6 w-full max-w-sm shadow-2xl shadow-purple-500/5 animate-slide-up">
-              {renderStepIndicator()}
+            <div className="flex items-center justify-center gap-1 mb-4">
+              {[0, 1, 2].map((i) => (
+                <div
+                  key={i}
+                  className={`h-1.5 rounded-full transition-all duration-300 ${
+                    i <= step ? "flex-1 bg-ethiopic-green" : "flex-1 bg-gray-200"
+                  }`}
+                  style={{ maxWidth: i === 2 ? 'auto' : '60px' }}
+                />
+              ))}
+            </div>
 
-              <div className="grid grid-cols-2 gap-3 mb-4">
-                {goals.map((g) => {
-                  const isSelected = selectedGoals.includes(g.id)
-                  return (
-                    <button
-                      key={g.id}
-                      onClick={() => toggleGoal(g.id)}
-                      className={`p-4 rounded-[1.5rem] flex flex-col items-center justify-center gap-3 text-center transition-all duration-200 aspect-square ${isSelected
-                          ? "bg-gradient-to-br from-cyan-50 to-blue-50 border-2 border-cyan-400 shadow-lg shadow-cyan-500/10"
-                          : "bg-white/80 border-2 border-transparent hover:border-gray-200 shadow-sm"
-                        }`}
-                    >
-                      <div className={isSelected ? "text-cyan-600" : "text-gray-400"}>{g.icon}</div>
-                      <span className={`text-xs font-bold leading-tight ${isSelected ? "text-gray-900" : "text-gray-500"}`}>
-                        {g.label}
+            <div className="space-y-2 max-w-sm mx-auto">
+              {goals.map((goal) => {
+                const isSelected = selectedGoals.includes(goal.id)
+                return (
+                  <button
+                    key={goal.id}
+                    onClick={() => toggleGoal(goal.id)}
+                    className={`w-full flex items-center gap-3 p-3.5 rounded-xl border-2 transition-all text-left ${
+                      isSelected
+                        ? "border-ethiopic-green bg-ethiopic-green/5"
+                        : "border-gray-200 hover:border-ethiopic-green/30"
+                    }`}
+                  >
+                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                      isSelected ? "bg-ethiopic-green" : "bg-gray-100"
+                    }`}>
+                      <span className={isSelected ? "text-white" : "text-text-secondary"}>
+                        {getIcon(goal.iconType)}
                       </span>
-                    </button>
-                  )
-                })}
-              </div>
+                    </div>
+                    <div className="flex-1">
+                      <div className="text-sm font-medium text-coffee-brown">
+                        {language === 'en' ? goal.title : goal.titleAm}
+                      </div>
+                      <div className="text-xs text-text-secondary">
+                        {language === 'en' ? goal.desc : goal.descAm}
+                      </div>
+                    </div>
+                    <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${
+                      isSelected ? "border-ethiopic-green bg-ethiopic-green" : "border-gray-300"
+                    }`}>
+                      {isSelected && <Icons.Check size={12} className="text-white" />}
+                    </div>
+                  </button>
+                )
+              })}
 
               {/* Other Goal Input */}
-              <div className="relative mb-8">
+              {selectedGoals.includes('other') && (
                 <input
                   type="text"
                   value={otherGoal}
                   onChange={(e) => setOtherGoal(e.target.value)}
-                  placeholder="Other goals (e.g., Invest, Save for a car)"
-                  className="w-full bg-gray-50/50 border border-gray-200 rounded-2xl p-4 text-sm font-medium text-gray-900 focus:border-cyan-500 focus:bg-white outline-none transition-all placeholder-gray-400"
+                  placeholder={language === 'en' ? "Type your goal here..." : "ግብዎን እዚህ ይጻፉ..."}
+                  className="w-full h-11 px-4 rounded-xl bg-parchment border-2 border-ethiopic-green focus:border-ethiopic-green focus:bg-white outline-none text-sm text-coffee-brown placeholder-text-secondary"
+                  autoFocus
                 />
-              </div>
+              )}
+            </div>
 
-              <div className="flex items-center gap-4">
-                <button onClick={() => setStep(step - 1)} className="px-6 py-3 rounded-full text-sm font-bold text-gray-500 hover:bg-gray-100 transition-all">
-                  Back
-                </button>
-                <button
-                  onClick={handleNext}
-                  className="flex-1 py-3 rounded-full font-bold text-white bg-gradient-to-r from-cyan-500 to-blue-600 shadow-lg shadow-cyan-500/20 active:scale-95 transition-all"
-                >
-                  Next
-                </button>
-              </div>
+            <div className="flex gap-2 mt-6 max-w-sm mx-auto">
+              <button 
+                onClick={() => setStep(step - 1)} 
+                className="px-4 py-2.5 rounded-xl border border-gray-300 text-coffee-brown font-medium text-sm hover:bg-gray-50 transition-colors"
+              >
+                {tt.btnBack}
+              </button>
+              <button
+                onClick={handleNext}
+                className="flex-1 h-11 rounded-xl bg-ethiopic-green text-white font-semibold text-sm shadow-lg shadow-ethiopic-green/20 active:scale-[0.97] transition-all flex items-center justify-center gap-2"
+              >
+                {tt.btnNext}
+                <Icons.ChevronRight size={18} />
+              </button>
             </div>
           </>
         )
@@ -201,54 +338,64 @@ export const Onboarding: React.FC = () => {
       case 2: // PHONE
         return (
           <>
-            {/* Floating Icon */}
-            <div className="mb-6 animate-float">
-              <div className="w-24 h-24 bg-gradient-to-br from-white to-cyan-50 rounded-[2rem] shadow-xl flex items-center justify-center border border-white/50">
-                <Icons.Phone size={40} className="text-cyan-500" />
-              </div>
+            <div className="w-14 h-14 mx-auto rounded-xl bg-gradient-to-br from-ethiopic-green to-ethiopian-green-light flex items-center justify-center shadow-lg mb-4">
+              <Icons.Phone size={28} className="text-white" />
             </div>
 
-            <h2 className="text-3xl font-black text-gray-900 mb-2 text-center">
-              What's your<br />number?
+            <h2 className="font-display text-2xl font-bold text-coffee-brown text-center mb-1">
+              {tt.labelPhone}
             </h2>
-            <p className="text-gray-500 font-medium mb-8">Outfit</p> {/* Placeholder for font name in design? Or subtitle? Design says "Outfit" above title? Assuming it's a label */}
+            <p className="text-text-secondary text-xs text-center mb-4">{tt.phoneInfo}</p>
 
-            <div className="bg-white/60 backdrop-blur-xl border border-white/60 rounded-[2.5rem] p-8 w-full max-w-sm shadow-2xl shadow-purple-500/5 animate-slide-up">
-              {/* Input Area */}
-              <div className="bg-gray-50/80 border border-gray-200 rounded-2xl p-2 flex items-center mb-8 focus-within:border-cyan-500 focus-within:ring-4 focus-within:ring-cyan-500/10 transition-all">
-                <div className="flex items-center gap-2 px-3 py-2 border-r border-gray-200">
-                  <span className="text-xl">🇪🇹</span>
-                  <span className="font-bold text-gray-600">+251</span>
-                </div>
+            <div className="flex items-center justify-center gap-1 mb-4">
+              {[0, 1, 2].map((i) => (
+                <div
+                  key={i}
+                  className={`h-1.5 rounded-full transition-all duration-300 ${
+                    i <= step ? "flex-1 bg-ethiopic-green" : "flex-1 bg-gray-200"
+                  }`}
+                  style={{ maxWidth: i === 2 ? 'auto' : '60px' }}
+                />
+              ))}
+            </div>
+
+            <div className="max-w-sm mx-auto">
+              <div className="relative">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary font-medium">+251</span>
                 <input
                   type="tel"
                   value={phone}
                   onChange={(e) => {
                     const raw = e.target.value.replace(/\D/g, "")
-                    setPhone(raw.slice(0, 10))
+                    setPhone(raw.slice(0, 9))
                     setPhoneError("")
                   }}
-                  placeholder="912 345 678"
-                  className="w-full bg-transparent p-2 text-lg font-bold text-gray-900 outline-none placeholder-gray-300 tracking-wide"
+                  placeholder="91 234 5678"
+                  className={`w-full h-12 pl-16 pr-4 rounded-xl bg-parchment border-2 ${
+                    phoneError ? "border-red-500" : "border-gray-200"
+                  } focus:border-ethiopic-green focus:bg-white outline-none text-coffee-brown font-medium transition-colors`}
                   autoFocus
                 />
               </div>
-              {phoneError && <p className="text-rose-500 text-xs font-bold text-center mb-4 -mt-4">{phoneError}</p>}
+              {phoneError && (
+                <p className="text-red-500 text-xs font-medium text-center mt-2">{phoneError}</p>
+              )}
+            </div>
 
-              {renderStepIndicator()}
-              <p className="text-center text-xs font-bold text-gray-400 mb-8">Step 2 of 4</p>
-
-              <div className="flex items-center gap-4">
-                <button onClick={() => setStep(step - 1)} className="px-6 py-3 rounded-full text-sm font-bold text-gray-500 hover:bg-gray-100 transition-all">
-                  <Icons.ChevronLeft size={20} /> Back
-                </button>
-                <button
-                  onClick={handleNext}
-                  className="flex-1 py-3 rounded-full font-bold text-white bg-gradient-to-r from-cyan-500 to-blue-600 shadow-lg shadow-cyan-500/20 active:scale-95 transition-all"
-                >
-                  Next
-                </button>
-              </div>
+            <div className="flex gap-2 mt-6 max-w-sm mx-auto">
+              <button 
+                onClick={() => setStep(step - 1)} 
+                className="px-4 py-2.5 rounded-xl border border-gray-300 text-coffee-brown font-medium text-sm hover:bg-gray-50 transition-colors"
+              >
+                {tt.btnBack}
+              </button>
+              <button
+                onClick={handleNext}
+                className="flex-1 h-11 rounded-xl bg-ethiopic-green text-white font-semibold text-sm shadow-lg shadow-ethiopic-green/20 active:scale-[0.97] transition-all flex items-center justify-center gap-2"
+              >
+                {tt.btnNext}
+                <Icons.ChevronRight size={18} />
+              </button>
             </div>
           </>
         )
@@ -256,71 +403,65 @@ export const Onboarding: React.FC = () => {
       case 3: // NAME
         return (
           <>
-            {renderStepIndicator()} {/* Design shows indicator at top for this step? No, inside card usually. Let's stick to consistent card layout */}
-
-            <div className="mb-6 animate-float">
-              <div className="w-24 h-24 bg-gradient-to-br from-white to-purple-50 rounded-[2rem] shadow-xl flex items-center justify-center border border-white/50">
-                <Icons.User size={40} className="text-purple-500" />
-              </div>
+            <div className="w-14 h-14 mx-auto rounded-xl bg-gradient-to-br from-ethiopic-green to-ethiopian-green-light flex items-center justify-center shadow-lg mb-4">
+              <Icons.User size={28} className="text-white" />
             </div>
 
-            <h2 className="text-3xl font-black text-gray-900 mb-8 text-center leading-tight">
-              What should<br />we call you?
+            <h2 className="font-display text-2xl font-bold text-coffee-brown text-center mb-1">
+              {tt.detailsTitle}
             </h2>
+            <p className="text-text-secondary text-xs text-center mb-4">{tt.detailsDesc}</p>
 
-            <div className="bg-white/60 backdrop-blur-xl border border-white/60 rounded-[2.5rem] p-8 w-full max-w-sm shadow-2xl shadow-purple-500/5 animate-slide-up">
+            <div className="flex items-center justify-center gap-1 mb-4">
+              {[0, 1, 2].map((i) => (
+                <div
+                  key={i}
+                  className={`h-1.5 rounded-full transition-all duration-300 ${
+                    i <= step ? "flex-1 bg-ethiopic-green" : "flex-1 bg-gray-200"
+                  }`}
+                  style={{ maxWidth: i === 2 ? 'auto' : '60px' }}
+                />
+              ))}
+            </div>
 
-              <div className="mb-8">
+            <div className="space-y-3 max-w-sm mx-auto">
+              <div>
+                <label className="block text-xs font-medium text-coffee-brown mb-1.5">{tt.labelFirstname}</label>
                 <input
                   type="text"
-                  value={name}
-                  onChange={(e) => setNameInput(e.target.value)}
-                  placeholder="Your display name"
-                  className="w-full bg-gray-50/80 border border-gray-200 rounded-[1.5rem] p-5 text-center text-lg font-bold text-gray-900 outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 transition-all placeholder-gray-400"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  placeholder="e.g., Abebe"
+                  className="w-full h-11 px-4 rounded-xl bg-parchment border-2 border-gray-200 focus:border-ethiopic-green focus:bg-white outline-none text-sm text-coffee-brown placeholder-text-secondary transition-colors"
                   autoFocus
                 />
               </div>
 
-              <div className="flex items-center gap-4 mt-8">
-                <button onClick={() => setStep(step - 1)} className="px-6 py-3 rounded-full text-sm font-bold text-gray-500 hover:bg-gray-100 transition-all flex items-center gap-2">
-                  <Icons.ChevronLeft size={18} /> Back
-                </button>
-                <button
-                  onClick={handleNext}
-                  className="flex-1 py-3 rounded-full font-bold text-white bg-gradient-to-r from-emerald-400 to-emerald-600 shadow-lg shadow-emerald-500/20 active:scale-95 transition-all flex items-center justify-center gap-2"
-                >
-                  Next <Icons.ChevronRight size={18} />
-                </button>
+              <div>
+                <label className="block text-xs font-medium text-coffee-brown mb-1.5">{tt.labelLastname}</label>
+                <input
+                  type="text"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  placeholder="e.g., Birhanu"
+                  className="w-full h-11 px-4 rounded-xl bg-parchment border-2 border-gray-200 focus:border-ethiopic-green focus:bg-white outline-none text-sm text-coffee-brown placeholder-text-secondary transition-colors"
+                />
               </div>
             </div>
-          </>
-        )
 
-      case 4: // COMPLETION
-        return (
-          <>
-            <h1 className="text-4xl font-black text-gray-900 mb-8 text-center">You're all set!</h1>
-
-            <div className="bg-white/60 backdrop-blur-xl border border-white/60 rounded-[2.5rem] p-8 w-full max-w-sm shadow-2xl shadow-cyan-500/5 animate-scale-up text-center relative overflow-hidden">
-
-              {/* Shield Icon */}
-              <div className="w-40 h-40 mx-auto mb-6 relative">
-                <div className="absolute inset-0 bg-gradient-to-tr from-cyan-400/20 to-blue-500/20 rounded-full blur-2xl animate-pulse"></div>
-                <Icons.Shield size={120} className="text-cyan-500 relative z-10 drop-shadow-2xl" strokeWidth={1} />
-                <div className="absolute inset-0 flex items-center justify-center z-20">
-                  <Icons.Check size={48} className="text-white drop-shadow-md" strokeWidth={4} />
-                </div>
-              </div>
-
-              <p className="text-gray-600 font-medium leading-relaxed mb-10">
-                Our AI has personalized your profile.<br />Welcome to Liq Finance.
-              </p>
-
+            <div className="flex gap-2 mt-6 max-w-sm mx-auto">
+              <button 
+                onClick={() => setStep(step - 1)} 
+                className="px-4 py-2.5 rounded-xl border border-gray-300 text-coffee-brown font-medium text-sm hover:bg-gray-50 transition-colors"
+              >
+                {tt.btnBack}
+              </button>
               <button
                 onClick={handleNext}
-                className="w-full py-4 rounded-[1.5rem] font-bold text-lg text-white bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 transition-all shadow-xl shadow-cyan-500/20 active:scale-[0.98]"
+                className="flex-1 h-11 rounded-xl bg-ethiopic-green text-white font-semibold text-sm shadow-lg shadow-ethiopic-green/20 active:scale-[0.97] transition-all flex items-center justify-center gap-2"
               >
-                Go to Dashboard
+                {tt.btnFinish}
+                <Icons.Home size={18} />
               </button>
             </div>
           </>
@@ -332,26 +473,19 @@ export const Onboarding: React.FC = () => {
   }
 
   return (
-    <div className="fixed inset-0 z-[200] flex flex-col items-center justify-center p-4 overflow-hidden bg-[#f0f4f8]">
-      {/* HOLOGRAPHIC BACKGROUND */}
-      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-[-20%] left-[-20%] w-[80%] h-[80%] bg-purple-200/40 rounded-full blur-[100px] animate-blob"></div>
-        <div className="absolute top-[-10%] right-[-20%] w-[70%] h-[70%] bg-cyan-200/40 rounded-full blur-[100px] animate-blob animation-delay-2000"></div>
-        <div className="absolute bottom-[-20%] left-[20%] w-[60%] h-[60%] bg-emerald-200/40 rounded-full blur-[100px] animate-blob animation-delay-4000"></div>
-        <div className="absolute inset-0 bg-white/30 backdrop-blur-[2px]"></div>
-      </div>
+    <div className="min-h-screen bg-parchment px-5 py-8 flex flex-col">
+      {/* Language Toggle */}
+      <button
+        onClick={() => setLanguage(language === 'en' ? 'am' : 'en')}
+        className="fixed top-4 right-4 z-50 flex items-center gap-1 px-2.5 py-1 rounded-full bg-ethiopic-green text-white text-xs font-semibold shadow-md"
+      >
+        <span>{language === 'en' ? '🇪🇹' : '🇺🇸'}</span>
+        <span>{language === 'en' ? 'EN' : 'አማ'}</span>
+      </button>
 
-      {/* Main Content Container */}
-      <div className="relative z-10 w-full flex flex-col items-center justify-center">
-        {renderContent()}
-      </div>
-
-      {/* Consent Banner (Only on last step or hidden?) - Keeping it hidden or minimal as per design focus */}
-      {step === 4 && (
-        <div className="absolute bottom-4 left-0 right-0 z-20 flex justify-center">
-          <p className="text-[10px] text-gray-400">By continuing, you agree to our Terms & Privacy Policy</p>
-        </div>
-      )}
+      {renderContent()}
     </div>
   )
 }
+
+export default Onboarding
