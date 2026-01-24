@@ -6,6 +6,7 @@
 import React, { useState } from 'react'
 import { Shield, AlertTriangle, ChevronRight, X } from 'lucide-react'
 import { useConsent } from '@/hooks/useConsent'
+import { logger } from '@/lib/production-logger'
 
 interface ConsentReminderProps {
     consentType: string
@@ -39,7 +40,7 @@ export const ConsentReminder: React.FC<ConsentReminderProps> = ({
             await updateConsent(consentType, true)
             onConsentGranted?.()
         } catch (error) {
-            console.error('Error granting consent:', error)
+            logger.error('Error granting consent:', error)
         } finally {
             setIsUpdating(false)
         }
